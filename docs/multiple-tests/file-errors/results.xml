@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<checkstyle version="4.3">
+    <file name="wslua_gui.c">
+        <error message="Syntax error at line src/hello-broken.c:119:\n `struct` was unexpected" />
+    </file>
+</checkstyle>

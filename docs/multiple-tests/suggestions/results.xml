@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<checkstyle version="1.5">
+    <file name="exit.py">
+        <error source="use-sys-exit" line="1" message="Use `sys.exit` over the python shell `exit` built-in." severity="warning" suggestion="sys.exit(1)" />
+    </file>
+</checkstyle>

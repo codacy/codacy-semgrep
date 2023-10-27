@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<checkstyle version="1.5">
+    <file name="exec.py">
+        <error source="python.lang.security.audit.exec-detected.exec-detected" line="2" message="Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content." severity="error" />
+        <error source="python.lang.security.audit.exec-detected.exec-detected" line="6" message="Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content." severity="error" />
+        <error source="python.lang.security.audit.exec-detected.exec-detected" line="10" message="Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content." severity="error" />
+        <error source="python.lang.security.audit.exec-detected.exec-detected" line="12" message="Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content." severity="error" />
+    </file>
+</checkstyle>
