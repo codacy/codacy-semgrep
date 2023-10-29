@@ -1,0 +1,2 @@
+## python.lang.correctness.exit.use-sys-exit
+Detected use of `exit`. Use `sys.exit` over the python shell `exit` built-in. `exit` is a helper for the interactive shell and may not be available on all Python implementations.
