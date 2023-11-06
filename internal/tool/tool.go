@@ -1,10 +1,14 @@
 package tool
 
 import (
+	"bufio"
 	"bytes"
 	"context"
-	"fmt"
+	"encoding/json"
+	"errors"
+	"os"
 	"os/exec"
+	"strings"
 
 	codacy "github.com/codacy/codacy-engine-golang-seed/v6"
 )
@@ -23,51 +27,107 @@ var _ codacy.Tool = (*codacySemgrep)(nil)
 
 // Run runs the Semgrep implementation
 func (s codacySemgrep) Run(ctx context.Context, toolExecution codacy.ToolExecution) ([]codacy.Result, error) {
-	fmt.Println("here")
-	fmt.Println("*toolExecution.Patterns", *toolExecution.Patterns)
-	fmt.Println("len(*toolExecution.Patterns)", len(*toolExecution.Patterns))
-	fmt.Println("len(*toolExecution.Files)", len(*toolExecution.Files))
-	if toolExecution.Patterns == nil || len(*toolExecution.Patterns) == 0 || len(*toolExecution.Files) == 0 {
-		// TODO Use configuration from the tool configuration file or the default rules from the tool's definition (in that order).
-		return []codacy.Result{}, nil
+	// configFile, err := getConfigurationFile(tool.Patterns, sourceDir)
+	// if err == nil {
+	// 	defer os.Remove(configFile.Name())
+	// }
+
+	// filesToAnalyse, err := getListOfFilesToAnalyse(tool.Files, sourceDir)
+	// if err != nil {
+	// 	return nil, errors.New("Error getting files to analyse: " + err.Error())
+	// }
+
+	reviveCmd := semgrepCommand(nil, *toolExecution.Files, toolExecution.SourceDir)
+
+	reviveOutput, reviveError, err := runCommand(reviveCmd)
+	if err != nil {
+		return nil, errors.New("Error running revive: " + reviveError)
 	}
 
-	// TODO Have here a condition to see which files to analyze
-	files := *toolExecution.Files
-	fmt.Println("files", files)
-
-	return s.run(ctx, *toolExecution.Patterns, files)
+	result := parseOutput(reviveOutput)
+	return result, nil
 }
 
-func (s codacySemgrep) run(ctx context.Context, toolPatterns []codacy.Pattern, files []string) ([]codacy.Result, error) {
-	// TODO make this run the correct semgrep command
-	fmt.Println("run")
-	cmd := exec.Command("semgrep", "-lang python -rules /docs/multiple-tests/with-config-file/src/.semgrep.yaml /docs/multiple-tests/with-config-file/src/exec.py -json -json_nodots" )
-	fmt.Println("cmd", cmd)
+type SemgrepOutput struct {
+	Results []SemgrepResult
+}
 
-	// cmd.Dir = sourceDir
-	output, _, err := runCommand(cmd)
-	if err != nil {
-		fmt.Println("err", err.Error())
-		return nil, err
+type SemgrepResult struct {
+	CheckID       string          `json:"check_id"`
+	Path          string          `json:"path"`
+	StartLocation SemgrepLocation `json:"start"`
+	EndLocation   SemgrepLocation `json:"end"`
+	Extra         SemgrepExtra    `json:"extra"`
+}
+
+type SemgrepLocation struct {
+	Line int `json:"line"`
+}
+
+type SemgrepExtra struct {
+	Message string `json:"message"`
+}
+
+func getConfigFileParam(configFile *os.File) []string {
+	if configFile != nil {
+		return []string{
+			"-config",
+			configFile.Name(),
+		}
+	}
+	return []string{}
+}
+
+func commandParameters(configFile *os.File, filesToAnalyse []string) []string {
+	cmdParams := append(
+		[]string{
+			"-json", "-json_nodots",
+			"-lang", "python", "-rules", "/docs/multiple-tests/with-config-file/src/.semgrep.yaml",
+		},
+		getConfigFileParam(configFile)...,
+	)
+
+	cmdParams = append(cmdParams, filesToAnalyse...)
+
+	return cmdParams
+}
+
+func parseOutput(commandOutput string) []codacy.Result {
+	var result []codacy.Result
+
+	scanner := bufio.NewScanner(strings.NewReader(commandOutput))
+	for scanner.Scan() {
+		var semgrepOutput SemgrepOutput
+		json.Unmarshal([]byte(scanner.Text()), &semgrepOutput)
+
+		for _, semgrepRes := range semgrepOutput.Results {
+			result = append(result, codacy.Issue{
+				PatternID: semgrepRes.CheckID,
+				Message:   semgrepRes.Extra.Message,
+				Line:      semgrepRes.StartLocation.Line,
+				File:      semgrepRes.Path,
+			})
+		}
 	}
 
-	fmt.Println(output)
+	return result
+}
 
-	return nil, nil
+func semgrepCommand(configFile *os.File, filesToAnalyse []string, sourceDir string) *exec.Cmd {
+	params := commandParameters(configFile, filesToAnalyse)
+
+	cmd := exec.Command("semgrep", params...)
+	cmd.Dir = sourceDir
+
+	return cmd
 }
 
 func runCommand(cmd *exec.Cmd) (string, string, error) {
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
-	for _, arg := range cmd.Args {
-		fmt.Println("command", arg)
-	}
 
 	cmdOutput, err := cmd.Output()
 	if err != nil {
-		fmt.Println("cmdOutput", cmdOutput)
-		fmt.Println("runCommandError", err.Error())
 		return "", stderr.String(), err
 	}
 	return string(cmdOutput), "", nil
