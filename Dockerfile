@@ -6,11 +6,12 @@ FROM golang:1.21.0-alpine3.18 as builder
 
 WORKDIR /src
 
-COPY . .
-
 ADD go.mod go.mod
 ADD go.sum go.sum
 RUN go mod download
+
+ADD cmd cmd
+ADD internal internal
 
 RUN go build -o bin/codacy-semgrep -ldflags="-s -w" ./cmd/tool
 
