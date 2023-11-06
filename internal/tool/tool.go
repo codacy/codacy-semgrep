@@ -8,10 +8,13 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 
 	codacy "github.com/codacy/codacy-engine-golang-seed/v6"
 )
+
+const sourceConfigFileName = ".semgrep.yaml"
 
 // New creates a new instance of Codacy Semgrep.
 func New() codacySemgrep {
@@ -27,24 +30,24 @@ var _ codacy.Tool = (*codacySemgrep)(nil)
 
 // Run runs the Semgrep implementation
 func (s codacySemgrep) Run(ctx context.Context, toolExecution codacy.ToolExecution) ([]codacy.Result, error) {
-	// configFile, err := getConfigurationFile(tool.Patterns, sourceDir)
-	// if err == nil {
-	// 	defer os.Remove(configFile.Name())
-	// }
+	configFile, err := getConfigurationFile(*toolExecution.Patterns, toolExecution.SourceDir)
+	if err == nil {
+		defer os.Remove(configFile.Name())
+	}
 
 	// filesToAnalyse, err := getListOfFilesToAnalyse(tool.Files, sourceDir)
 	// if err != nil {
 	// 	return nil, errors.New("Error getting files to analyse: " + err.Error())
 	// }
 
-	reviveCmd := semgrepCommand(nil, *toolExecution.Files, toolExecution.SourceDir)
+	semgrepCmd := semgrepCommand(configFile, *toolExecution.Files, toolExecution.SourceDir)
 
-	reviveOutput, reviveError, err := runCommand(reviveCmd)
+	semgrepOutput, semgrepError, err := runCommand(semgrepCmd)
 	if err != nil {
-		return nil, errors.New("Error running revive: " + reviveError)
+		return nil, errors.New("Error running semgrep: " + semgrepError)
 	}
 
-	result := parseOutput(reviveOutput)
+	result := parseOutput(semgrepOutput)
 	return result, nil
 }
 
@@ -68,10 +71,50 @@ type SemgrepExtra struct {
 	Message string `json:"message"`
 }
 
+func configurationFromSourceCode(sourceFolder string) (string, error) {
+	filename := path.Join(sourceFolder, sourceConfigFileName)
+	contentByte, err := os.ReadFile(filename)
+	return string(contentByte), err
+}
+
+func writeToTempFile(content string) (*os.File, error) {
+	tmpFile, err := os.CreateTemp(os.TempDir(), "semgrep-")
+	if err != nil {
+		return nil, err
+	}
+	if _, err = tmpFile.Write([]byte(content)); err != nil {
+		return nil, err
+	}
+	if err := tmpFile.Close(); err != nil {
+		return nil, err
+	}
+
+	return tmpFile, nil
+}
+
+func getConfigurationFile(patterns []codacy.Pattern, sourceFolder string) (*os.File, error) {
+	// if no patterns, try to use configuration from source code
+	// otherwise default configuration file
+	if len(patterns) == 0 {
+		sourceConfigFileContent, err := configurationFromSourceCode(sourceFolder)
+		if err == nil {
+			return writeToTempFile(sourceConfigFileContent)
+		}
+
+		return nil, err
+	}
+
+	// TODO: generate configuration file from patterns and auto config file
+	// content := generateToolConfigurationContent(patterns)
+
+	// return writeToTempFile(content)
+	return nil, nil
+}
+
 func getConfigFileParam(configFile *os.File) []string {
 	if configFile != nil {
 		return []string{
-			"-config",
+			"-rules",
 			configFile.Name(),
 		}
 	}
@@ -82,7 +125,7 @@ func commandParameters(configFile *os.File, filesToAnalyse []string) []string {
 	cmdParams := append(
 		[]string{
 			"-json", "-json_nodots",
-			"-lang", "python", "-rules", "/docs/multiple-tests/with-config-file/src/.semgrep.yaml",
+			"-lang", "python", // TODO: get language from toolExecution?
 		},
 		getConfigFileParam(configFile)...,
 	)
@@ -106,6 +149,7 @@ func parseOutput(commandOutput string) []codacy.Result {
 				Message:   semgrepRes.Extra.Message,
 				Line:      semgrepRes.StartLocation.Line,
 				File:      semgrepRes.Path,
+				// TODO: add fix suggestion
 			})
 		}
 	}
