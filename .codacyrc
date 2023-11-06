@@ -1,0 +1,13 @@
+{
+  "files" : ["docs/multiple-tests/without-config-file/src/exec.py"],
+  "tools":[
+    {
+      "name":"semgrep",
+      "patterns":[
+        {
+          "patternId":"python.lang.security.audit.exec-detected.exec-detected"
+        }
+      ]
+    }
+  ]
+}
