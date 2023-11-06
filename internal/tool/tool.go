@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	codacy "github.com/codacy/codacy-engine-golang-seed/v6"
+	"github.com/samber/lo"
 )
 
 const sourceConfigFileName = ".semgrep.yaml"
@@ -47,7 +48,7 @@ func (s codacySemgrep) Run(ctx context.Context, toolExecution codacy.ToolExecuti
 		return nil, errors.New("Error running semgrep: " + semgrepError)
 	}
 
-	result := parseOutput(semgrepOutput)
+	result := parseOutput(toolExecution.ToolDefinition, semgrepOutput)
 	return result, nil
 }
 
@@ -68,7 +69,8 @@ type SemgrepLocation struct {
 }
 
 type SemgrepExtra struct {
-	Message string `json:"message"`
+	Message     string `json:"message"`
+	RenderedFix string `json:"rendered_fix,omitempty"`
 }
 
 func configurationFromSourceCode(sourceFolder string) (string, error) {
@@ -135,7 +137,7 @@ func commandParameters(configFile *os.File, filesToAnalyse []string) []string {
 	return cmdParams
 }
 
-func parseOutput(commandOutput string) []codacy.Result {
+func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) []codacy.Result {
 	var result []codacy.Result
 
 	scanner := bufio.NewScanner(strings.NewReader(commandOutput))
@@ -144,12 +146,15 @@ func parseOutput(commandOutput string) []codacy.Result {
 		json.Unmarshal([]byte(scanner.Text()), &semgrepOutput)
 
 		for _, semgrepRes := range semgrepOutput.Results {
+			pattern, _ := lo.Find(toolDefinition.Patterns, func(e codacy.Pattern) bool {
+				return strings.HasSuffix(e.ID, semgrepRes.CheckID)
+			})
 			result = append(result, codacy.Issue{
-				PatternID: semgrepRes.CheckID,
-				Message:   semgrepRes.Extra.Message,
-				Line:      semgrepRes.StartLocation.Line,
-				File:      semgrepRes.Path,
-				// TODO: add fix suggestion
+				PatternID:  pattern.ID,
+				Message:    semgrepRes.Extra.Message,
+				Line:       semgrepRes.StartLocation.Line,
+				File:       semgrepRes.Path,
+				Suggestion: semgrepRes.Extra.RenderedFix,
 			})
 		}
 	}
