@@ -1,0 +1,2 @@
+## python.lang.security.audit.exec-detected.exec-detected
+Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content. If this content can be input from outside the program, this may be a code injection vulnerability. Ensure evaluated content is not definable by external sources.
