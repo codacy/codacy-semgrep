@@ -151,7 +151,7 @@ func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) []c
 			})
 			result = append(result, codacy.Issue{
 				PatternID:  pattern.ID,
-				Message:    semgrepRes.Extra.Message,
+				Message:    strings.TrimSpace(semgrepRes.Extra.Message),
 				Line:       semgrepRes.StartLocation.Line,
 				File:       semgrepRes.Path,
 				Suggestion: semgrepRes.Extra.RenderedFix,

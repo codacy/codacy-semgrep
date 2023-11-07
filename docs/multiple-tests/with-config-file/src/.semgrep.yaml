@@ -1,5 +1,5 @@
 rules:
-  - id: exec-detected
+  - id: python.lang.security.audit.exec-detected.exec-detected
     patterns:
       - pattern-not: exec("...")
       - pattern: exec(...)
