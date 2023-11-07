@@ -12,3 +12,8 @@ target
 bin
 cache
 *.gen.go
+
+# Ignore generated documentation files to avoid licensing issues
+docs/patterns.json
+docs/description/*.md
+docs/description/*.json

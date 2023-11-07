@@ -15,6 +15,10 @@ ADD internal internal
 
 RUN go build -o bin/codacy-semgrep -ldflags="-s -w" ./cmd/tool
 
+ADD .tool_version .tool_version
+COPY docs/ /docs/
+RUN go run ./cmd/docgen -docFolder /docs
+
 # Semgrep official image used to copy the semgrep binary
 
 FROM returntocorp/semgrep:1.46.0 as semgrep-cli
@@ -28,8 +32,7 @@ COPY --from=semgrep-cli /usr/local/bin/semgrep-core /usr/bin/semgrep
 COPY --from=semgrep-cli /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 COPY --from=builder /src/bin /dist/bin
-
-COPY docs/ /docs/
+COPY --from=builder /docs/ /docs/
 
 RUN adduser -u 2004 -D docker
 RUN chown -R docker:docker /docs
