@@ -10,9 +10,10 @@ ADD go.mod go.mod
 ADD go.sum go.sum
 RUN go mod download
 
-ADD main.go main.go
+ADD cmd cmd
+ADD internal internal
 
-RUN go build -o bin/codacy-semgrep -ldflags="-s -w"
+RUN go build -o bin/codacy-semgrep -ldflags="-s -w" ./cmd/tool
 
 # Semgrep official image used to copy the semgrep binary
 
