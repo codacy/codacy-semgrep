@@ -36,6 +36,7 @@ type Rule struct {
 	Level       Level
 	Category    Category
 	SubCategory SubCategory
+	Languages   []string
 	Enabled     bool
 	Explanation string
 }
@@ -46,6 +47,7 @@ func (r Rule) toCodacyPattern() codacy.Pattern {
 		Category:    string(r.Category),
 		SubCategory: string(r.SubCategory),
 		Level:       string(r.Level),
+		Languages:   r.Languages,
 		Enabled:     r.Enabled,
 	}
 }

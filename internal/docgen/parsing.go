@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/samber/lo"
 	yaml "gopkg.in/yaml.v3"
 )
 
@@ -59,6 +60,7 @@ func semgrepRules() Rules {
 				Level:       toCodacyLevel(r.Severity),
 				Category:    toCodacyCategory(r.Metadata.Category),
 				SubCategory: getCodacySubCategory(toCodacyCategory(r.Metadata.Category), ""), // TODO: Get subcategory from semgrep
+				Languages:   toCodacyLanguages(r),
 				Enabled:     isEnabledByDefault(r.ID),
 				Explanation: r.Message,
 			})
@@ -67,6 +69,72 @@ func semgrepRules() Rules {
 	return rules
 }
 
+// https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/languages/Language.scala#L41
+func toCodacyLanguages(r SemgrepRule) []string {
+	return lo.Map(
+		lo.Filter(r.Languages, func(s string, index int) bool {
+			return s != "generic" && s != "regex" && // internal rules?
+				s != "lua" && s != "ocaml" && s != "html" && s != "solidity" // not supported by Codacy
+		}),
+		func(s string, index int) string {
+			switch s {
+			case "python":
+				return "Python"
+			case "bash":
+				return "Shell"
+			case "c":
+				return "C"
+			case "clojure":
+				return "Clojure"
+			case "javascript":
+				return "Javascript"
+			case "js":
+				return "Javascript"
+			case "java":
+				return "Java"
+			case "csharp":
+				return "CSharp"
+			case "C#":
+				return "CSharp"
+			case "dockerfile":
+				return "Dockerfile"
+			case "go":
+				return "Go"
+			case "json":
+				return "JSON"
+			case "kotlin":
+				return "Kotlin"
+			case "kt":
+				return "Kotlin"
+			case "php":
+				return "PHP"
+			case "ruby":
+				return "Ruby"
+			case "rust":
+				return "Rust"
+			case "scala":
+				return "Scala"
+			case "sh":
+				return "Shell"
+			case "ts":
+				return "TypeScript"
+			case "typescript":
+				return "TypeScript"
+			case "yaml":
+				return "YAML"
+			case "swift":
+				return "Swift"
+			case "hcl":
+				return "Terraform"
+			case "terraform":
+				return "Terraform"
+			default:
+				panic(fmt.Sprintf("unknown language: %s %s", s, r.ID))
+			}
+		})
+}
+
+// https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Pattern.scala#L49
 func getCodacySubCategory(category Category, s string) SubCategory {
 	if category == Security {
 		return Other
@@ -95,6 +163,7 @@ func getFirstSentence(s string) string {
 	return s
 }
 
+// https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Pattern.scala#L43
 func toCodacyCategory(s string) Category {
 	switch s {
 	case "security":
@@ -114,6 +183,7 @@ func toCodacyCategory(s string) Category {
 	}
 }
 
+// https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Result.scala#L36
 func toCodacyLevel(s string) Level {
 	switch s {
 	case "ERROR":

@@ -27,6 +27,8 @@ func New() DocumentationGenerator {
 type documentationGenerator struct{}
 
 func (g documentationGenerator) Generate(destinationDir string) error {
+	fmt.Println("Getting Semgrep rules...")
+
 	semgrepRules := semgrepRules()
 
 	toolVersion, err := toolVersion()
@@ -55,7 +57,7 @@ func toolVersion() (string, error) {
 }
 
 func (g documentationGenerator) createPatternsFile(rules Rules, toolVersion, destinationDir string) error {
-	fmt.Println("Creating patterns file...")
+	fmt.Println("Creating patterns.json file...")
 
 	patternsFile := "patterns.json"
 
@@ -77,7 +79,7 @@ func (g documentationGenerator) createPatternsFile(rules Rules, toolVersion, des
 }
 
 func (g documentationGenerator) createPatternsDescriptionFiles(rules Rules, destinationDir string) error {
-	fmt.Println("Creating description files...")
+	fmt.Println("Creating description/*.md files...")
 
 	patternsDescriptionFolder := "description"
 	patternsDescriptionFile := "description.json"
@@ -90,6 +92,8 @@ func (g documentationGenerator) createPatternsDescriptionFiles(rules Rules, dest
 			return newFileCreationError(fileName, err)
 		}
 	}
+
+	fmt.Println("Creating description.json file...")
 
 	patternsDescription := rules.toCodacyPatternDescription()
 
