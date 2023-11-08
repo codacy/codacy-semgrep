@@ -54,7 +54,7 @@ func toolVersion() (string, error) {
 	return strings.Trim(string(versionBytes), "\n"), nil
 }
 
-func (g documentationGenerator) createPatternsFile(rules Rules, toolVersion, destinationDir string) error {
+func (g documentationGenerator) createPatternsFile(rules PatternsWithExplanation, toolVersion, destinationDir string) error {
 	fmt.Println("Creating patterns.json file...")
 
 	patternsFile := "patterns.json"
@@ -76,7 +76,7 @@ func (g documentationGenerator) createPatternsFile(rules Rules, toolVersion, des
 	return nil
 }
 
-func (g documentationGenerator) createPatternsDescriptionFiles(rules Rules, destinationDir string) error {
+func (g documentationGenerator) createPatternsDescriptionFiles(rules PatternsWithExplanation, destinationDir string) error {
 	fmt.Println("Creating description/*.md files...")
 
 	patternsDescriptionFolder := "description"

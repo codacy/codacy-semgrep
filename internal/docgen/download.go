@@ -14,6 +14,9 @@ import (
 	"github.com/samber/lo"
 )
 
+// Downloads Semgrep rules from the official repository.
+// Downloads the default rules from the Registry.
+
 func getAllRules() ([]SemgrepRule, error) {
 	rulesFiles, err := downloadRepo("https://github.com/semgrep/semgrep-rules")
 	if err != nil {
@@ -37,6 +40,7 @@ type SemgrepRuleFile struct {
 	Fullpath string
 }
 
+// TODO: Refactor this function
 func downloadRepo(url string) ([]SemgrepRuleFile, error) {
 	out, err := os.MkdirTemp(os.TempDir(), "tmp-semgrep-")
 	if err != nil {

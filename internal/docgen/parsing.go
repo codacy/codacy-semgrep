@@ -11,6 +11,9 @@ import (
 	yaml "gopkg.in/yaml.v3"
 )
 
+// Parses Semgrep rules from YAML files.
+// Converts them to the intermediate Rule representation.
+
 type SemgrepRule struct {
 	ID        string              `yaml:"id"`
 	Message   string              `yaml:"message"`
@@ -27,6 +30,7 @@ type SemgrepConfig struct {
 	Rules []SemgrepRule `yaml:"rules"`
 }
 
+// TODO: Refactor this function
 func readRulesFromYaml(yamlFile SemgrepRuleFile) ([]SemgrepRule, error) {
 	buf, err := os.ReadFile(yamlFile.Fullpath)
 	if err != nil {
@@ -52,31 +56,99 @@ func readRulesFromYaml(yamlFile SemgrepRuleFile) ([]SemgrepRule, error) {
 	return rules, nil
 }
 
-// semgrepRules returns all `codacy-semgrep` Rules.
-func semgrepRules() Rules {
+// Returns all `codacy-semgrep` rules
+func semgrepRules() []PatternWithExplanation {
 	fmt.Println("Getting Semgrep rules...")
 	allRules, _ := getAllRules()
 
 	fmt.Println("Getting Semgrep default rules...")
 	defaultRules, _ := getDefaultRules()
 
-	rules := make(Rules, 0)
+	fmt.Println("Converting Semgrep rules...")
+	pwes := make(PatternsWithExplanation, len(allRules))
 	for _, r := range allRules {
-		rules = append(rules,
-			Rule{
+		pwes = append(pwes,
+			PatternWithExplanation{
 				ID:          r.ID,
 				Title:       getLastSegment(r.ID),
 				Description: getFirstSentence(r.Message),
 				Level:       toCodacyLevel(r.Severity),
 				Category:    toCodacyCategory(r),
-				SubCategory: getCodacySubCategory(toCodacyCategory(r), ""), // TODO: Get subcategory from semgrep
+				// TODO: Get subcategory from semgrep
+				SubCategory: getCodacySubCategory(toCodacyCategory(r), ""),
 				Languages:   toCodacyLanguages(r),
 				Enabled:     isEnabledByDefault(defaultRules, r.ID),
 				Explanation: r.Message,
 			})
 	}
 
-	return rules
+	return pwes
+}
+
+// TODO: Test this function
+func getLastSegment(s string) string {
+	segments := strings.Split(s, ".")
+	lastSegment := strings.TrimSpace(segments[len(segments)-1])
+	return lastSegment
+}
+
+// TODO: Test this function
+func getFirstSentence(s string) string {
+	r := regexp.MustCompile(`(^.*?[a-z]{2,}[.!?])\s+\W*[A-Z]`)
+	matches := r.FindStringSubmatch(s)
+	if len(matches) > 0 {
+		return matches[1]
+	}
+	// The max size of a description is 500 characters
+	return lo.Substring(s, 0, 500)
+}
+
+// https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Result.scala#L36
+func toCodacyLevel(s string) Level {
+	switch s {
+	case "ERROR":
+		return Critical
+	case "WARNING":
+		return Medium
+	case "INFO":
+		return Low
+	default:
+		panic(fmt.Sprintf("unknown severity: %s", s))
+	}
+}
+
+// https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Pattern.scala#L43
+func toCodacyCategory(r SemgrepRule) Category {
+	switch r.Metadata.Category {
+	case "security":
+		return Security
+	case "performance":
+		return Performance
+	case "compatibility":
+		return Compatibility
+	case "portability":
+		return Compatibility
+	case "caching":
+		return Compatibility
+	case "correctness":
+		return ErrorProne
+	case "best-practice":
+		return BestPractice
+	case "maintainability":
+		return BestPractice
+	case "":
+		return BestPractice
+	default:
+		panic(fmt.Sprintf("unknown category: %s %s", r.Metadata.Category, r.ID))
+	}
+}
+
+// https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Pattern.scala#L49
+func getCodacySubCategory(category Category, s string) SubCategory {
+	if category == Security {
+		return Other
+	}
+	return ""
 }
 
 // https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/languages/Language.scala#L41
@@ -148,71 +220,8 @@ func toCodacyLanguages(r SemgrepRule) []string {
 		})
 }
 
-// https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Pattern.scala#L49
-func getCodacySubCategory(category Category, s string) SubCategory {
-	if category == Security {
-		return Other
-	}
-	return ""
-}
-
-func getLastSegment(s string) string {
-	segments := strings.Split(s, ".")
-	lastSegment := strings.TrimSpace(segments[len(segments)-1])
-	return lastSegment
-}
-
 func isEnabledByDefault(defaultRules []SemgrepRule, s string) bool {
 	return lo.ContainsBy(defaultRules, func(r SemgrepRule) bool {
 		return r.ID == s
 	})
-}
-
-func getFirstSentence(s string) string {
-	r := regexp.MustCompile(`(^.*?[a-z]{2,}[.!?])\s+\W*[A-Z]`)
-	matches := r.FindStringSubmatch(s)
-	if len(matches) > 0 {
-		return matches[1]
-	}
-	return lo.Substring(s, 0, 500) // The max size of a description is 500 characters
-}
-
-// https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Pattern.scala#L43
-func toCodacyCategory(r SemgrepRule) Category {
-	switch r.Metadata.Category {
-	case "security":
-		return Security
-	case "performance":
-		return Performance
-	case "compatibility":
-		return Compatibility
-	case "portability":
-		return Compatibility
-	case "caching":
-		return Compatibility
-	case "correctness":
-		return ErrorProne
-	case "best-practice":
-		return BestPractice
-	case "maintainability":
-		return BestPractice
-	case "":
-		return BestPractice
-	default:
-		panic(fmt.Sprintf("unknown category: %s %s", r.Metadata.Category, r.ID))
-	}
-}
-
-// https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Result.scala#L36
-func toCodacyLevel(s string) Level {
-	switch s {
-	case "ERROR":
-		return Critical
-	case "WARNING":
-		return Medium
-	case "INFO":
-		return Low
-	default:
-		panic(fmt.Sprintf("unknown severity: %s", s))
-	}
 }
