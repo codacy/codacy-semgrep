@@ -78,5 +78,12 @@ const (
 type SubCategory string
 
 const (
-	Other SubCategory = "Other"
+	InsecureStorage          SubCategory = "InsecureStorage"
+	Cryptography             SubCategory = "Cryptography"
+	InputValidation          SubCategory = "InputValidation"
+	Other                    SubCategory = "Other"
+	Visibility               SubCategory = "Visibility"
+	InsecureModulesLibraries SubCategory = "InsecureModulesLibraries"
+	Auth                     SubCategory = "Auth"
+	UnexpectedBehaviour      SubCategory = "UnexpectedBehaviour"
 )

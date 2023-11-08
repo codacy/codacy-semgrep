@@ -23,7 +23,8 @@ type SemgrepRule struct {
 }
 
 type SemgrepRuleMetadata struct {
-	Category string `yaml:"category"`
+	Category string   `yaml:"category"`
+	OWASP    []string `yaml:"owasp"`
 }
 
 type SemgrepConfig struct {
@@ -74,8 +75,7 @@ func semgrepRules() []PatternWithExplanation {
 				Description: getFirstSentence(r.Message),
 				Level:       toCodacyLevel(r.Severity),
 				Category:    toCodacyCategory(r),
-				// TODO: Get subcategory from semgrep
-				SubCategory: getCodacySubCategory(toCodacyCategory(r), ""),
+				SubCategory: getCodacySubCategory(toCodacyCategory(r), r.Metadata.OWASP),
 				Languages:   toCodacyLanguages(r),
 				Enabled:     isEnabledByDefault(defaultRules, r.ID),
 				Explanation: r.Message,
@@ -142,9 +142,72 @@ func toCodacyCategory(r SemgrepRule) Category {
 }
 
 // https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Pattern.scala#L49
-func getCodacySubCategory(category Category, s string) SubCategory {
-	if category == Security {
-		return Other
+func getCodacySubCategory(category Category, OWASPCategories []string) SubCategory {
+	if category == Security && len(OWASPCategories) > 0 {
+		switch OWASPCategories[0] {
+		case "A01:2021 - Broken Access Control":
+			return InsecureStorage
+		case "A02:2021 - Cryptographic Failures":
+			return Cryptography
+		case "A02:2021 – Cryptographic Failures":
+			return Cryptography
+		case "A2:2021 Cryptographic Failures":
+			return Cryptography
+		case "A03:2021 - Injection":
+			return InputValidation
+		case "A03:2021 – Injection":
+			return InputValidation
+		case "A04:2021 - Insecure Design":
+			return Other
+		case "A05:2021 - Security Misconfiguration":
+			return Other
+		case "A5:2021 Security Misconfiguration":
+			return Other
+		case "A06:2021 - Vulnerable and Outdated Components":
+			return InsecureModulesLibraries
+		case "A07:2021 - Identification and Authentication Failures":
+			return Auth
+		case "A08:2021 - Software and Data Integrity Failures":
+			return UnexpectedBehaviour
+		case "A09:2021 - Security Logging and Monitoring Failures":
+			return Visibility
+		case "A09:2021 – Security Logging and Monitoring Failures":
+			return Visibility
+		case "A09:2021 Security Logging and Monitoring Failures":
+			return Visibility
+		case "A10:2021 - Server-Side Request Forgery (SSRF)":
+			return InputValidation
+		case "A01:2017 - Injection":
+			return InputValidation
+		case "A02:2017 - Broken Authentication":
+			return Auth
+		case "A03:2017 - Sensitive Data Exposure":
+			return Visibility
+		case "A3:2017 Sensitive Data Exposure":
+			return Visibility
+		case "A04:2017 - XML External Entities (XXE)":
+			return InputValidation
+		case "A04:2021 - XML External Entities (XXE)":
+			return InputValidation
+		case "A05:2017 - Broken Access Control":
+			return InsecureStorage
+		case "A05:2017 - Sensitive Data Exposure":
+			return InsecureStorage
+		case "A06:2017 - Security Misconfiguration":
+			return Other
+		case "A07:2017 - Cross-Site Scripting (XSS)":
+			return InputValidation
+		case "A08:2017 - Insecure Deserialization":
+			return InputValidation
+		case "A8:2017 Insecure Deserialization":
+			return InputValidation
+		case "A09:2017 - Using Components with Known Vulnerabilities":
+			return InsecureModulesLibraries
+		case "A10:2017 - Insufficient Logging & Monitoring":
+			return Visibility
+		default:
+			panic(fmt.Sprintf("unknown subcategory: %s", OWASPCategories[0]))
+		}
 	}
 	return ""
 }
