@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/go-git/go-git/v5"
@@ -19,14 +20,24 @@ func getAllRules() ([]SemgrepRule, error) {
 		return nil, err
 	}
 
-	return lo.FlatMap(rulesFiles, func(file string, index int) []SemgrepRule {
-		buf, _ := os.Open(file)
-		rs, _ := readRulesFromYaml(buf)
+	rules := lo.FlatMap(rulesFiles, func(file SemgrepRuleFile, index int) []SemgrepRule {
+		rs, _ := readRulesFromYaml(file)
 		return rs
-	}), nil
+	})
+
+	sort.Slice(rules, func(i, j int) bool {
+		return rules[i].ID < rules[j].ID
+	})
+
+	return rules, nil
 }
 
-func downloadRepo(url string) ([]string, error) {
+type SemgrepRuleFile struct {
+	Filename string
+	Fullpath string
+}
+
+func downloadRepo(url string) ([]SemgrepRuleFile, error) {
 	out, err := os.MkdirTemp(os.TempDir(), "tmp-semgrep-")
 	if err != nil {
 		log.Fatal(err)
@@ -44,7 +55,7 @@ func downloadRepo(url string) ([]string, error) {
 	commit, _ := repo.CommitObject(ref.Hash())
 	tree, _ := commit.Tree()
 
-	var files []string
+	var files []SemgrepRuleFile
 	tree.Files().ForEach(func(f *object.File) error {
 		if strings.HasSuffix(f.Name, ".yaml") && !strings.HasSuffix(f.Name, ".test.yaml") &&
 			!strings.HasPrefix(f.Name, ".") &&
@@ -53,7 +64,10 @@ func downloadRepo(url string) ([]string, error) {
 			!strings.HasPrefix(f.Name, "fingerprints/") &&
 			!strings.HasPrefix(f.Name, "scripts/") &&
 			!strings.HasPrefix(f.Name, "libsonnet/") {
-			files = append(files, filepath.Join(out, f.Name))
+			files = append(files, SemgrepRuleFile{
+				Filename: f.Name,
+				Fullpath: filepath.Join(out, f.Name),
+			})
 		}
 		return nil
 	})
@@ -66,7 +80,10 @@ func getDefaultRules() ([]SemgrepRule, error) {
 		return nil, err
 	}
 
-	return readRulesFromYaml(defaultRulesFile)
+	return readRulesFromYaml(SemgrepRuleFile{
+		Filename: defaultRulesFile.Name(),
+		Fullpath: defaultRulesFile.Name(),
+	})
 }
 
 func downloadFile(url string) (*os.File, error) {

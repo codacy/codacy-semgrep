@@ -3,8 +3,8 @@ package docgen
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 
 	"github.com/samber/lo"
@@ -27,8 +27,8 @@ type SemgrepConfig struct {
 	Rules []SemgrepRule `yaml:"rules"`
 }
 
-func readRulesFromYaml(yamlFile *os.File) ([]SemgrepRule, error) {
-	buf, err := os.ReadFile(yamlFile.Name())
+func readRulesFromYaml(yamlFile SemgrepRuleFile) ([]SemgrepRule, error) {
+	buf, err := os.ReadFile(yamlFile.Fullpath)
 	if err != nil {
 		return nil, err
 	}
@@ -36,14 +36,19 @@ func readRulesFromYaml(yamlFile *os.File) ([]SemgrepRule, error) {
 	c := &SemgrepConfig{}
 	err = yaml.Unmarshal(buf, c)
 	if err != nil {
-		return nil, fmt.Errorf("in file %q: %w", yamlFile.Name(), err)
+		return nil, fmt.Errorf("in file %q: %w", yamlFile.Filename, err)
 	}
 
-	sort.Slice(c.Rules, func(i, j int) bool {
-		return c.Rules[i].ID < c.Rules[j].ID
+	rules := lo.Map(c.Rules, func(r SemgrepRule, index int) SemgrepRule {
+		if yamlFile.Filename != yamlFile.Fullpath {
+			name := filepath.Base(yamlFile.Filename)
+			xxx := strings.TrimSuffix(name, filepath.Ext(name))
+			r.ID = strings.ReplaceAll(filepath.Dir(yamlFile.Filename), "/", ".") + xxx + "." + r.ID
+		}
+		return r
 	})
 
-	return c.Rules, nil
+	return rules, nil
 }
 
 // semgrepRules returns all `codacy-semgrep` Rules.
@@ -168,7 +173,7 @@ func getFirstSentence(s string) string {
 	if len(matches) > 0 {
 		return matches[1]
 	}
-	return s
+	return lo.Substring(s, 0, 500) // The max size of a description is 500 characters
 }
 
 // https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Pattern.scala#L43

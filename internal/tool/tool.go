@@ -12,7 +12,6 @@ import (
 	"strings"
 
 	codacy "github.com/codacy/codacy-engine-golang-seed/v6"
-	"github.com/samber/lo"
 )
 
 const sourceConfigFileName = ".semgrep.yaml"
@@ -146,11 +145,8 @@ func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) []c
 		json.Unmarshal([]byte(scanner.Text()), &semgrepOutput)
 
 		for _, semgrepRes := range semgrepOutput.Results {
-			pattern, _ := lo.Find(toolDefinition.Patterns, func(e codacy.Pattern) bool {
-				return strings.HasSuffix(e.ID, semgrepRes.CheckID)
-			})
 			result = append(result, codacy.Issue{
-				PatternID:  pattern.ID,
+				PatternID:  semgrepRes.CheckID,
 				Message:    strings.TrimSpace(semgrepRes.Extra.Message),
 				Line:       semgrepRes.StartLocation.Line,
 				File:       semgrepRes.Path,
