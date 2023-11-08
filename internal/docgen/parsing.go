@@ -65,7 +65,7 @@ func semgrepRules() []PatternWithExplanation {
 	defaultRules, _ := getDefaultRules()
 
 	fmt.Println("Converting Semgrep rules...")
-	pwes := make(PatternsWithExplanation, len(allRules))
+	pwes := make(PatternsWithExplanation, 0)
 	for _, r := range allRules {
 		pwes = append(pwes,
 			PatternWithExplanation{
