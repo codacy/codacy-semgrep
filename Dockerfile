@@ -1,3 +1,5 @@
+ARG TOOL_VERSION
+
 # Development image used to build the codacy-semgrep wrapper
 # Explicitly adding go.mod and go.sum avoids re-downloading dependencies on every build
 # Go builds static binaries by default, -ldflags="-s -w" strips debug information and reduces the binary size
@@ -21,7 +23,7 @@ RUN go run ./cmd/docgen -docFolder /docs
 
 # Semgrep official image used to copy the semgrep binary
 
-FROM returntocorp/semgrep:1.46.0 as semgrep-cli
+FROM returntocorp/semgrep:$TOOL_VERSION as semgrep-cli
 
 # Final published image for the codacy-semgrep wrapper
 # Tries to be as small as possible with only the Go static binary, the docs and the semgrep binary
