@@ -63,7 +63,8 @@ func downloadRepo(url string) ([]SemgrepRuleFile, error) {
 			!strings.HasPrefix(f.Name, "trusted_python/") &&
 			!strings.HasPrefix(f.Name, "fingerprints/") &&
 			!strings.HasPrefix(f.Name, "scripts/") &&
-			!strings.HasPrefix(f.Name, "libsonnet/") {
+			!strings.HasPrefix(f.Name, "libsonnet/") &&
+			f.Name != "template.yaml" {
 			files = append(files, SemgrepRuleFile{
 				Filename: f.Name,
 				Fullpath: filepath.Join(out, f.Name),

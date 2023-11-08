@@ -43,7 +43,8 @@ func readRulesFromYaml(yamlFile SemgrepRuleFile) ([]SemgrepRule, error) {
 		if yamlFile.Filename != yamlFile.Fullpath {
 			name := filepath.Base(yamlFile.Filename)
 			xxx := strings.TrimSuffix(name, filepath.Ext(name))
-			r.ID = strings.ReplaceAll(filepath.Dir(yamlFile.Filename), "/", ".") + xxx + "." + r.ID
+			yyy := strings.ReplaceAll(filepath.Dir(yamlFile.Filename), "/", ".") + "." + xxx + "." + r.ID
+			r.ID = strings.ToLower(yyy)
 		}
 		return r
 	})
