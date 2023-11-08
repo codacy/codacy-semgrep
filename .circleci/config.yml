@@ -9,6 +9,13 @@ workflows:
     jobs:
       - codacy/checkout_and_version
       - codacy/shell:
+          name: unit_tests
+          cmd: |
+            go test -v ./...
+          persist_to_workspace: true
+          requires:
+            - codacy/checkout_and_version
+      - codacy/shell:
           name: publish_docker_local
           cmd: |
             docker build --build-arg TOOL_VERSION=$(cat .tool_version) -t $CIRCLE_PROJECT_REPONAME:latest . 
@@ -24,6 +31,7 @@ workflows:
       - codacy/publish_docker:
           context: CodacyDocker
           requires:
+            - unit_tests
             - plugins_test
           filters:
             branches:

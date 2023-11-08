@@ -85,14 +85,12 @@ func semgrepRules() []PatternWithExplanation {
 	return pwes
 }
 
-// TODO: Test this function
 func getLastSegment(s string) string {
 	segments := strings.Split(s, ".")
 	lastSegment := strings.TrimSpace(segments[len(segments)-1])
 	return lastSegment
 }
 
-// TODO: Test this function
 func getFirstSentence(s string) string {
 	r := regexp.MustCompile(`(^.*?[a-z]{2,}[.!?])\s+\W*[A-Z]`)
 	matches := r.FindStringSubmatch(s)

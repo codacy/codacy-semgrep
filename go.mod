@@ -2,8 +2,6 @@ module github.com/codacy/codacy-semgrep
 
 go 1.21
 
-toolchain go1.21.1
-
 require (
 	github.com/codacy/codacy-engine-golang-seed/v6 v6.1.1
 	github.com/samber/lo v1.38.1
