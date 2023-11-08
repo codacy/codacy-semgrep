@@ -48,20 +48,24 @@ func readRulesFromYaml(yamlFile *os.File) ([]SemgrepRule, error) {
 
 // semgrepRules returns all `codacy-semgrep` Rules.
 func semgrepRules() Rules {
-	rules := make(Rules, 0)
-	defaultRules, _ := getDefaultPatterns()
+	fmt.Println("Getting Semgrep rules...")
+	allRules, _ := getAllRules()
 
-	for _, r := range defaultRules {
+	fmt.Println("Getting Semgrep default rules...")
+	defaultRules, _ := getDefaultRules()
+
+	rules := make(Rules, 0)
+	for _, r := range allRules {
 		rules = append(rules,
 			Rule{
 				ID:          r.ID,
 				Title:       getLastSegment(r.ID),
 				Description: getFirstSentence(r.Message),
 				Level:       toCodacyLevel(r.Severity),
-				Category:    toCodacyCategory(r.Metadata.Category),
-				SubCategory: getCodacySubCategory(toCodacyCategory(r.Metadata.Category), ""), // TODO: Get subcategory from semgrep
+				Category:    toCodacyCategory(r),
+				SubCategory: getCodacySubCategory(toCodacyCategory(r), ""), // TODO: Get subcategory from semgrep
 				Languages:   toCodacyLanguages(r),
-				Enabled:     isEnabledByDefault(r.ID),
+				Enabled:     isEnabledByDefault(defaultRules, r.ID),
 				Explanation: r.Message,
 			})
 	}
@@ -128,6 +132,10 @@ func toCodacyLanguages(r SemgrepRule) []string {
 				return "Terraform"
 			case "terraform":
 				return "Terraform"
+			case "apex":
+				return "Apex"
+			case "elixir":
+				return "Elixir"
 			default:
 				panic(fmt.Sprintf("unknown language: %s %s", s, r.ID))
 			}
@@ -148,10 +156,10 @@ func getLastSegment(s string) string {
 	return lastSegment
 }
 
-func isEnabledByDefault(s string) bool {
-	// TODO: Get all patterns and update this condition
-	// See the semgrep-rules repository for source and which categories to exclude
-	return true
+func isEnabledByDefault(defaultRules []SemgrepRule, s string) bool {
+	return lo.ContainsBy(defaultRules, func(r SemgrepRule) bool {
+		return r.ID == s
+	})
 }
 
 func getFirstSentence(s string) string {
@@ -164,8 +172,8 @@ func getFirstSentence(s string) string {
 }
 
 // https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Pattern.scala#L43
-func toCodacyCategory(s string) Category {
-	switch s {
+func toCodacyCategory(r SemgrepRule) Category {
+	switch r.Metadata.Category {
 	case "security":
 		return Security
 	case "performance":
@@ -177,9 +185,15 @@ func toCodacyCategory(s string) Category {
 	case "caching":
 		return Compatibility
 	case "correctness":
-		return Compatibility
+		return ErrorProne
+	case "best-practice":
+		return BestPractice
+	case "maintainability":
+		return BestPractice
+	case "":
+		return BestPractice
 	default:
-		panic(fmt.Sprintf("unknown category: %s", s))
+		panic(fmt.Sprintf("unknown category: %s %s", r.Metadata.Category, r.ID))
 	}
 }
 

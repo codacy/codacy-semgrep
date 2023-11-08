@@ -12,6 +12,8 @@ const (
 	Security      Category = "Security"
 	Performance   Category = "Performance"
 	Compatibility Category = "Compatibility"
+	ErrorProne    Category = "ErrorProne"
+	BestPractice  Category = "BestPractice"
 )
 
 type Level string

@@ -27,8 +27,6 @@ func New() DocumentationGenerator {
 type documentationGenerator struct{}
 
 func (g documentationGenerator) Generate(destinationDir string) error {
-	fmt.Println("Getting Semgrep rules...")
-
 	semgrepRules := semgrepRules()
 
 	toolVersion, err := toolVersion()
