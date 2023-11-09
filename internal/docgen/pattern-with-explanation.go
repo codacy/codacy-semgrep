@@ -5,6 +5,7 @@ import (
 )
 
 // Intermediate representation of Semgrep rules for easier manipulation.
+
 type PatternWithExplanation struct {
 	ID          string
 	Title       string
@@ -46,6 +47,7 @@ func (pwes PatternsWithExplanation) toCodacyPattern() []codacy.Pattern {
 	}
 	return codacyPatterns
 }
+
 func (pwes PatternsWithExplanation) toCodacyPatternDescription() []codacy.PatternDescription {
 	codacyPatternsDescription := make([]codacy.PatternDescription, len(pwes))
 
@@ -54,36 +56,3 @@ func (pwes PatternsWithExplanation) toCodacyPatternDescription() []codacy.Patter
 	}
 	return codacyPatternsDescription
 }
-
-// TODO: Move these types to the golang seed?
-
-type Category string
-
-const (
-	Security      Category = "Security"
-	Performance   Category = "Performance"
-	Compatibility Category = "Compatibility"
-	ErrorProne    Category = "ErrorProne"
-	BestPractice  Category = "BestPractice"
-)
-
-type Level string
-
-const (
-	Critical Level = "Error"
-	Medium   Level = "Warning"
-	Low      Level = "Info"
-)
-
-type SubCategory string
-
-const (
-	InsecureStorage          SubCategory = "InsecureStorage"
-	Cryptography             SubCategory = "Cryptography"
-	InputValidation          SubCategory = "InputValidation"
-	Other                    SubCategory = "Other"
-	Visibility               SubCategory = "Visibility"
-	InsecureModulesLibraries SubCategory = "InsecureModulesLibraries"
-	Auth                     SubCategory = "Auth"
-	UnexpectedBehaviour      SubCategory = "UnexpectedBehaviour"
-)

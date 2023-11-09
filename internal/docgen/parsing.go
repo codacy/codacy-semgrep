@@ -5,14 +5,21 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/samber/lo"
-	yaml "gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v3"
 )
 
+// Downloads Semgrep rules from the official repository.
+// Downloads the default rules from the Registry.
 // Parses Semgrep rules from YAML files.
 // Converts them to the intermediate Rule representation.
+
+type SemgrepConfig struct {
+	Rules []SemgrepRule `yaml:"rules"`
+}
 
 type SemgrepRule struct {
 	ID        string              `yaml:"id"`
@@ -23,27 +30,78 @@ type SemgrepRule struct {
 }
 
 type SemgrepRuleMetadata struct {
-	Category string   `yaml:"category"`
-	OWASP    []string `yaml:"owasp"`
+	Category string      `yaml:"category"`
+	OWASP    StringArray `yaml:"owasp"`
 }
 
-type SemgrepConfig struct {
-	Rules []SemgrepRule `yaml:"rules"`
+type SemgrepRules []SemgrepRule
+
+func semgrepRules() ([]PatternWithExplanation, error) {
+	fmt.Println("Getting Semgrep rules...")
+	allRules, err := getAllRules()
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("Getting Semgrep default rules...")
+	defaultRules, err := getDefaultRules()
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("Converting Semgrep rules...")
+	pwes := allRules.toPatternWithExplanation(defaultRules)
+
+	return pwes, nil
 }
 
-// TODO: Refactor this function
+func getAllRules() (SemgrepRules, error) {
+	rulesFiles, err := downloadRepo("https://github.com/semgrep/semgrep-rules")
+	if err != nil {
+		return nil, err
+	}
+
+	rules := lo.FlatMap(rulesFiles, func(file SemgrepRuleFile, index int) []SemgrepRule {
+		// TODO: Propagate error up
+		rs, _ := readRulesFromYaml(file)
+		return rs
+	})
+
+	sort.Slice(rules, func(i, j int) bool {
+		return rules[i].ID < rules[j].ID
+	})
+
+	return rules, nil
+}
+
+func getDefaultRules() (SemgrepRules, error) {
+	defaultRulesFile, err := downloadFile("https://semgrep.dev/c/p/default")
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: Better way to do this?
+	return readRulesFromYaml(SemgrepRuleFile{
+		Filename: defaultRulesFile.Name(),
+		Fullpath: defaultRulesFile.Name(),
+	})
+}
+
 func readRulesFromYaml(yamlFile SemgrepRuleFile) ([]SemgrepRule, error) {
 	buf, err := os.ReadFile(yamlFile.Fullpath)
 	if err != nil {
-		return nil, err
+		return nil, &DocGenError{msg: fmt.Sprintf("Failed to read file: %s", yamlFile.Fullpath), w: err}
 	}
 
 	c := &SemgrepConfig{}
 	err = yaml.Unmarshal(buf, c)
 	if err != nil {
-		return nil, fmt.Errorf("in file %q: %w", yamlFile.Filename, err)
+		return nil, &DocGenError{msg: fmt.Sprintf("Failed to unmarshal file: %s", yamlFile.Fullpath), w: err}
+
 	}
 
+	// TODO: Refactor this out of this function
+	// TODO: Test this function
 	rules := lo.Map(c.Rules, func(r SemgrepRule, index int) SemgrepRule {
 		if yamlFile.Filename != yamlFile.Fullpath {
 			name := filepath.Base(yamlFile.Filename)
@@ -57,31 +115,26 @@ func readRulesFromYaml(yamlFile SemgrepRuleFile) ([]SemgrepRule, error) {
 	return rules, nil
 }
 
-// Returns all `codacy-semgrep` rules
-func semgrepRules() []PatternWithExplanation {
-	fmt.Println("Getting Semgrep rules...")
-	allRules, _ := getAllRules()
-
-	fmt.Println("Getting Semgrep default rules...")
-	defaultRules, _ := getDefaultRules()
-
-	fmt.Println("Converting Semgrep rules...")
-	pwes := make(PatternsWithExplanation, 0)
-	for _, r := range allRules {
-		pwes = append(pwes,
-			PatternWithExplanation{
-				ID:          r.ID,
-				Title:       getLastSegment(r.ID),
-				Description: getFirstSentence(r.Message),
-				Level:       toCodacyLevel(r.Severity),
-				Category:    toCodacyCategory(r),
-				SubCategory: getCodacySubCategory(toCodacyCategory(r), r.Metadata.OWASP),
-				Languages:   toCodacyLanguages(r),
-				Enabled:     isEnabledByDefault(defaultRules, r.ID),
-				Explanation: r.Message,
-			})
+func (r SemgrepRule) toPatternWithExplanation(defaultRules SemgrepRules) PatternWithExplanation {
+	return PatternWithExplanation{
+		ID:          r.ID,
+		Title:       getLastSegment(r.ID),
+		Description: getFirstSentence(r.Message),
+		Level:       toCodacyLevel(r.Severity),
+		Category:    toCodacyCategory(r),
+		SubCategory: getCodacySubCategory(toCodacyCategory(r), r.Metadata.OWASP),
+		Languages:   toCodacyLanguages(r),
+		Enabled:     isEnabledByDefault(defaultRules, r.ID),
+		Explanation: r.Message,
 	}
+}
 
+func (rs SemgrepRules) toPatternWithExplanation(defaultRules SemgrepRules) PatternsWithExplanation {
+	pwes := make(PatternsWithExplanation, len(rs))
+
+	for i, r := range rs {
+		pwes[i] = r.toPatternWithExplanation(defaultRules)
+	}
 	return pwes
 }
 
@@ -194,6 +247,8 @@ func getCodacySubCategory(category Category, OWASPCategories []string) SubCatego
 		case "A05:2017 - Sensitive Data Exposure":
 			return InsecureStorage
 		case "A06:2017 - Security Misconfiguration":
+			return Other
+		case "A6:2017 misconfiguration":
 			return Other
 		case "A07:2017 - Cross-Site Scripting (XSS)":
 			return InputValidation

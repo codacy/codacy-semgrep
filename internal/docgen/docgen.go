@@ -27,7 +27,10 @@ func New() DocumentationGenerator {
 type documentationGenerator struct{}
 
 func (g documentationGenerator) Generate(destinationDir string) error {
-	semgrepRules := semgrepRules()
+	semgrepRules, err := g.listRules()
+	if err != nil {
+		return err
+	}
 
 	toolVersion, err := toolVersion()
 	if err != nil {
@@ -52,6 +55,10 @@ func toolVersion() (string, error) {
 	}
 
 	return strings.Trim(string(versionBytes), "\n"), nil
+}
+
+func (g documentationGenerator) listRules() ([]PatternWithExplanation, error) {
+	return semgrepRules()
 }
 
 func (g documentationGenerator) createPatternsFile(rules PatternsWithExplanation, toolVersion, destinationDir string) error {
