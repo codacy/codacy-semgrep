@@ -17,7 +17,6 @@ type SemgrepRuleFile struct {
 	AbsolutePath string
 }
 
-// TODO: downloadRepo and downloadFile should have the same signature
 func downloadRepo(url string) ([]SemgrepRuleFile, error) {
 	tempFolder, err := os.MkdirTemp(os.TempDir(), "tmp-semgrep-")
 	if err != nil {
@@ -38,15 +37,7 @@ func downloadRepo(url string) ([]SemgrepRuleFile, error) {
 
 	var files []SemgrepRuleFile
 	tree.Files().ForEach(func(f *object.File) error {
-		// TODO: Refactor condition
-		if strings.HasSuffix(f.Name, ".yaml") && !strings.HasSuffix(f.Name, ".test.yaml") &&
-			!strings.HasPrefix(f.Name, ".") &&
-			!strings.HasPrefix(f.Name, "stats/") &&
-			!strings.HasPrefix(f.Name, "trusted_python/") &&
-			!strings.HasPrefix(f.Name, "fingerprints/") &&
-			!strings.HasPrefix(f.Name, "scripts/") &&
-			!strings.HasPrefix(f.Name, "libsonnet/") &&
-			f.Name != "template.yaml" {
+		if isValidRuleFile(f.Name) {
 			files = append(files, SemgrepRuleFile{
 				RelativePath: f.Name,
 				AbsolutePath: filepath.Join(tempFolder, f.Name),
@@ -56,6 +47,19 @@ func downloadRepo(url string) ([]SemgrepRuleFile, error) {
 	})
 
 	return files, nil
+}
+
+func isValidRuleFile(filename string) bool {
+	return strings.HasSuffix(filename, ".yaml") && // Rules files
+		!strings.HasSuffix(filename, ".test.yaml") && // but not test files
+		!strings.HasPrefix(filename, ".") && // Or shadow directories
+		// Or Semgrep ignored dirs: https://github.com/semgrep/semgrep-rules/blob/c495d664cbb75e8347fae9d27725436717a7926e/scripts/run-tests#L48
+		!strings.HasPrefix(filename, "stats/") &&
+		!strings.HasPrefix(filename, "trusted_python/") &&
+		!strings.HasPrefix(filename, "fingerprints/") &&
+		!strings.HasPrefix(filename, "scripts/") &&
+		!strings.HasPrefix(filename, "libsonnet/") &&
+		filename != "template.yaml" // or example file
 }
 
 func downloadFile(url string) (*os.File, error) {
