@@ -42,8 +42,8 @@ type PatternsWithExplanation []PatternWithExplanation
 func (pwes PatternsWithExplanation) toCodacyPattern() []codacy.Pattern {
 	codacyPatterns := make([]codacy.Pattern, len(pwes))
 
-	for i, r := range pwes {
-		codacyPatterns[i] = r.toCodacyPattern()
+	for i, patternWithExplanation := range pwes {
+		codacyPatterns[i] = patternWithExplanation.toCodacyPattern()
 	}
 	return codacyPatterns
 }
@@ -51,8 +51,8 @@ func (pwes PatternsWithExplanation) toCodacyPattern() []codacy.Pattern {
 func (pwes PatternsWithExplanation) toCodacyPatternDescription() []codacy.PatternDescription {
 	codacyPatternsDescription := make([]codacy.PatternDescription, len(pwes))
 
-	for i, r := range pwes {
-		codacyPatternsDescription[i] = r.toCodacyPatternDescription()
+	for i, patternWithExplanation := range pwes {
+		codacyPatternsDescription[i] = patternWithExplanation.toCodacyPatternDescription()
 	}
 	return codacyPatternsDescription
 }
