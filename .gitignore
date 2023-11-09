@@ -12,3 +12,5 @@ target
 bin
 cache
 *.gen.go
+.DS_STORE
+.codacyrc
