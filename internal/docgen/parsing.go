@@ -61,11 +61,23 @@ func getAllRules() (SemgrepRules, error) {
 		return nil, err
 	}
 
+	var errorWithinMap error
 	rules := lo.FlatMap(rulesFiles, func(file SemgrepRuleFile, index int) []SemgrepRule {
-		// TODO: Propagate error up
-		rs, _ := readRulesFromYaml(file)
+		rs, err := readRulesFromYaml(file.AbsolutePath)
+		if err != nil {
+			errorWithinMap = err
+		}
+
+		rs = lo.Map(rs, func(r SemgrepRule, index int) SemgrepRule {
+			r.ID = prefixRuleIDWithPath(file.RelativePath, r.ID)
+			return r
+		})
+
 		return rs
 	})
+	if errorWithinMap != nil {
+		return nil, errorWithinMap
+	}
 
 	sort.Slice(rules, func(i, j int) bool {
 		return rules[i].ID < rules[j].ID
@@ -74,45 +86,36 @@ func getAllRules() (SemgrepRules, error) {
 	return rules, nil
 }
 
+func prefixRuleIDWithPath(relativePath string, unprefixedID string) string {
+	filename := filepath.Base(relativePath)
+	filenameWithoutExt := strings.TrimSuffix(filename, filepath.Ext(filename))
+	prefixedID := strings.ReplaceAll(filepath.Dir(relativePath), "/", ".") + "." + filenameWithoutExt + "." + unprefixedID
+	return strings.ToLower(prefixedID)
+}
+
 func getDefaultRules() (SemgrepRules, error) {
 	defaultRulesFile, err := downloadFile("https://semgrep.dev/c/p/default")
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: Better way to do this?
-	return readRulesFromYaml(SemgrepRuleFile{
-		Filename: defaultRulesFile.Name(),
-		Fullpath: defaultRulesFile.Name(),
-	})
+	return readRulesFromYaml(defaultRulesFile.Name())
 }
 
-func readRulesFromYaml(yamlFile SemgrepRuleFile) ([]SemgrepRule, error) {
-	buf, err := os.ReadFile(yamlFile.Fullpath)
+func readRulesFromYaml(yamlFile string) ([]SemgrepRule, error) {
+	buf, err := os.ReadFile(yamlFile)
 	if err != nil {
-		return nil, &DocGenError{msg: fmt.Sprintf("Failed to read file: %s", yamlFile.Fullpath), w: err}
+		return nil, &DocGenError{msg: fmt.Sprintf("Failed to read file: %s", yamlFile), w: err}
 	}
 
 	c := &SemgrepConfig{}
 	err = yaml.Unmarshal(buf, c)
 	if err != nil {
-		return nil, &DocGenError{msg: fmt.Sprintf("Failed to unmarshal file: %s", yamlFile.Fullpath), w: err}
+		return nil, &DocGenError{msg: fmt.Sprintf("Failed to unmarshal file: %s", yamlFile), w: err}
 
 	}
 
-	// TODO: Refactor this out of this function
-	// TODO: Test this function
-	rules := lo.Map(c.Rules, func(r SemgrepRule, index int) SemgrepRule {
-		if yamlFile.Filename != yamlFile.Fullpath {
-			name := filepath.Base(yamlFile.Filename)
-			xxx := strings.TrimSuffix(name, filepath.Ext(name))
-			yyy := strings.ReplaceAll(filepath.Dir(yamlFile.Filename), "/", ".") + "." + xxx + "." + r.ID
-			r.ID = strings.ToLower(yyy)
-		}
-		return r
-	})
-
-	return rules, nil
+	return c.Rules, nil
 }
 
 func (r SemgrepRule) toPatternWithExplanation(defaultRules SemgrepRules) PatternWithExplanation {

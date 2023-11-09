@@ -2,6 +2,35 @@ package docgen
 
 import "testing"
 
+func TestPrefixRuleIDWithPath(t *testing.T) {
+	tests := []struct {
+		name         string
+		relativePath string
+		unprefixedID string
+		want         string
+	}{
+		{
+			name:         "example 1",
+			relativePath: "apex/lang/best-practice/ncino/accessModifiers/GlobalAccessModifiers.yaml",
+			unprefixedID: "global-access-modifiers",
+			want:         "apex.lang.best-practice.ncino.accessmodifiers.globalaccessmodifiers.global-access-modifiers",
+		},
+		{
+			name:         "example 2",
+			relativePath: "javascript/lang/best-practice/leftover_debugging.yaml",
+			unprefixedID: "javascript-alert",
+			want:         "javascript.lang.best-practice.leftover_debugging.javascript-alert",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := prefixRuleIDWithPath(tt.relativePath, tt.unprefixedID); got != tt.want {
+				t.Errorf("prefixRuleIDWithPath() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestGetLastSegment(t *testing.T) {
 	tests := []struct {
 		name string

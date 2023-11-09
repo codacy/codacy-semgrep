@@ -13,12 +13,11 @@ import (
 )
 
 type SemgrepRuleFile struct {
-	Filename string
-	Fullpath string
+	RelativePath string
+	AbsolutePath string
 }
 
 // TODO: downloadRepo and downloadFile should have the same signature
-
 func downloadRepo(url string) ([]SemgrepRuleFile, error) {
 	tempFolder, err := os.MkdirTemp(os.TempDir(), "tmp-semgrep-")
 	if err != nil {
@@ -49,8 +48,8 @@ func downloadRepo(url string) ([]SemgrepRuleFile, error) {
 			!strings.HasPrefix(f.Name, "libsonnet/") &&
 			f.Name != "template.yaml" {
 			files = append(files, SemgrepRuleFile{
-				Filename: f.Name,
-				Fullpath: filepath.Join(tempFolder, f.Name),
+				RelativePath: f.Name,
+				AbsolutePath: filepath.Join(tempFolder, f.Name),
 			})
 		}
 		return nil
