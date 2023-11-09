@@ -1,0 +1,1 @@
+Semgrep accelerates your security journey by swiftly scanning code for known issues and software vulnerabilities with unparalleled efficiency. [Learn more](https://github.com/semgrep/semgrep)
