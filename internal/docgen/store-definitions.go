@@ -6,11 +6,8 @@ import (
 	"strings"
 )
 
-// TODO: should respect cli flag for docs location
-const rulesDefinitionFileName = "/docs/rules.yaml"
-
-func createUnifiedRuleFile(semgrepRuleFiles []SemgrepRuleFile) error {
-	unifiedRuleFile, err := os.Create(rulesDefinitionFileName)
+func createUnifiedRuleFile(filename string, semgrepRuleFiles []SemgrepRuleFile) error {
+	unifiedRuleFile, err := os.Create(filename)
 	if err != nil {
 		return err
 	}

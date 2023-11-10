@@ -36,33 +36,62 @@ type SemgrepRuleMetadata struct {
 
 type SemgrepRules []SemgrepRule
 
-func semgrepRules() ([]PatternWithExplanation, error) {
+func semgrepRules(destinationDir string) ([]PatternWithExplanation, []SemgrepRuleFile, error) {
 	fmt.Println("Getting Semgrep rules...")
-	allRules, err := getAllRules()
+	semgrepRegistryRules, semgrepRegistryRuleFiles, err := getSemgrepRegistryRules()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	fmt.Println("Getting Semgrep default rules...")
-	defaultRules, err := getDefaultRules()
+	semgrepRegistryDefaultRules, err := getSemgrepRegistryDefaultRules()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	fmt.Println("Converting Semgrep rules...")
+	fmt.Println("Getting GitLab rules...")
+	gitlabRules, gitlabRuleFiles, err := getGitLabRules()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	allRules := append(semgrepRegistryRules, gitlabRules...)
+	defaultRules := append(semgrepRegistryDefaultRules, gitlabRules...)
+
+	fmt.Println("Converting rules...")
 	pwes := allRules.toPatternWithExplanation(defaultRules)
 
-	return pwes, nil
+	rulesFiles := append(semgrepRegistryRuleFiles, gitlabRuleFiles...)
+
+	return pwes, rulesFiles, nil
 }
 
-func getAllRules() (SemgrepRules, error) {
-	rulesFiles, err := downloadRepo("https://github.com/semgrep/semgrep-rules")
+func getSemgrepRegistryRules() (SemgrepRules, []SemgrepRuleFile, error) {
+	return getRules(
+		"https://github.com/semgrep/semgrep-rules",
+		isValidSemgrepRegistryRuleFile,
+		prefixRuleIDWithPath)
+}
+
+func getGitLabRules() (SemgrepRules, []SemgrepRuleFile, error) {
+	return getRules(
+		"https://gitlab.com/gitlab-org/security-products/sast-rules.git",
+		isValidGitLabRuleFile,
+		func(relativePath string, unprefixedID string) string { return unprefixedID })
+}
+
+type FilenameValidator func(string) bool
+type IDGenerator func(string, string) string
+
+func getRules(url string, validate FilenameValidator, generate IDGenerator) (SemgrepRules, []SemgrepRuleFile, error) {
+	rulesFiles, err := downloadRepo(url)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	// TODO: Update when GitLab rules are merged
-	createUnifiedRuleFile(rulesFiles)
+	rulesFiles = lo.Filter(rulesFiles, func(file SemgrepRuleFile, index int) bool {
+		return validate(file.RelativePath)
+	})
 
 	var errorWithinMap error
 	rules := lo.FlatMap(rulesFiles, func(file SemgrepRuleFile, index int) []SemgrepRule {
@@ -72,21 +101,41 @@ func getAllRules() (SemgrepRules, error) {
 		}
 
 		rs = lo.Map(rs, func(r SemgrepRule, index int) SemgrepRule {
-			r.ID = prefixRuleIDWithPath(file.RelativePath, r.ID)
+			r.ID = generate(file.RelativePath, r.ID)
 			return r
 		})
 
 		return rs
 	})
 	if errorWithinMap != nil {
-		return nil, errorWithinMap
+		return nil, nil, errorWithinMap
 	}
 
 	sort.Slice(rules, func(i, j int) bool {
 		return rules[i].ID < rules[j].ID
 	})
 
-	return rules, nil
+	return rules, rulesFiles, nil
+}
+
+func isValidSemgrepRegistryRuleFile(filename string) bool {
+	return strings.HasSuffix(filename, ".yaml") && // Rules files
+		!strings.HasSuffix(filename, ".test.yaml") && // but not test files
+		!strings.HasPrefix(filename, ".") && // Or shadow directories
+		// Or Semgrep ignored dirs: https://github.com/semgrep/semgrep-rules/blob/c495d664cbb75e8347fae9d27725436717a7926e/scripts/run-tests#L48
+		!strings.HasPrefix(filename, "stats/") &&
+		!strings.HasPrefix(filename, "trusted_python/") &&
+		!strings.HasPrefix(filename, "fingerprints/") &&
+		!strings.HasPrefix(filename, "scripts/") &&
+		!strings.HasPrefix(filename, "libsonnet/") &&
+		filename != "template.yaml" // or example file
+}
+
+func isValidGitLabRuleFile(filename string) bool {
+	return strings.HasSuffix(filename, ".yml") &&
+		!strings.HasPrefix(filename, "dist/") &&
+		!strings.HasPrefix(filename, "docs/") &&
+		!strings.HasPrefix(filename, "mappings/")
 }
 
 func prefixRuleIDWithPath(relativePath string, unprefixedID string) string {
@@ -96,7 +145,7 @@ func prefixRuleIDWithPath(relativePath string, unprefixedID string) string {
 	return strings.ToLower(prefixedID)
 }
 
-func getDefaultRules() (SemgrepRules, error) {
+func getSemgrepRegistryDefaultRules() (SemgrepRules, error) {
 	defaultRulesFile, err := downloadFile("https://semgrep.dev/c/p/default")
 	if err != nil {
 		return nil, err
@@ -238,13 +287,21 @@ func getCodacySubCategory(category Category, OWASPCategories []string) SubCatego
 			return InputValidation
 		case "A01:2017 - Injection":
 			return InputValidation
+		case "A1:2017-Injection":
+			return InputValidation
 		case "A02:2017 - Broken Authentication":
 			return Auth
 		case "A03:2017 - Sensitive Data Exposure":
 			return Visibility
+		case "A3:2017-Sensitive Data Exposure":
+			return Visibility
 		case "A3:2017 Sensitive Data Exposure":
 			return Visibility
 		case "A04:2017 - XML External Entities (XXE)":
+			return InputValidation
+		case "A4:2017 - XML External Entities (XXE)":
+			return InputValidation
+		case "A4:2017-XML External Entities (XXE)":
 			return InputValidation
 		case "A04:2021 - XML External Entities (XXE)":
 			return InputValidation
@@ -252,17 +309,29 @@ func getCodacySubCategory(category Category, OWASPCategories []string) SubCatego
 			return InsecureStorage
 		case "A05:2017 - Sensitive Data Exposure":
 			return InsecureStorage
+		case "A5:2017-Broken Access Control":
+			return InsecureStorage
 		case "A06:2017 - Security Misconfiguration":
 			return Other
 		case "A6:2017 misconfiguration":
 			return Other
+		case "A6:2017-Security Misconfiguration":
+			return Other
 		case "A07:2017 - Cross-Site Scripting (XSS)":
 			return InputValidation
+		case "A7:2017-Cross-Site Scripting (XSS)":
+			return InputValidation
+		case "A7: Cross-Site Scripting (XSS)":
+			return InputValidation
 		case "A08:2017 - Insecure Deserialization":
+			return InputValidation
+		case "A8:2017-Insecure Deserialization":
 			return InputValidation
 		case "A8:2017 Insecure Deserialization":
 			return InputValidation
 		case "A09:2017 - Using Components with Known Vulnerabilities":
+			return InsecureModulesLibraries
+		case "A9:2017-Using Components with Known Vulnerabilities":
 			return InsecureModulesLibraries
 		case "A10:2017 - Insufficient Logging & Monitoring":
 			return Visibility

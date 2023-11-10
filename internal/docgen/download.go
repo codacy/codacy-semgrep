@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -37,29 +36,14 @@ func downloadRepo(url string) ([]SemgrepRuleFile, error) {
 
 	var files []SemgrepRuleFile
 	tree.Files().ForEach(func(f *object.File) error {
-		if isValidRuleFile(f.Name) {
-			files = append(files, SemgrepRuleFile{
-				RelativePath: f.Name,
-				AbsolutePath: filepath.Join(tempFolder, f.Name),
-			})
-		}
+		files = append(files, SemgrepRuleFile{
+			RelativePath: f.Name,
+			AbsolutePath: filepath.Join(tempFolder, f.Name),
+		})
 		return nil
 	})
 
 	return files, nil
-}
-
-func isValidRuleFile(filename string) bool {
-	return strings.HasSuffix(filename, ".yaml") && // Rules files
-		!strings.HasSuffix(filename, ".test.yaml") && // but not test files
-		!strings.HasPrefix(filename, ".") && // Or shadow directories
-		// Or Semgrep ignored dirs: https://github.com/semgrep/semgrep-rules/blob/c495d664cbb75e8347fae9d27725436717a7926e/scripts/run-tests#L48
-		!strings.HasPrefix(filename, "stats/") &&
-		!strings.HasPrefix(filename, "trusted_python/") &&
-		!strings.HasPrefix(filename, "fingerprints/") &&
-		!strings.HasPrefix(filename, "scripts/") &&
-		!strings.HasPrefix(filename, "libsonnet/") &&
-		filename != "template.yaml" // or example file
 }
 
 func downloadFile(url string) (*os.File, error) {

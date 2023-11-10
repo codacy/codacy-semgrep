@@ -27,13 +27,17 @@ func New() DocumentationGenerator {
 type documentationGenerator struct{}
 
 func (g documentationGenerator) Generate(destinationDir string) error {
-	semgrepRules, err := g.listRules()
+	semgrepRules, semgrepRuleFiles, err := g.listRules(destinationDir)
 	if err != nil {
 		return err
 	}
 
 	toolVersion, err := toolVersion()
 	if err != nil {
+		return err
+	}
+
+	if err := g.createRulesDefinitionFile(semgrepRuleFiles, destinationDir); err != nil {
 		return err
 	}
 
@@ -57,8 +61,17 @@ func toolVersion() (string, error) {
 	return strings.Trim(string(versionBytes), "\n"), nil
 }
 
-func (g documentationGenerator) listRules() ([]PatternWithExplanation, error) {
-	return semgrepRules()
+func (g documentationGenerator) listRules(destinationDir string) ([]PatternWithExplanation, []SemgrepRuleFile, error) {
+	return semgrepRules(destinationDir)
+}
+
+func (g documentationGenerator) createRulesDefinitionFile(ruleFiles []SemgrepRuleFile, destinationDir string) error {
+	fmt.Println("Creating rules.yaml file...")
+
+	rulesDefinitionFileName := "rules.yaml"
+	rulesDefinitionFilePath := path.Join(destinationDir, rulesDefinitionFileName)
+
+	return createUnifiedRuleFile(rulesDefinitionFilePath, ruleFiles)
 }
 
 func (g documentationGenerator) createPatternsFile(rules PatternsWithExplanation, toolVersion, destinationDir string) error {
