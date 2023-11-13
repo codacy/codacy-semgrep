@@ -61,6 +61,9 @@ func getAllRules() (SemgrepRules, error) {
 		return nil, err
 	}
 
+	// TODO: Update when GitLab rules are merged
+	createUnifiedRuleFile(rulesFiles)
+
 	var errorWithinMap error
 	rules := lo.FlatMap(rulesFiles, func(file SemgrepRuleFile, index int) []SemgrepRule {
 		rs, err := readRulesFromYaml(file.AbsolutePath)
