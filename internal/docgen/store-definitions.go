@@ -3,13 +3,13 @@ package docgen
 import (
 	"bufio"
 	"os"
+	"strings"
 )
 
 // TODO: should respect cli flag for docs location
 const rulesDefinitionFileName = "/docs/rules.yaml"
 
 func createUnifiedRuleFile(semgrepRuleFiles []SemgrepRuleFile) error {
-	// TODO: Configure local vs dockerized path
 	unifiedRuleFile, err := os.Create(rulesDefinitionFileName)
 	if err != nil {
 		return err
@@ -39,6 +39,17 @@ func createUnifiedRuleFile(semgrepRuleFiles []SemgrepRuleFile) error {
 			}
 
 			if copying {
+				// If line starts with - id:
+				// Take part after:
+				// and replace it with prefixed id
+				// using prefixRuleIDWithPath(file.RelativePath, r.ID)
+				if strings.Contains(line, "- id:") {
+					unprefixedID := strings.TrimSpace(strings.Split(line, ":")[1])
+					prefixedID := prefixRuleIDWithPath(semgrepRuleFile.RelativePath, unprefixedID)
+					line = strings.Replace(line, unprefixedID, prefixedID, 1)
+				}
+
+				// TODO: What if rules have different identations?
 				_, err = unifiedRuleFile.WriteString(line + "\n")
 				if err != nil {
 					return err

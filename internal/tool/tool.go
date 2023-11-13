@@ -41,12 +41,13 @@ func (s codacySemgrep) Run(ctx context.Context, toolExecution codacy.ToolExecuti
 	var configFile *os.File
 	var err error
 
-	configFile, err = createConfigFile(toolExecution, toolExecution.Patterns)
+	configFile, err = createConfigFile(toolExecution)
 	if err != nil {
 		return nil, err
 	}
-	defer os.RemoveAll("tmp/")
-	defer configFile.Close()
+	if configFile == nil {
+		return []codacy.Result{}, nil
+	}
 
 	err = populateFilesByLanguage(toolExecution.Files, toolExecution.SourceDir)
 	if err != nil {
@@ -68,7 +69,7 @@ func run(configFile *os.File, toolExecution codacy.ToolExecution) ([]codacy.Resu
 
 		semgrepOutput, semgrepError, err := runCommand(semgrepCmd)
 		if err != nil {
-			return nil, errors.New("Error running semgrep: " + semgrepError)
+			return nil, errors.New("Error running semgrep: " + semgrepError + "\n" + err.Error())
 		}
 
 		output, err := parseOutput(toolExecution.ToolDefinition, semgrepOutput)
@@ -228,7 +229,8 @@ func detectLanguage(fileName string) string {
 }
 
 type SemgrepOutput struct {
-	Results []SemgrepResult
+	Results []SemgrepResult `json:"results"`
+	Errors  []SemgrepError  `json:"errors"`
 }
 
 type SemgrepResult struct {
@@ -248,6 +250,15 @@ type SemgrepExtra struct {
 	RenderedFix string `json:"rendered_fix,omitempty"`
 }
 
+type SemgrepError struct {
+	Message  string               `json:"message"`
+	Location SemgrepErrorLocation `json:"location"`
+}
+
+type SemgrepErrorLocation struct {
+	Path string `json:"path"`
+}
+
 func openFile(filename string) (*os.File, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -261,18 +272,14 @@ func getConfigurationFile(sourceFolder string) (*os.File, error) {
 	return openFile(filename)
 }
 
-func getRulesDefinitionFile() (*os.File, error) {
-	return openFile(rulesDefinitionFileName)
-}
-
-func createConfigFile(toolExecution codacy.ToolExecution, patterns *[]codacy.Pattern) (*os.File, error) {
+func createConfigFile(toolExecution codacy.ToolExecution) (*os.File, error) {
 	// if there is no configuration file, try to use default configuration file
 	// otherwise configuration from source code
 
-	if patterns == nil {
+	if toolExecution.Patterns == nil {
 		// if there is no configuration file use default configuration file
 		if _, err := os.Stat(path.Join(toolExecution.SourceDir, sourceConfigFileName)); err != nil {
-			defaultPatterns := lo.Filter(toolExecution.ToolDefinition.Patterns, func(pattern codacy.Pattern, index int) bool {
+			defaultPatterns := lo.Filter(*toolExecution.ToolDefinition.Patterns, func(pattern codacy.Pattern, index int) bool {
 				return pattern.Enabled
 			})
 			return createConfigFileFromPatterns(&defaultPatterns)
@@ -282,8 +289,12 @@ func createConfigFile(toolExecution codacy.ToolExecution, patterns *[]codacy.Pat
 		return getConfigurationFile(toolExecution.SourceDir)
 	}
 
+	if len(*toolExecution.Patterns) == 0 {
+		return nil, nil
+	}
+
 	// if there are patterns, create a configuration file from them
-	return createConfigFileFromPatterns(patterns)
+	return createConfigFileFromPatterns(toolExecution.Patterns)
 }
 
 func createConfigFileFromPatterns(patterns *[]codacy.Pattern) (*os.File, error) {
@@ -364,11 +375,17 @@ func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) ([]
 		for _, semgrepRes := range semgrepOutput.Results {
 			result = append(result, codacy.Issue{
 				PatternID: semgrepRes.CheckID,
-				// TODO: Message can be empty?
+				// TODO: Message can be empty ?
 				Message:    strings.TrimSpace(semgrepRes.Extra.Message),
 				Line:       semgrepRes.StartLocation.Line,
 				File:       semgrepRes.Path,
 				Suggestion: semgrepRes.Extra.RenderedFix,
+			})
+		}
+		for _, semgrepError := range semgrepOutput.Errors {
+			result = append(result, codacy.FileError{
+				Message: semgrepError.Message,
+				File:    semgrepError.Location.Path,
 			})
 		}
 	}
