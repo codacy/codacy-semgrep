@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -270,7 +269,7 @@ func createConfigFile(toolExecution codacy.ToolExecution, patterns *[]codacy.Pat
 	// if there is no configuration file, try to use default configuration file
 	// otherwise configuration from source code
 
-	if patterns == nil || len(*patterns) == 0 {
+	if patterns == nil {
 		// if there is no configuration file use default configuration file
 		if _, err := os.Stat(path.Join(toolExecution.SourceDir, sourceConfigFileName)); err != nil {
 			defaultPatterns := lo.Filter(toolExecution.ToolDefinition.Patterns, func(pattern codacy.Pattern, index int) bool {
@@ -364,7 +363,8 @@ func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) ([]
 
 		for _, semgrepRes := range semgrepOutput.Results {
 			result = append(result, codacy.Issue{
-				PatternID:  semgrepRes.CheckID,
+				PatternID: semgrepRes.CheckID,
+				// TODO: Message can be empty?
 				Message:    strings.TrimSpace(semgrepRes.Extra.Message),
 				Line:       semgrepRes.StartLocation.Line,
 				File:       semgrepRes.Path,
@@ -378,7 +378,6 @@ func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) ([]
 
 func semgrepCommand(configFile *os.File, sourceDir, language string, files []string) *exec.Cmd {
 	params := commandParameters(configFile, language, files)
-	fmt.Println("params", p)
 	cmd := exec.Command("semgrep", params...)
 	cmd.Dir = sourceDir
 
