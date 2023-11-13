@@ -375,7 +375,7 @@ func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) ([]
 		for _, semgrepRes := range semgrepOutput.Results {
 			result = append(result, codacy.Issue{
 				PatternID: semgrepRes.CheckID,
-				// TODO: Message can be empty ?
+				// TODO(before-release): Message can be empty ?
 				Message:    strings.TrimSpace(semgrepRes.Extra.Message),
 				Line:       semgrepRes.StartLocation.Line,
 				File:       semgrepRes.Path,

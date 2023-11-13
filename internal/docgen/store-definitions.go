@@ -49,7 +49,7 @@ func createUnifiedRuleFile(semgrepRuleFiles []SemgrepRuleFile) error {
 					line = strings.Replace(line, unprefixedID, prefixedID, 1)
 				}
 
-				// TODO: What if rules have different identations?
+				// TODO(before-release): What if rules have different identations?
 				_, err = unifiedRuleFile.WriteString(line + "\n")
 				if err != nil {
 					return err
