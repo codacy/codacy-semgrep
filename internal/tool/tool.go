@@ -132,6 +132,7 @@ func addFileToFilesByLanguage(fileName string) {
 }
 
 // This feels illegal
+// TODO: Make sure all Codacy language file extensions are covered
 func detectLanguage(fileName string) string {
 	extension := strings.ToLower(filepath.Ext(fileName))
 	switch extension {
