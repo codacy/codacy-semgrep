@@ -35,6 +35,8 @@ COPY --from=semgrep-cli /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 COPY --from=builder /src/bin /dist/bin
 COPY --from=builder /docs/ /docs/
+COPY auto.yaml /
+
 
 RUN adduser -u 2004 -D docker
 RUN chown -R docker:docker /docs

@@ -6,15 +6,20 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 
 	codacy "github.com/codacy/codacy-engine-golang-seed/v6"
 )
 
 const sourceConfigFileName = ".semgrep.yaml"
+const defaultConfigFileName = "auto.yaml"
+
+var filesByLanguage map[string][]string = make(map[string][]string)
 
 // New creates a new instance of Codacy Semgrep.
 func New() codacySemgrep {
@@ -30,25 +35,193 @@ var _ codacy.Tool = (*codacySemgrep)(nil)
 
 // Run runs the Semgrep implementation
 func (s codacySemgrep) Run(ctx context.Context, toolExecution codacy.ToolExecution) ([]codacy.Result, error) {
-	configFile, err := getConfigurationFile(*toolExecution.Patterns, toolExecution.SourceDir)
-	if err == nil {
-		defer os.Remove(configFile.Name())
-	}
+	var configFile *os.File
+	var err error
 
-	// filesToAnalyse, err := getListOfFilesToAnalyse(tool.Files, sourceDir)
-	// if err != nil {
-	// 	return nil, errors.New("Error getting files to analyse: " + err.Error())
-	// }
-
-	semgrepCmd := semgrepCommand(configFile, *toolExecution.Files, toolExecution.SourceDir)
-
-	semgrepOutput, semgrepError, err := runCommand(semgrepCmd)
+	configFile, err = createConfigFile(toolExecution.SourceDir, toolExecution.Patterns)
 	if err != nil {
-		return nil, errors.New("Error running semgrep: " + semgrepError)
+		return nil, err
+	}
+	defer os.RemoveAll("tmp/")
+	defer configFile.Close()
+
+	err = populateFilesByLanguage(toolExecution.Files, toolExecution.SourceDir)
+	if err != nil {
+		return nil, errors.New("Error getting files to analyse: " + err.Error())
 	}
 
-	result := parseOutput(toolExecution.ToolDefinition, semgrepOutput)
+	result, err := run(configFile, toolExecution)
+	if err != nil {
+		return nil, err
+	}
+
 	return result, nil
+}
+
+func run(configFile *os.File, toolExecution codacy.ToolExecution) ([]codacy.Result, error) {
+	var result []codacy.Result
+	for language, files := range filesByLanguage {
+		semgrepCmd := semgrepCommand(configFile, toolExecution.SourceDir, language, files)
+
+		semgrepOutput, semgrepError, err := runCommand(semgrepCmd)
+		if err != nil {
+			return nil, errors.New("Error running semgrep: " + semgrepError)
+		}
+
+		output, err := parseOutput(toolExecution.ToolDefinition, semgrepOutput)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, output...)
+	}
+
+	return result, nil
+}
+
+func populateFilesByLanguage(toolExecutionFiles *[]string, toolExecutionSourceDir string) error {
+	// If there are files to analyse, analyse only those files
+	if toolExecutionFiles != nil && len(*toolExecutionFiles) > 0 {
+		return populateFilesByLanguageFromFiles(*toolExecutionFiles)
+	}
+	// If there are no files to analyse, analyse all files from source dir
+	return populateFilesByLanguageFromSourceDir(toolExecutionSourceDir)
+}
+
+func populateFilesByLanguageFromFiles(toolExecutionFiles []string) error {
+	for _, file := range toolExecutionFiles {
+		addFileToFilesByLanguage(file)
+	}
+
+	return nil
+}
+
+func populateFilesByLanguageFromSourceDir(toolExecutionSourceDir string) error {
+	// Semgrep can analyse full directories and its subdirectories
+	// but we will have to analyse every extension from every file
+	// so we will have to do this walk somewhere else if we dont do it here
+	err := filepath.WalkDir(toolExecutionSourceDir, func(path string, info fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		pathInfo, pathErr := info.Info()
+		if pathErr != nil {
+			return pathErr
+		}
+		// if it is a file and it is not a hidden file
+		if !pathInfo.IsDir() && !strings.HasPrefix(pathInfo.Name(), ".") {
+			addFileToFilesByLanguage(path)
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func addFileToFilesByLanguage(fileName string) {
+	language := detectLanguage(fileName)
+	filesByLanguage[language] = append(filesByLanguage[language], fileName)
+}
+
+// This feels illegal
+func detectLanguage(fileName string) string {
+	extension := strings.ToLower(filepath.Ext(fileName))
+	switch extension {
+	case ".apex":
+		return "apex"
+	case ".bash":
+		return "bash"
+	case ".c":
+		return "c"
+	case ".cs":
+		return "csharp"
+	case ".cpp":
+		return "cpp"
+	case ".cairo":
+		return "cairo"
+	case ".clojure":
+		return "clojure"
+	case ".dart":
+		return "dart"
+	case ".dockerfile":
+		return "dockerfile"
+	case ".elixir":
+		return "elixir"
+	case ".ex":
+		return "ex"
+	case ".go":
+		return "go"
+	case ".golang":
+		return "golang"
+	case ".hack":
+		return "hack"
+	case ".hcl":
+		return "hcl"
+	case ".html":
+		return "html"
+	case ".java":
+		return "java"
+	case ".javascript", ".js":
+		return "javascript"
+	case ".json":
+		return "json"
+	case ".jsonnet":
+		return "jsonnet"
+	case ".julia":
+		return "julia"
+	case ".kotlin", ".kt":
+		return "kotlin"
+	case ".lisp":
+		return "lisp"
+	case ".lua":
+		return "lua"
+	case ".none":
+		return "none"
+	case ".ocaml":
+		return "ocaml"
+	case ".php":
+		return "php"
+	case ".promql":
+		return "promql"
+	case ".proto", ".proto3", ".protobuf":
+		return "protobuf"
+	case ".py", ".python", ".python2", ".python3":
+		return "python"
+	case ".r":
+		return "r"
+	case ".regex":
+		return "regex"
+	case ".ruby":
+		return "ruby"
+	case ".rust":
+		return "rust"
+	case ".scala":
+		return "scala"
+	case ".scheme":
+		return "scheme"
+	case ".sh":
+		return "sh"
+	case ".sol":
+		return "solidity"
+	case ".swift":
+		return "swift"
+	case ".terraform", ".tf":
+		return "terraform"
+	case ".ts":
+		return "typescript"
+	case ".vue":
+		return "vue"
+	case ".xml":
+		return "xml"
+	case ".yaml":
+		return "yaml"
+	default:
+		return ""
+	}
 }
 
 type SemgrepOutput struct {
@@ -72,71 +245,109 @@ type SemgrepExtra struct {
 	RenderedFix string `json:"rendered_fix,omitempty"`
 }
 
-func configurationFromSourceCode(sourceFolder string) (string, error) {
-	filename := path.Join(sourceFolder, sourceConfigFileName)
-	contentByte, err := os.ReadFile(filename)
-	return string(contentByte), err
+func openFile(filename string) (*os.File, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	return file, nil
 }
 
-func writeToTempFile(content string) (*os.File, error) {
+func getConfigurationFile(sourceFolder string) (*os.File, error) {
+	filename := path.Join(sourceFolder, sourceConfigFileName)
+	return openFile(filename)
+}
+
+func getDefaultConfigurationFile() (*os.File, error) {
+	return openFile("/" + defaultConfigFileName)
+}
+
+func createConfigFile(sourceFolder string, patterns *[]codacy.Pattern) (*os.File, error) {
+	// if there is no configuration file, try to use default configuration file
+	// otherwise configuration from source code
+
+	if patterns == nil || len(*patterns) == 0 {
+		// if there is no configuration file use default configuration file
+		if _, err := os.Stat(path.Join(sourceFolder, sourceConfigFileName)); err != nil {
+			return getDefaultConfigurationFile()
+		}
+
+		// otherwise use configuration from source code
+		return getConfigurationFile(sourceFolder)
+	}
+
+	// if there are patterns, create a configuration file from them
+	return createConfigFileFromPatterns(patterns)
+}
+
+func createConfigFileFromPatterns(patterns *[]codacy.Pattern) (*os.File, error) {
 	tmpFile, err := os.CreateTemp(os.TempDir(), "semgrep-")
 	if err != nil {
 		return nil, err
 	}
-	if _, err = tmpFile.Write([]byte(content)); err != nil {
+	defaultConfigFile, err := getDefaultConfigurationFile()
+	if err != nil {
 		return nil, err
 	}
-	if err := tmpFile.Close(); err != nil {
+
+	defaultConfigFileScanner := bufio.NewScanner(defaultConfigFile)
+
+	idIsPresent := false
+	_, err = tmpFile.WriteString("rules:\n")
+	if err != nil {
 		return nil, err
+	}
+	for defaultConfigFileScanner.Scan() {
+		line := defaultConfigFileScanner.Text()
+		if strings.Contains(line, "- id:") {
+			id := strings.TrimSpace(strings.Split(line, ":")[1])
+			idIsPresent = isIDPresent(id, patterns)
+		}
+
+		if idIsPresent {
+			_, err = tmpFile.WriteString(line + "\n")
+			if err != nil {
+				return nil, err
+			}
+		}
 	}
 
 	return tmpFile, nil
 }
 
-func getConfigurationFile(patterns []codacy.Pattern, sourceFolder string) (*os.File, error) {
-	// if no patterns, try to use configuration from source code
-	// otherwise default configuration file
-	if len(patterns) == 0 {
-		sourceConfigFileContent, err := configurationFromSourceCode(sourceFolder)
-		if err == nil {
-			return writeToTempFile(sourceConfigFileContent)
-		}
-
-		return nil, err
-	}
-
-	// TODO: generate configuration file from patterns and auto config file
-	// content := generateToolConfigurationContent(patterns)
-
-	// return writeToTempFile(content)
-	return nil, nil
-}
-
-func getConfigFileParam(configFile *os.File) []string {
-	if configFile != nil {
-		return []string{
-			"-rules",
-			configFile.Name(),
+func isIDPresent(id string, patterns *[]codacy.Pattern) bool {
+	for _, pattern := range *patterns {
+		if pattern.ID == id {
+			return true // The target ID is present in a pattern
 		}
 	}
-	return []string{}
+	return false // The target ID is not present in any pattern
 }
 
-func commandParameters(configFile *os.File, filesToAnalyse []string) []string {
-	cmdParams := append(
-		[]string{
-			"-json", "-json_nodots",
-			"-lang", "python", // TODO: get language from toolExecution?
-		},
-		getConfigFileParam(configFile)...,
+func commandParameters(configFile *os.File, language string, filesToAnalyse []string) []string {
+	// adding -json parameters
+	cmdParams := []string{
+		"-json", "-json_nodots",
+	}
+	// adding -lang parameter
+	cmdParams = append(
+		cmdParams,
+		"-lang", language,
 	)
-
-	cmdParams = append(cmdParams, filesToAnalyse...)
-
+	// adding -rules parameter
+	cmdParams = append(
+		cmdParams,
+		"-rules", configFile.Name(),
+	)
+	// adding files to analyse
+	cmdParams = append(
+		cmdParams,
+		filesToAnalyse...,
+	)
 	return cmdParams
 }
 
-func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) []codacy.Result {
+func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) ([]codacy.Result, error) {
 	var result []codacy.Result
 
 	scanner := bufio.NewScanner(strings.NewReader(commandOutput))
@@ -155,12 +366,11 @@ func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) []c
 		}
 	}
 
-	return result
+	return result, nil
 }
 
-func semgrepCommand(configFile *os.File, filesToAnalyse []string, sourceDir string) *exec.Cmd {
-	params := commandParameters(configFile, filesToAnalyse)
-
+func semgrepCommand(configFile *os.File, sourceDir, language string, files []string) *exec.Cmd {
+	params := commandParameters(configFile, language, files)
 	cmd := exec.Command("semgrep", params...)
 	cmd.Dir = sourceDir
 
@@ -170,7 +380,6 @@ func semgrepCommand(configFile *os.File, filesToAnalyse []string, sourceDir stri
 func runCommand(cmd *exec.Cmd) (string, string, error) {
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
-
 	cmdOutput, err := cmd.Output()
 	if err != nil {
 		return "", stderr.String(), err

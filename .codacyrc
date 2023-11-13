@@ -1,0 +1,18 @@
+{
+  "files": [
+    "exec.py"
+  ],
+  "tools": [
+    {
+      "name": "semgrep",
+      "patterns":[
+        {
+          "patternId":"go.lang.security.audit.net.dynamic-httptrace-clienttrace.dynamic-httptrace-clienttrace"
+        },
+        {
+          "patternId":"go.lang.security.audit.sqli.pg-orm-sqli.pg-orm-sqli"
+        }
+      ]
+    }
+  ]
+}

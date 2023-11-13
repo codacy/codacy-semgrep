@@ -17,3 +17,6 @@ cache
 docs/patterns.json
 docs/description/*.md
 docs/description/*.json
+.DS_Store
+.codacyrc
+auto.yaml
