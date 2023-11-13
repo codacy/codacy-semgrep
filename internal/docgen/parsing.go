@@ -1,6 +1,7 @@
 package docgen
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -55,11 +56,54 @@ func semgrepRules() ([]PatternWithExplanation, error) {
 	return pwes, nil
 }
 
+func createRules(fileNames []SemgrepRuleFile) error {
+	outputFile, err := os.Create("/docs/rules.yaml")
+	if err != nil {
+		return err
+	}
+	defer outputFile.Close()
+
+	_, err = outputFile.WriteString("rules:\n")
+	if err != nil {
+		return err
+	}
+
+	for _, fileName := range fileNames {
+		inputFile, err := os.Open(fileName.AbsolutePath)
+		if err != nil {
+			return err
+		}
+		defer inputFile.Close()
+
+		scanner := bufio.NewScanner(inputFile)
+
+		var copying bool
+		for scanner.Scan() {
+			line := scanner.Text()
+			if line == "rules:" {
+				copying = true
+				continue
+			}
+
+			if copying {
+				_, err = outputFile.WriteString(line + "\n")
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
 func getAllRules() (SemgrepRules, error) {
 	rulesFiles, err := downloadRepo("https://github.com/semgrep/semgrep-rules")
 	if err != nil {
 		return nil, err
 	}
+
+	createRules(rulesFiles)
 
 	var errorWithinMap error
 	rules := lo.FlatMap(rulesFiles, func(file SemgrepRuleFile, index int) []SemgrepRule {

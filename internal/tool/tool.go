@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -14,10 +15,13 @@ import (
 	"strings"
 
 	codacy "github.com/codacy/codacy-engine-golang-seed/v6"
+	"github.com/samber/lo"
 )
 
 const sourceConfigFileName = ".semgrep.yaml"
-const defaultConfigFileName = "auto.yaml"
+
+// TODO: should respect cli flag for docs location
+const rulesDefinitionFileName = "/docs/rules.yaml"
 
 var filesByLanguage map[string][]string = make(map[string][]string)
 
@@ -38,7 +42,7 @@ func (s codacySemgrep) Run(ctx context.Context, toolExecution codacy.ToolExecuti
 	var configFile *os.File
 	var err error
 
-	configFile, err = createConfigFile(toolExecution.SourceDir, toolExecution.Patterns)
+	configFile, err = createConfigFile(toolExecution, toolExecution.Patterns)
 	if err != nil {
 		return nil, err
 	}
@@ -258,22 +262,25 @@ func getConfigurationFile(sourceFolder string) (*os.File, error) {
 	return openFile(filename)
 }
 
-func getDefaultConfigurationFile() (*os.File, error) {
-	return openFile("/" + defaultConfigFileName)
+func getRulesDefinitionFile() (*os.File, error) {
+	return openFile(rulesDefinitionFileName)
 }
 
-func createConfigFile(sourceFolder string, patterns *[]codacy.Pattern) (*os.File, error) {
+func createConfigFile(toolExecution codacy.ToolExecution, patterns *[]codacy.Pattern) (*os.File, error) {
 	// if there is no configuration file, try to use default configuration file
 	// otherwise configuration from source code
 
 	if patterns == nil || len(*patterns) == 0 {
 		// if there is no configuration file use default configuration file
-		if _, err := os.Stat(path.Join(sourceFolder, sourceConfigFileName)); err != nil {
-			return getDefaultConfigurationFile()
+		if _, err := os.Stat(path.Join(toolExecution.SourceDir, sourceConfigFileName)); err != nil {
+			defaultPatterns := lo.Filter(toolExecution.ToolDefinition.Patterns, func(pattern codacy.Pattern, index int) bool {
+				return pattern.Enabled
+			})
+			return createConfigFileFromPatterns(&defaultPatterns)
 		}
 
 		// otherwise use configuration from source code
-		return getConfigurationFile(sourceFolder)
+		return getConfigurationFile(toolExecution.SourceDir)
 	}
 
 	// if there are patterns, create a configuration file from them
@@ -285,12 +292,12 @@ func createConfigFileFromPatterns(patterns *[]codacy.Pattern) (*os.File, error) 
 	if err != nil {
 		return nil, err
 	}
-	defaultConfigFile, err := getDefaultConfigurationFile()
+	rulesConfigFile, err := os.Open(rulesDefinitionFileName)
 	if err != nil {
 		return nil, err
 	}
 
-	defaultConfigFileScanner := bufio.NewScanner(defaultConfigFile)
+	defaultConfigFileScanner := bufio.NewScanner(rulesConfigFile)
 
 	idIsPresent := false
 	_, err = tmpFile.WriteString("rules:\n")
@@ -371,6 +378,7 @@ func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) ([]
 
 func semgrepCommand(configFile *os.File, sourceDir, language string, files []string) *exec.Cmd {
 	params := commandParameters(configFile, language, files)
+	fmt.Println("params", p)
 	cmd := exec.Command("semgrep", params...)
 	cmd.Dir = sourceDir
 
