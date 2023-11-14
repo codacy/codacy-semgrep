@@ -30,33 +30,66 @@ func createUnifiedRuleFile(semgrepRuleFiles []SemgrepRuleFile) error {
 
 		scanner := bufio.NewScanner(inputFile)
 
-		var copying bool
+		// Skip until line with "rules:"
+		for scanner.Scan() {
+			if strings.HasPrefix(scanner.Text(), "rules:"){
+				break
+			}
+		}
+		
+		// We need to handle the first iteration of the loop to get the indentation
+		scanner.Scan() // Get second line ("  - id: ...")
+		line := scanner.Text()
+
+		// This is done because withing a file the identation is consistent
+		indentation := getIndentationCount(line)
+		processLineIntoFile(line, indentation, semgrepRuleFile.RelativePath, unifiedRuleFile)
+
 		for scanner.Scan() {
 			line := scanner.Text()
-			if line == "rules:" {
-				copying = true
-				continue
-			}
+			processLineIntoFile(line, indentation, semgrepRuleFile.RelativePath, unifiedRuleFile)
 
-			if copying {
-				// If line starts with - id:
-				// Take part after:
-				// and replace it with prefixed id
-				// using prefixRuleIDWithPath(file.RelativePath, r.ID)
-				if strings.Contains(line, "- id:") {
-					unprefixedID := strings.TrimSpace(strings.Split(line, ":")[1])
-					prefixedID := prefixRuleIDWithPath(semgrepRuleFile.RelativePath, unprefixedID)
-					line = strings.Replace(line, unprefixedID, prefixedID, 1)
-				}
-
-				// TODO(before-release): What if rules have different identations?
-				_, err = unifiedRuleFile.WriteString(line + "\n")
-				if err != nil {
-					return err
-				}
-			}
 		}
 	}
 
 	return nil
+}
+
+func processLineIntoFile(line string, indentation int, inputFileRelativePath string, outputFile *os.File) error {
+	line = removeIndentation(line, indentation)
+
+	if strings.HasPrefix(line, "- id:"){
+		line = prefixRule(line, inputFileRelativePath)
+	}
+
+	_, err := outputFile.WriteString(line + "\n")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// If line starts with "- id:"
+// Take part after ":"
+// Replace it with prefixed id
+// using prefixRuleIDWithPath(file.RelativePath, r.ID)
+func prefixRule(line string, inputFileRelativePath string) string {
+	if strings.HasPrefix(line, "- id:"){
+		unprefixedID := strings.TrimSpace(strings.Split(line, ":")[1])
+		prefixedID := prefixRuleIDWithPath(inputFileRelativePath, unprefixedID)
+		line = strings.Replace(line, unprefixedID, prefixedID, 1)
+		return line
+	}
+	return line
+}
+
+func getIndentationCount(line string) int {
+	return len(line) - len(strings.TrimLeft(line, " "))
+}
+
+func removeIndentation(line string, indentation int) string {
+	if len(line) >= indentation {
+		line = line[indentation:]
+	}
+	return line
 }
