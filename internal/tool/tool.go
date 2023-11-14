@@ -376,8 +376,7 @@ func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) ([]
 		for _, semgrepRes := range semgrepOutput.Results {
 			result = append(result, codacy.Issue{
 				PatternID: semgrepRes.CheckID,
-				// TODO(before-release): Message can be empty ?
-				Message:    strings.TrimSpace(semgrepRes.Extra.Message),
+				Message:    writeMessage(strings.TrimSpace(semgrepRes.Extra.Message)),
 				Line:       semgrepRes.StartLocation.Line,
 				File:       semgrepRes.Path,
 				Suggestion: semgrepRes.Extra.RenderedFix,
@@ -392,6 +391,14 @@ func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) ([]
 	}
 
 	return result, nil
+}
+
+func writeMessage(s string) string {
+	// If message is empty, write a default message
+	if s == "" {
+		return "Potential security issue detected. No specific details available. Please review the identified code segment for potential security vulnerabilities."
+	}
+	return s
 }
 
 func semgrepCommand(configFile *os.File, sourceDir, language string, files []string) *exec.Cmd {

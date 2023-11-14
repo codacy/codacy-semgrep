@@ -20,3 +20,4 @@ docs/description/*.json
 docs/rules.yaml
 .DS_Store
 .codacyrc
+auto.yaml
