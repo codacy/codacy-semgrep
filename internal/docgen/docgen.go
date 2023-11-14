@@ -27,7 +27,7 @@ func New() DocumentationGenerator {
 type documentationGenerator struct{}
 
 func (g documentationGenerator) Generate(destinationDir string) error {
-	semgrepRules, semgrepRuleFiles, err := g.listRules(destinationDir)
+	semgrepRules, parsedSemgrepRules, err := g.listRules(destinationDir)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (g documentationGenerator) Generate(destinationDir string) error {
 		return err
 	}
 
-	if err := g.createRulesDefinitionFile(semgrepRuleFiles, destinationDir); err != nil {
+	if err := g.createRulesDefinitionFile(parsedSemgrepRules, destinationDir); err != nil {
 		return err
 	}
 
@@ -61,17 +61,17 @@ func toolVersion() (string, error) {
 	return strings.Trim(string(versionBytes), "\n"), nil
 }
 
-func (g documentationGenerator) listRules(destinationDir string) ([]PatternWithExplanation, []SemgrepRuleFile, error) {
+func (g documentationGenerator) listRules(destinationDir string) ([]PatternWithExplanation, *ParsedSemgrepRules, error) {
 	return semgrepRules(destinationDir)
 }
 
-func (g documentationGenerator) createRulesDefinitionFile(ruleFiles []SemgrepRuleFile, destinationDir string) error {
+func (g documentationGenerator) createRulesDefinitionFile(parsedSemgrepRules *ParsedSemgrepRules, destinationDir string) error {
 	fmt.Println("Creating rules.yaml file...")
 
 	rulesDefinitionFileName := "rules.yaml"
 	rulesDefinitionFilePath := path.Join(destinationDir, rulesDefinitionFileName)
 
-	return createUnifiedRuleFile(rulesDefinitionFilePath, ruleFiles)
+	return createUnifiedRuleFile(rulesDefinitionFilePath, parsedSemgrepRules)
 }
 
 func (g documentationGenerator) createPatternsFile(rules PatternsWithExplanation, toolVersion, destinationDir string) error {

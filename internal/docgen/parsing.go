@@ -2,6 +2,7 @@ package docgen
 
 import (
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -36,9 +37,9 @@ type SemgrepRuleMetadata struct {
 
 type SemgrepRules []SemgrepRule
 
-func semgrepRules(destinationDir string) ([]PatternWithExplanation, []SemgrepRuleFile, error) {
+func semgrepRules(destinationDir string) ([]PatternWithExplanation, *ParsedSemgrepRules, error) {
 	fmt.Println("Getting Semgrep rules...")
-	semgrepRegistryRules, semgrepRegistryRuleFiles, err := getSemgrepRegistryRules()
+	parsedSemgrepRegistryRules, err := getSemgrepRegistryRules()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -50,30 +51,38 @@ func semgrepRules(destinationDir string) ([]PatternWithExplanation, []SemgrepRul
 	}
 
 	fmt.Println("Getting GitLab rules...")
-	gitlabRules, gitlabRuleFiles, err := getGitLabRules()
+	parsedGitLabRules, err := getGitLabRules()
 	if err != nil {
 		return nil, nil, err
 	}
 
-	allRules := append(semgrepRegistryRules, gitlabRules...)
-	defaultRules := append(semgrepRegistryDefaultRules, gitlabRules...)
+	allRules := append(parsedSemgrepRegistryRules.Rules, parsedGitLabRules.Rules...)
+	defaultRules := append(semgrepRegistryDefaultRules, parsedGitLabRules.Rules...)
 
 	fmt.Println("Converting rules...")
 	pwes := allRules.toPatternWithExplanation(defaultRules)
 
-	rulesFiles := append(semgrepRegistryRuleFiles, gitlabRuleFiles...)
+	mappings := make(map[string]string)
+	maps.Copy(mappings, parsedSemgrepRegistryRules.Mappings)
+	maps.Copy(mappings, parsedGitLabRules.Mappings)
 
-	return pwes, rulesFiles, nil
+	parsedRules := ParsedSemgrepRules{
+		Rules:    allRules,
+		Files:    append(parsedSemgrepRegistryRules.Files, parsedGitLabRules.Files...),
+		Mappings: mappings,
+	}
+
+	return pwes, &parsedRules, nil
 }
 
-func getSemgrepRegistryRules() (SemgrepRules, []SemgrepRuleFile, error) {
+func getSemgrepRegistryRules() (*ParsedSemgrepRules, error) {
 	return getRules(
 		"https://github.com/semgrep/semgrep-rules",
 		isValidSemgrepRegistryRuleFile,
 		prefixRuleIDWithPath)
 }
 
-func getGitLabRules() (SemgrepRules, []SemgrepRuleFile, error) {
+func getGitLabRules() (*ParsedSemgrepRules, error) {
 	return getRules(
 		"https://gitlab.com/gitlab-org/security-products/sast-rules.git",
 		isValidGitLabRuleFile,
@@ -83,15 +92,23 @@ func getGitLabRules() (SemgrepRules, []SemgrepRuleFile, error) {
 type FilenameValidator func(string) bool
 type IDGenerator func(string, string) string
 
-func getRules(url string, validate FilenameValidator, generate IDGenerator) (SemgrepRules, []SemgrepRuleFile, error) {
+type ParsedSemgrepRules struct {
+	Rules    SemgrepRules
+	Files    []SemgrepRuleFile
+	Mappings map[string]string
+}
+
+func getRules(url string, validate FilenameValidator, generate IDGenerator) (*ParsedSemgrepRules, error) {
 	rulesFiles, err := downloadRepo(url)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	rulesFiles = lo.Filter(rulesFiles, func(file SemgrepRuleFile, index int) bool {
 		return validate(file.RelativePath)
 	})
+
+	mappings := make(map[string]string)
 
 	var errorWithinMap error
 	rules := lo.FlatMap(rulesFiles, func(file SemgrepRuleFile, index int) []SemgrepRule {
@@ -101,21 +118,23 @@ func getRules(url string, validate FilenameValidator, generate IDGenerator) (Sem
 		}
 
 		rs = lo.Map(rs, func(r SemgrepRule, index int) SemgrepRule {
-			r.ID = generate(file.RelativePath, r.ID)
+			unprefixedID := r.ID
+			r.ID = generate(file.RelativePath, unprefixedID)
+			mappings[unprefixedID] = r.ID
 			return r
 		})
 
 		return rs
 	})
 	if errorWithinMap != nil {
-		return nil, nil, errorWithinMap
+		return nil, errorWithinMap
 	}
 
 	sort.Slice(rules, func(i, j int) bool {
 		return rules[i].ID < rules[j].ID
 	})
 
-	return rules, rulesFiles, nil
+	return &ParsedSemgrepRules{rules, rulesFiles, mappings}, nil
 }
 
 func isValidSemgrepRegistryRuleFile(filename string) bool {
@@ -128,6 +147,7 @@ func isValidSemgrepRegistryRuleFile(filename string) bool {
 		!strings.HasPrefix(filename, "fingerprints/") &&
 		!strings.HasPrefix(filename, "scripts/") &&
 		!strings.HasPrefix(filename, "libsonnet/") &&
+		!strings.HasPrefix(filename, "solidity/") &&
 		filename != "template.yaml" // or example file
 }
 
