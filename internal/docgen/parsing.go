@@ -2,6 +2,7 @@ package docgen
 
 import (
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -36,33 +37,78 @@ type SemgrepRuleMetadata struct {
 
 type SemgrepRules []SemgrepRule
 
-func semgrepRules() ([]PatternWithExplanation, error) {
+func semgrepRules(destinationDir string) ([]PatternWithExplanation, *ParsedSemgrepRules, error) {
 	fmt.Println("Getting Semgrep rules...")
-	allRules, err := getAllRules()
+	parsedSemgrepRegistryRules, err := getSemgrepRegistryRules()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	fmt.Println("Getting Semgrep default rules...")
-	defaultRules, err := getDefaultRules()
+	semgrepRegistryDefaultRules, err := getSemgrepRegistryDefaultRules()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	fmt.Println("Converting Semgrep rules...")
+	fmt.Println("Getting GitLab rules...")
+	parsedGitLabRules, err := getGitLabRules()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	allRules := append(parsedSemgrepRegistryRules.Rules, parsedGitLabRules.Rules...)
+	defaultRules := append(semgrepRegistryDefaultRules, parsedGitLabRules.Rules...)
+
+	fmt.Println("Converting rules...")
 	pwes := allRules.toPatternWithExplanation(defaultRules)
 
-	return pwes, nil
+	mappings := make(map[string]string)
+	maps.Copy(mappings, parsedSemgrepRegistryRules.Mappings)
+	maps.Copy(mappings, parsedGitLabRules.Mappings)
+
+	parsedRules := ParsedSemgrepRules{
+		Rules:    allRules,
+		Files:    append(parsedSemgrepRegistryRules.Files, parsedGitLabRules.Files...),
+		Mappings: mappings,
+	}
+
+	return pwes, &parsedRules, nil
 }
 
-func getAllRules() (SemgrepRules, error) {
-	rulesFiles, err := downloadRepo("https://github.com/semgrep/semgrep-rules")
+func getSemgrepRegistryRules() (*ParsedSemgrepRules, error) {
+	return getRules(
+		"https://github.com/semgrep/semgrep-rules",
+		isValidSemgrepRegistryRuleFile,
+		prefixRuleIDWithPath)
+}
+
+func getGitLabRules() (*ParsedSemgrepRules, error) {
+	return getRules(
+		"https://gitlab.com/gitlab-org/security-products/sast-rules.git",
+		isValidGitLabRuleFile,
+		func(relativePath string, unprefixedID string) string { return unprefixedID })
+}
+
+type FilenameValidator func(string) bool
+type IDGenerator func(string, string) string
+
+type ParsedSemgrepRules struct {
+	Rules    SemgrepRules
+	Files    []SemgrepRuleFile
+	Mappings map[string]string
+}
+
+func getRules(url string, validate FilenameValidator, generate IDGenerator) (*ParsedSemgrepRules, error) {
+	rulesFiles, err := downloadRepo(url)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: Update when GitLab rules are merged
-	createUnifiedRuleFile(rulesFiles)
+	rulesFiles = lo.Filter(rulesFiles, func(file SemgrepRuleFile, index int) bool {
+		return validate(file.RelativePath)
+	})
+
+	mappings := make(map[string]string)
 
 	var errorWithinMap error
 	rules := lo.FlatMap(rulesFiles, func(file SemgrepRuleFile, index int) []SemgrepRule {
@@ -72,7 +118,9 @@ func getAllRules() (SemgrepRules, error) {
 		}
 
 		rs = lo.Map(rs, func(r SemgrepRule, index int) SemgrepRule {
-			r.ID = prefixRuleIDWithPath(file.RelativePath, r.ID)
+			unprefixedID := r.ID
+			r.ID = generate(file.RelativePath, unprefixedID)
+			mappings[unprefixedID] = r.ID
 			return r
 		})
 
@@ -86,7 +134,28 @@ func getAllRules() (SemgrepRules, error) {
 		return rules[i].ID < rules[j].ID
 	})
 
-	return rules, nil
+	return &ParsedSemgrepRules{rules, rulesFiles, mappings}, nil
+}
+
+func isValidSemgrepRegistryRuleFile(filename string) bool {
+	return strings.HasSuffix(filename, ".yaml") && // Rules files
+		!strings.HasSuffix(filename, ".test.yaml") && // but not test files
+		!strings.HasPrefix(filename, ".") && // Or shadow directories
+		// Or Semgrep ignored dirs: https://github.com/semgrep/semgrep-rules/blob/c495d664cbb75e8347fae9d27725436717a7926e/scripts/run-tests#L48
+		!strings.HasPrefix(filename, "stats/") &&
+		!strings.HasPrefix(filename, "trusted_python/") &&
+		!strings.HasPrefix(filename, "fingerprints/") &&
+		!strings.HasPrefix(filename, "scripts/") &&
+		!strings.HasPrefix(filename, "libsonnet/") &&
+		!strings.HasPrefix(filename, "solidity/") &&
+		filename != "template.yaml" // or example file
+}
+
+func isValidGitLabRuleFile(filename string) bool {
+	return strings.HasSuffix(filename, ".yml") &&
+		!strings.HasPrefix(filename, "dist/") &&
+		!strings.HasPrefix(filename, "docs/") &&
+		!strings.HasPrefix(filename, "mappings/")
 }
 
 func prefixRuleIDWithPath(relativePath string, unprefixedID string) string {
@@ -96,7 +165,7 @@ func prefixRuleIDWithPath(relativePath string, unprefixedID string) string {
 	return strings.ToLower(prefixedID)
 }
 
-func getDefaultRules() (SemgrepRules, error) {
+func getSemgrepRegistryDefaultRules() (SemgrepRules, error) {
 	defaultRulesFile, err := downloadFile("https://semgrep.dev/c/p/default")
 	if err != nil {
 		return nil, err
@@ -238,13 +307,21 @@ func getCodacySubCategory(category Category, OWASPCategories []string) SubCatego
 			return InputValidation
 		case "A01:2017 - Injection":
 			return InputValidation
+		case "A1:2017-Injection":
+			return InputValidation
 		case "A02:2017 - Broken Authentication":
 			return Auth
 		case "A03:2017 - Sensitive Data Exposure":
 			return Visibility
+		case "A3:2017-Sensitive Data Exposure":
+			return Visibility
 		case "A3:2017 Sensitive Data Exposure":
 			return Visibility
 		case "A04:2017 - XML External Entities (XXE)":
+			return InputValidation
+		case "A4:2017 - XML External Entities (XXE)":
+			return InputValidation
+		case "A4:2017-XML External Entities (XXE)":
 			return InputValidation
 		case "A04:2021 - XML External Entities (XXE)":
 			return InputValidation
@@ -252,17 +329,29 @@ func getCodacySubCategory(category Category, OWASPCategories []string) SubCatego
 			return InsecureStorage
 		case "A05:2017 - Sensitive Data Exposure":
 			return InsecureStorage
+		case "A5:2017-Broken Access Control":
+			return InsecureStorage
 		case "A06:2017 - Security Misconfiguration":
 			return Other
 		case "A6:2017 misconfiguration":
 			return Other
+		case "A6:2017-Security Misconfiguration":
+			return Other
 		case "A07:2017 - Cross-Site Scripting (XSS)":
 			return InputValidation
+		case "A7:2017-Cross-Site Scripting (XSS)":
+			return InputValidation
+		case "A7: Cross-Site Scripting (XSS)":
+			return InputValidation
 		case "A08:2017 - Insecure Deserialization":
+			return InputValidation
+		case "A8:2017-Insecure Deserialization":
 			return InputValidation
 		case "A8:2017 Insecure Deserialization":
 			return InputValidation
 		case "A09:2017 - Using Components with Known Vulnerabilities":
+			return InsecureModulesLibraries
+		case "A9:2017-Using Components with Known Vulnerabilities":
 			return InsecureModulesLibraries
 		case "A10:2017 - Insufficient Logging & Monitoring":
 			return Visibility

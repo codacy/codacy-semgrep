@@ -3,14 +3,12 @@ package docgen
 import (
 	"bufio"
 	"os"
+	"strconv"
 	"strings"
 )
 
-// TODO: should respect cli flag for docs location
-const rulesDefinitionFileName = "/docs/rules.yaml"
-
-func createUnifiedRuleFile(semgrepRuleFiles []SemgrepRuleFile) error {
-	unifiedRuleFile, err := os.Create(rulesDefinitionFileName)
+func createUnifiedRuleFile(filename string, parsedSemgrepRules *ParsedSemgrepRules) error {
+	unifiedRuleFile, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
@@ -21,7 +19,7 @@ func createUnifiedRuleFile(semgrepRuleFiles []SemgrepRuleFile) error {
 		return err
 	}
 
-	for _, semgrepRuleFile := range semgrepRuleFiles {
+	for _, semgrepRuleFile := range parsedSemgrepRules.Files {
 		inputFile, err := os.Open(semgrepRuleFile.AbsolutePath)
 		if err != nil {
 			return err
@@ -32,34 +30,39 @@ func createUnifiedRuleFile(semgrepRuleFiles []SemgrepRuleFile) error {
 
 		// Skip until line with "rules:"
 		for scanner.Scan() {
-			if strings.HasPrefix(scanner.Text(), "rules:"){
+			if strings.HasPrefix(scanner.Text(), "rules:") {
 				break
 			}
 		}
-		
+
 		// We need to handle the first iteration of the loop to get the indentation
 		scanner.Scan() // Get second line ("  - id: ...")
 		line := scanner.Text()
 
 		// This is done because withing a file the identation is consistent
 		indentation := getIndentationCount(line)
-		processLineIntoFile(line, indentation, semgrepRuleFile.RelativePath, unifiedRuleFile)
+		processLineIntoFile(line, indentation, parsedSemgrepRules, unifiedRuleFile)
 
 		for scanner.Scan() {
 			line := scanner.Text()
-			processLineIntoFile(line, indentation, semgrepRuleFile.RelativePath, unifiedRuleFile)
 
+			// Special case for: https://gitlab.com/gitlab-org/security-products/sast-rules/-/blob/main/java/strings/rule-ModifyAfterValidation.yml#L64
+			if line == "..." {
+				continue
+			}
+
+			processLineIntoFile(line, indentation, parsedSemgrepRules, unifiedRuleFile)
 		}
 	}
 
 	return nil
 }
 
-func processLineIntoFile(line string, indentation int, inputFileRelativePath string, outputFile *os.File) error {
+func processLineIntoFile(line string, indentation int, parsedSemgrepRules *ParsedSemgrepRules, outputFile *os.File) error {
 	line = removeIndentation(line, indentation)
 
-	if strings.HasPrefix(line, "- id:"){
-		line = prefixRule(line, inputFileRelativePath)
+	if strings.HasPrefix(line, "- id:") {
+		line = prefixRule(line, parsedSemgrepRules)
 	}
 
 	_, err := outputFile.WriteString(line + "\n")
@@ -69,16 +72,16 @@ func processLineIntoFile(line string, indentation int, inputFileRelativePath str
 	return nil
 }
 
-// If line starts with "- id:"
-// Take part after ":"
-// Replace it with prefixed id
-// using prefixRuleIDWithPath(file.RelativePath, r.ID)
-func prefixRule(line string, inputFileRelativePath string) string {
-	if strings.HasPrefix(line, "- id:"){
+// If a line starts with `- id:`, take the part after `:“ and replace it with the prefixed id
+func prefixRule(line string, parsedSemgrepRules *ParsedSemgrepRules) string {
+	if strings.HasPrefix(line, "- id:") {
 		unprefixedID := strings.TrimSpace(strings.Split(line, ":")[1])
-		prefixedID := prefixRuleIDWithPath(inputFileRelativePath, unprefixedID)
+		unquotedID, err := strconv.Unquote(unprefixedID)
+		if err != nil {
+			unquotedID = unprefixedID
+		}
+		prefixedID := parsedSemgrepRules.Mappings[unquotedID]
 		line = strings.Replace(line, unprefixedID, prefixedID, 1)
-		return line
 	}
 	return line
 }

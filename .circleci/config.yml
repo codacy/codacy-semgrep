@@ -1,18 +1,26 @@
 version: 2.1
 
 orbs:
-  codacy: codacy/base@10.10.1
+  codacy: codacy/base@10.11.0
   codacy_plugins_test: codacy/plugins-test@1.1.1
+
+jobs:
+  unit_tests:
+    docker:
+      - image: cimg/go:1.21
+    working_directory: ~/workdir
+    steps:
+      - attach_workspace:
+          at: ~/workdir
+      - run:
+          name: unit_tests
+          command: go test -v ./...
 
 workflows:
   compile_test_deploy:
     jobs:
       - codacy/checkout_and_version
-      - codacy/shell:
-          name: unit_tests
-          cmd: |
-            go test -v ./...
-          persist_to_workspace: true
+      - unit_tests:
           requires:
             - codacy/checkout_and_version
       - codacy/shell:
