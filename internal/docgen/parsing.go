@@ -62,14 +62,14 @@ func semgrepRules(destinationDir string) ([]PatternWithExplanation, *ParsedSemgr
 	fmt.Println("Converting rules...")
 	pwes := allRules.toPatternWithExplanation(defaultRules)
 
-	mappings := make(map[string]string)
-	maps.Copy(mappings, parsedSemgrepRegistryRules.Mappings)
-	maps.Copy(mappings, parsedGitLabRules.Mappings)
+	idMapper := make(map[IDMapperKey]string)
+	maps.Copy(idMapper, parsedSemgrepRegistryRules.IDMapper)
+	maps.Copy(idMapper, parsedGitLabRules.IDMapper)
 
 	parsedRules := ParsedSemgrepRules{
 		Rules:    allRules,
 		Files:    append(parsedSemgrepRegistryRules.Files, parsedGitLabRules.Files...),
-		Mappings: mappings,
+		IDMapper: idMapper,
 	}
 
 	return pwes, &parsedRules, nil
@@ -95,7 +95,12 @@ type IDGenerator func(string, string) string
 type ParsedSemgrepRules struct {
 	Rules    SemgrepRules
 	Files    []SemgrepRuleFile
-	Mappings map[string]string
+	IDMapper map[IDMapperKey]string
+}
+
+type IDMapperKey struct {
+	Filename     string
+	UnprefixedID string
 }
 
 func getRules(url string, validate FilenameValidator, generate IDGenerator) (*ParsedSemgrepRules, error) {
@@ -108,7 +113,7 @@ func getRules(url string, validate FilenameValidator, generate IDGenerator) (*Pa
 		return validate(file.RelativePath)
 	})
 
-	mappings := make(map[string]string)
+	mappings := make(map[IDMapperKey]string)
 
 	var errorWithinMap error
 	rules := lo.FlatMap(rulesFiles, func(file SemgrepRuleFile, index int) []SemgrepRule {
@@ -120,7 +125,10 @@ func getRules(url string, validate FilenameValidator, generate IDGenerator) (*Pa
 		rs = lo.Map(rs, func(r SemgrepRule, index int) SemgrepRule {
 			unprefixedID := r.ID
 			r.ID = generate(file.RelativePath, unprefixedID)
-			mappings[unprefixedID] = r.ID
+			mappings[IDMapperKey{
+				Filename:     file.RelativePath,
+				UnprefixedID: unprefixedID,
+			}] = r.ID
 			return r
 		})
 

@@ -41,7 +41,7 @@ func createUnifiedRuleFile(filename string, parsedSemgrepRules *ParsedSemgrepRul
 
 		// This is done because withing a file the identation is consistent
 		indentation := getIndentationCount(line)
-		processLineIntoFile(line, indentation, parsedSemgrepRules, unifiedRuleFile)
+		processLineIntoFile(line, indentation, parsedSemgrepRules, unifiedRuleFile, semgrepRuleFile)
 
 		for scanner.Scan() {
 			line := scanner.Text()
@@ -51,18 +51,18 @@ func createUnifiedRuleFile(filename string, parsedSemgrepRules *ParsedSemgrepRul
 				continue
 			}
 
-			processLineIntoFile(line, indentation, parsedSemgrepRules, unifiedRuleFile)
+			processLineIntoFile(line, indentation, parsedSemgrepRules, unifiedRuleFile, semgrepRuleFile)
 		}
 	}
 
 	return nil
 }
 
-func processLineIntoFile(line string, indentation int, parsedSemgrepRules *ParsedSemgrepRules, outputFile *os.File) error {
+func processLineIntoFile(line string, indentation int, parsedSemgrepRules *ParsedSemgrepRules, outputFile *os.File, semgrepRuleFile SemgrepRuleFile) error {
 	line = removeIndentation(line, indentation)
 
 	if strings.HasPrefix(line, "- id:") {
-		line = prefixRule(line, parsedSemgrepRules)
+		line = prefixRule(line, parsedSemgrepRules, semgrepRuleFile)
 	}
 
 	_, err := outputFile.WriteString(line + "\n")
@@ -73,14 +73,17 @@ func processLineIntoFile(line string, indentation int, parsedSemgrepRules *Parse
 }
 
 // If a line starts with `- id:`, take the part after `:“ and replace it with the prefixed id
-func prefixRule(line string, parsedSemgrepRules *ParsedSemgrepRules) string {
+func prefixRule(line string, parsedSemgrepRules *ParsedSemgrepRules, semgrepRuleFile SemgrepRuleFile) string {
 	if strings.HasPrefix(line, "- id:") {
 		unprefixedID := strings.TrimSpace(strings.Split(line, ":")[1])
 		unquotedID, err := strconv.Unquote(unprefixedID)
 		if err != nil {
 			unquotedID = unprefixedID
 		}
-		prefixedID := parsedSemgrepRules.Mappings[unquotedID]
+		prefixedID := parsedSemgrepRules.IDMapper[IDMapperKey{
+			Filename:     semgrepRuleFile.RelativePath,
+			UnprefixedID: unquotedID,
+		}]
 		line = strings.Replace(line, unprefixedID, prefixedID, 1)
 	}
 	return line
