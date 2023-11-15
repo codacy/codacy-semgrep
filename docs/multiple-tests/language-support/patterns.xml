@@ -1,4 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module name="root">
-    <module name="python.lang.security.audit.exec-detected.exec-detected" />
+    <module name="bash.curl.security.curl-eval.curl-eval" />
+    <module name="c.lang.security.double-free.double-free" />
+    <module name="clojure.lang.security.use-of-md5.use-of-md5" />
+    <module name="csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration" />
+    <module name="dockerfile.security.last-user-is-root.last-user-is-root" />
+    <module name="dockerfile.security.missing-user.missing-user" />
+    <module name="elixir.lang.best-practice.enum-map-into.enum_map_into" />
+    <module name="go.lang.security.bad_tmp.bad-tmp-file-creation" />
+    <module name="java.java-jwt.security.jwt-none-alg.java-jwt-none-alg" />
+    <module name="javascript.ajv.security.audit.ajv-allerrors-true.ajv-allerrors-true" />
+    <module name="javascript.react.correctness.hooks.set-state-no-op.calling-set-state-on-current-state" />
+    <module name="json.aws.security.public-s3-bucket.public-s3-bucket" />
+    <module name="kotlin.lang.security.weak-rsa.use-of-weak-rsa-key" />
+    <module name="php.lang.security.ftp-use.ftp-use" />
+    <module name="python.jwt.security.jwt-none-alg.jwt-python-none-alg" />
+    <module name="ruby.lang.security.no-send.bad-send" />
+    <module name="rust.lang.security.unsafe-usage.unsafe-usage" />
+    <module name="scala.scala-jwt.security.jwt-hardcode.scala-jwt-hardcoded-secret" />
+    <module name="solidity.security.erc20-public-burn.erc20-public-burn" />
+    <module name="swift.lang.crypto.insecure-random.insecure-random" />
+    <module name="javascript.lang.security.detect-child-process.detect-child-process" />
+    <module name="terraform.lang.security.rds-public-access.rds-public-access" />
+    <module name="typescript.react.security.audit.react-no-refs.react-no-refs" />
+    <module name="javascript.vue.security.audit.xss.templates.avoid-v-html.avoid-v-html" />
+    <module name="generic.visualforce.security.ncino.xml.visualforceapiversion.visualforce-page-api-version" />
+    <module name="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" />
+    <module name="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha" />
 </module>
+

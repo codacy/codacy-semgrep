@@ -144,32 +144,32 @@ func detectLanguage(fileName string) string {
 	extensionToLanguageMap := map[string]string{
 		".js":    "javascript",
 		".jsx":   "javascript",
-		".jsm":   "javascript",
+		".jsm":   "javascript", // missing from tests
 		".vue":   "vue",
-		".mjs":   "javascript",
+		".mjs":   "javascript", // missing from tests
 		".scala": "scala",
 		// ".css"
 		".php":      "php",
 		".py":       "python",
 		".rb":       "ruby",
-		".gemspec":  "ruby",
-		".podspec":  "ruby",
-		".jbuilder": "ruby",
-		".rake":     "ruby",
-		".opal":     "ruby",
+		".gemspec":  "ruby", // missing from tests 	
+		".podspec":  "ruby", // missing from tests
+		".jbuilder": "ruby", // missing from tests
+		".rake":     "ruby", // missing from tests
+		".opal":     "ruby", // missing from tests
 		".java":     "java",
 		// ".coffee"
 		".swift":      "swift",
 		".cpp":        "cpp",
-		".hpp":        "cpp",
-		".cc":         "cpp",
-		".cxx":        "cpp",
-		".ino":        "cpp",
+		".hpp":        "cpp", // missing from tests
+		".cc":         "cpp", // missing from tests
+		".cxx":        "cpp", // missing from tests
+		".ino":        "cpp", // missing from tests
 		".c":          "c",
-		".h":          "c",
-		".sh":         "sh",
+		".h":          "c", // missing
+		".sh":         "sh", // missing from tests
 		".bash":       "bash",
-		".ts":         "typescript",
+		".ts":         "typescript", 
 		".tsx":        "typescript",
 		".dockerfile": "dockerfile",
 		"Dockerfile":  "dockerfile",
@@ -183,16 +183,16 @@ func detectLanguage(fileName string) string {
 		// ".jsp"
 		// ".vm"
 		".xml":     "xml",
-		".xsl":     "xml",
-		".wsdl":    "xml",
-		".pom":     "xml",
-		".cls":     "apex",
-		".trigger": "apex",
+		".xsl":     "xml", // missing from tests
+		".wsdl":    "xml", // missing from tests
+		".pom":     "xml", // missing from tests
+		".cls":     "apex", // missing from tests
+		".trigger": "apex", // missing from testss
 		// ".component", ".page"
 		".cs":  "csharp",
 		".kt":  "kotlin",
-		".kts": "kotlin",
-		".ex":  "elixir",
+		".kts": "kotlin", // missing from tests
+		".ex":  "elixir", // missing from tests
 		".exs": "elixir",
 		// ".md", ".markdown", ".mdown", ".mkdn", ".mkd", ".mdwn", ".mkdown", ".ron"
 		// ".ps1", ".psc1", ".psd1", ".psm1", ".ps1xml", ".pssc", ".cdxml", ".clixml"
@@ -204,31 +204,32 @@ func detectLanguage(fileName string) string {
 		// ".m"
 		".yaml": "yaml", // should these be Terraform?
 		".yml":  "yaml",
-		".dart": "dart",
+		".dart": "dart", // missing from tests
 		".rs":   "rust",
-		".rlib": "rust",
+		".rlib": "rust", // missing from tests
 		".clj":  "clojure",
-		".cljs": "clojure",
-		".cljc": "clojure",
-		".edn":  "clojure",
+		".cljs": "clojure", // missing from tests
+		".cljc": "clojure", // missing from tests
+		".edn":  "clojure", // missing from tests
 		// ".hs", ".lhs"
 		// ".erl"
 		// ".elm"
-		".html": "html",
+		".html": "html", // missing from tests
 		// ".pl"
 		// ".fs"
 		// ".f90", ".f95", ".f03"
-		".r": "r",
+		".r": "r", // missing from tests
 		// ".scratch", ".sb", ".sprite", ".sb2", ".sprite2"
-		".lua":  "lua",
-		".asd":  "lisp",
-		".el":   "lisp",
-		".lsp":  "lisp",
-		".lisp": "lisp",
+		".lua":  "lua", // missing from tests
+		".asd":  "lisp", // missing from tests
+		".el":   "lisp", // missing from tests
+		".lsp":  "lisp", // missing from tests
+		".lisp": "lisp", // missing from tests
 		// ".P", ".swipl"
-		".jl": "julia",
+		".jl": "julia", // missing from tests
 		// ".ml", ".mli", ".mly", ".mll"
 		".sol": "solidity",
+		".tf":  "terraform",
 	}
 
 	if language, ok := extensionToLanguageMap[extensionOrFilename]; ok {
