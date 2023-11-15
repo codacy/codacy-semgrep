@@ -147,8 +147,15 @@ func isValidSemgrepRegistryRuleFile(filename string) bool {
 		!strings.HasPrefix(filename, "fingerprints/") &&
 		!strings.HasPrefix(filename, "scripts/") &&
 		!strings.HasPrefix(filename, "libsonnet/") &&
-		!strings.HasPrefix(filename, "solidity/") &&
-		filename != "template.yaml" // or example file
+		filename != "template.yaml" && // or example file
+		!strings.HasPrefix(filename, "generic/bicep/") && // Unsupported generic languages
+		!strings.HasPrefix(filename, "generic/ci/") &&
+		!strings.HasPrefix(filename, "generic/html-templates/") &&
+		!strings.HasPrefix(filename, "generic/hugo/") &&
+		!strings.HasPrefix(filename, "generic/nginx/") &&
+		!strings.HasPrefix(filename, "html/") &&
+		!strings.HasPrefix(filename, "ocaml/") &&
+		!strings.HasPrefix(filename, "solidity/")
 }
 
 func isValidGitLabRuleFile(filename string) bool {
@@ -364,71 +371,69 @@ func getCodacySubCategory(category Category, OWASPCategories []string) SubCatego
 
 // https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/languages/Language.scala#L41
 func toCodacyLanguages(r SemgrepRule) []string {
-	return lo.Map(
+	supportedLanguages := map[string]string{
+		"python":      "Python",
+		"bash":        "Shell",
+		"c":           "C",
+		"clojure":     "Clojure",
+		"javascript":  "Javascript",
+		"js":          "Javascript",
+		"java":        "Java",
+		"csharp":      "CSharp",
+		"C#":          "CSharp",
+		"dockerfile":  "Dockerfile",
+		"go":          "Go",
+		"json":        "JSON",
+		"kotlin":      "Kotlin",
+		"kt":          "Kotlin",
+		"php":         "PHP",
+		"ruby":        "Ruby",
+		"rust":        "Rust",
+		"scala":       "Scala",
+		"sh":          "Shell",
+		"ts":          "TypeScript",
+		"typescript":  "TypeScript",
+		"yaml":        "YAML",
+		"swift":       "Swift",
+		"hcl":         "Terraform",
+		"terraform":   "Terraform",
+		"apex":        "Apex",
+		"elixir":      "Elixir",
+		"visualforce": "VisualForce",
+	}
+
+	codacyLanguages := lo.Map(
 		lo.Filter(r.Languages, func(s string, index int) bool {
 			return s != "generic" && s != "regex" && // internal rules?
 				s != "lua" && s != "ocaml" && s != "html" && s != "solidity" // not supported by Codacy
 		}),
 		func(s string, index int) string {
-			switch s {
-			case "python":
-				return "Python"
-			case "bash":
-				return "Shell"
-			case "c":
-				return "C"
-			case "clojure":
-				return "Clojure"
-			case "javascript":
-				return "Javascript"
-			case "js":
-				return "Javascript"
-			case "java":
-				return "Java"
-			case "csharp":
-				return "CSharp"
-			case "C#":
-				return "CSharp"
-			case "dockerfile":
-				return "Dockerfile"
-			case "go":
-				return "Go"
-			case "json":
-				return "JSON"
-			case "kotlin":
-				return "Kotlin"
-			case "kt":
-				return "Kotlin"
-			case "php":
-				return "PHP"
-			case "ruby":
-				return "Ruby"
-			case "rust":
-				return "Rust"
-			case "scala":
-				return "Scala"
-			case "sh":
-				return "Shell"
-			case "ts":
-				return "TypeScript"
-			case "typescript":
-				return "TypeScript"
-			case "yaml":
-				return "YAML"
-			case "swift":
-				return "Swift"
-			case "hcl":
-				return "Terraform"
-			case "terraform":
-				return "Terraform"
-			case "apex":
-				return "Apex"
-			case "elixir":
-				return "Elixir"
-			default:
+			codacyLanguage := supportedLanguages[s]
+
+			if len(codacyLanguage) == 0 {
 				panic(fmt.Sprintf("unknown language: %s %s", s, r.ID))
 			}
+			return codacyLanguage
 		})
+
+	// Fallback for generic rules
+	if len(codacyLanguages) == 0 {
+		if strings.HasPrefix(r.ID, "generic.secrets") {
+			return lo.Uniq(lo.Values(supportedLanguages))
+		}
+
+		if strings.Contains(r.ID, ".") {
+			for _, s := range strings.Split(r.ID, ".") {
+				codacyLanguage := supportedLanguages[s]
+				if len(codacyLanguage) > 0 {
+					return []string{codacyLanguage}
+				}
+			}
+		}
+		panic(fmt.Sprintf("lack of supported languages: %s %s", r.Languages, r.ID))
+	}
+
+	return codacyLanguages
 }
 
 func isEnabledByDefault(defaultRules []SemgrepRule, s string) bool {
