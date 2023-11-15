@@ -131,102 +131,110 @@ func addFileToFilesByLanguage(fileName string) {
 	filesByLanguage[language] = append(filesByLanguage[language], fileName)
 }
 
-// This feels illegal
-// TODO: Make sure all Codacy language file extensions are covered
 func detectLanguage(fileName string) string {
 	extension := strings.ToLower(filepath.Ext(fileName))
-	switch extension {
-	case ".apex":
-		return "apex"
-	case ".bash":
-		return "bash"
-	case ".c":
-		return "c"
-	case ".cs":
-		return "csharp"
-	case ".cpp":
-		return "cpp"
-	case ".cairo":
-		return "cairo"
-	case ".clojure":
-		return "clojure"
-	case ".dart":
-		return "dart"
-	case ".dockerfile":
-		return "dockerfile"
-	case ".elixir":
-		return "elixir"
-	case ".ex":
-		return "ex"
-	case ".go":
-		return "go"
-	case ".golang":
-		return "golang"
-	case ".hack":
-		return "hack"
-	case ".hcl":
-		return "hcl"
-	case ".html":
-		return "html"
-	case ".java":
-		return "java"
-	case ".javascript", ".js":
-		return "javascript"
-	case ".json":
-		return "json"
-	case ".jsonnet":
-		return "jsonnet"
-	case ".julia":
-		return "julia"
-	case ".kotlin", ".kt":
-		return "kotlin"
-	case ".lisp":
-		return "lisp"
-	case ".lua":
-		return "lua"
-	case ".none":
-		return "none"
-	case ".ocaml":
-		return "ocaml"
-	case ".php":
-		return "php"
-	case ".promql":
-		return "promql"
-	case ".proto", ".proto3", ".protobuf":
-		return "protobuf"
-	case ".py", ".python", ".python2", ".python3":
-		return "python"
-	case ".r":
-		return "r"
-	case ".regex":
-		return "regex"
-	case ".ruby":
-		return "ruby"
-	case ".rust":
-		return "rust"
-	case ".scala":
-		return "scala"
-	case ".scheme":
-		return "scheme"
-	case ".sh":
-		return "sh"
-	case ".sol":
-		return "solidity"
-	case ".swift":
-		return "swift"
-	case ".terraform", ".tf":
-		return "terraform"
-	case ".ts":
-		return "typescript"
-	case ".vue":
-		return "vue"
-	case ".xml":
-		return "xml"
-	case ".yaml":
-		return "yaml"
-	default:
-		return ""
+	extensionOrFilename := extension
+	if extension == "" {
+		extensionOrFilename = fileName
 	}
+
+	// Semgrep: supported language tags are: apex, bash, c, c#, c++, cairo, clojure, cpp, csharp, dart, docker, dockerfile, elixir, ex, generic, go, golang, hack, hcl, html, java, javascript, js, json, jsonnet, julia, kotlin, kt, lisp, lua, none, ocaml, php, promql, proto, proto3, protobuf, py, python, python2, python3, r, regex, ruby, rust, scala, scheme, sh, sol, solidity, swift, terraform, tf, ts, typescript, vue, xml, yaml
+	// Semgrep: https://github.com/semgrep/semgrep/blob/0ec2b95ec8c3afb8e31fc0295d3604e540c982b0/src/parsing/Unit_parsing.ml#L61
+	// Codacy: taken from https://github.com/codacy/ragnaros/blob/05d1374b7ca4a0aa3be44972484938b4785c046f/components/language/src/main/scala/codacy/foundation/api/Language.scala#L6
+	extensionToLanguageMap := map[string]string{
+		".js":    "javascript",
+		".jsx":   "javascript",
+		".jsm":   "javascript",
+		".vue":   "vue",
+		".mjs":   "javascript",
+		".scala": "scala",
+		// ".css"
+		".php":      "php",
+		".py":       "python",
+		".rb":       "ruby",
+		".gemspec":  "ruby",
+		".podspec":  "ruby",
+		".jbuilder": "ruby",
+		".rake":     "ruby",
+		".opal":     "ruby",
+		".java":     "java",
+		// ".coffee"
+		".swift":      "swift",
+		".cpp":        "cpp",
+		".hpp":        "cpp",
+		".cc":         "cpp",
+		".cxx":        "cpp",
+		".ino":        "cpp",
+		".c":          "c",
+		".h":          "c",
+		".sh":         "sh",
+		".bash":       "bash",
+		".ts":         "typescript",
+		".tsx":        "typescript",
+		".dockerfile": "dockerfile",
+		"Dockerfile":  "dockerfile",
+		// ".sql"
+		// ".tsql"
+		// ".trg", ".prc", ".fnc", ".pld", ".pls", ".plh", ".plb", ".pck", ".pks", ".pkh", ".pkb", ".typ", ".tyb", ".tps", ".tpb"
+		".json": "json",
+		// ".scss"
+		// ".less"
+		".go": "go",
+		// ".jsp"
+		// ".vm"
+		".xml":     "xml",
+		".xsl":     "xml",
+		".wsdl":    "xml",
+		".pom":     "xml",
+		".cls":     "apex",
+		".trigger": "apex",
+		// ".component", ".page"
+		".cs":  "csharp",
+		".kt":  "kotlin",
+		".kts": "kotlin",
+		".ex":  "elixir",
+		".exs": "elixir",
+		// ".md", ".markdown", ".mdown", ".mkdn", ".mkd", ".mdwn", ".mkdown", ".ron"
+		// ".ps1", ".psc1", ".psd1", ".psm1", ".ps1xml", ".pssc", ".cdxml", ".clixml"
+		// ".cr"
+		// ".cbl", ".cob"
+		// ".groovy"
+		// ".abap"
+		// ".vb"
+		// ".m"
+		".yaml": "yaml", // should these be Terraform?
+		".yml":  "yaml",
+		".dart": "dart",
+		".rs":   "rust",
+		".rlib": "rust",
+		".clj":  "clojure",
+		".cljs": "clojure",
+		".cljc": "clojure",
+		".edn":  "clojure",
+		// ".hs", ".lhs"
+		// ".erl"
+		// ".elm"
+		".html": "html",
+		// ".pl"
+		// ".fs"
+		// ".f90", ".f95", ".f03"
+		".r": "r",
+		// ".scratch", ".sb", ".sprite", ".sb2", ".sprite2"
+		".lua":  "lua",
+		".asd":  "lisp",
+		".el":   "lisp",
+		".lsp":  "lisp",
+		".lisp": "lisp",
+		// ".P", ".swipl"
+		".jl": "julia",
+		// ".ml", ".mli", ".mly", ".mll"
+		".sol": "solidity",
+	}
+
+	if language, ok := extensionToLanguageMap[extensionOrFilename]; ok {
+		return language
+	}
+	return "none"
 }
 
 type SemgrepOutput struct {
@@ -375,7 +383,7 @@ func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) ([]
 
 		for _, semgrepRes := range semgrepOutput.Results {
 			result = append(result, codacy.Issue{
-				PatternID: semgrepRes.CheckID,
+				PatternID:  semgrepRes.CheckID,
 				Message:    writeMessage(strings.TrimSpace(semgrepRes.Extra.Message)),
 				Line:       semgrepRes.StartLocation.Line,
 				File:       semgrepRes.Path,
