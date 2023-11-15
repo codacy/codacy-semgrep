@@ -14,7 +14,7 @@ jobs:
           at: ~/workdir
       - run:
           name: unit_tests
-          command: go test -v ./...
+          command: go test $(go list ./... | grep -v /docs/)
 
 workflows:
   compile_test_deploy:
