@@ -152,7 +152,7 @@ func detectLanguage(fileName string) string {
 		".php":      "php",
 		".py":       "python",
 		".rb":       "ruby",
-		".gemspec":  "ruby", // missing from tests 	
+		".gemspec":  "ruby", // missing from tests
 		".podspec":  "ruby", // missing from tests
 		".jbuilder": "ruby", // missing from tests
 		".rake":     "ruby", // missing from tests
@@ -166,10 +166,10 @@ func detectLanguage(fileName string) string {
 		".cxx":        "cpp", // missing from tests
 		".ino":        "cpp", // missing from tests
 		".c":          "c",
-		".h":          "c", // missing
+		".h":          "c",  // missing
 		".sh":         "sh", // missing from tests
 		".bash":       "bash",
-		".ts":         "typescript", 
+		".ts":         "typescript",
 		".tsx":        "typescript",
 		".dockerfile": "dockerfile",
 		"Dockerfile":  "dockerfile",
@@ -183,9 +183,9 @@ func detectLanguage(fileName string) string {
 		// ".jsp"
 		// ".vm"
 		".xml":     "xml",
-		".xsl":     "xml", // missing from tests
-		".wsdl":    "xml", // missing from tests
-		".pom":     "xml", // missing from tests
+		".xsl":     "xml",  // missing from tests
+		".wsdl":    "xml",  // missing from tests
+		".pom":     "xml",  // missing from tests
 		".cls":     "apex", // missing from tests
 		".trigger": "apex", // missing from testss
 		// ".component", ".page"
@@ -220,7 +220,7 @@ func detectLanguage(fileName string) string {
 		// ".f90", ".f95", ".f03"
 		".r": "r", // missing from tests
 		// ".scratch", ".sb", ".sprite", ".sb2", ".sprite2"
-		".lua":  "lua", // missing from tests
+		".lua":  "lua",  // missing from tests
 		".asd":  "lisp", // missing from tests
 		".el":   "lisp", // missing from tests
 		".lsp":  "lisp", // missing from tests
@@ -377,26 +377,26 @@ func commandParameters(configFile *os.File, language string, filesToAnalyse []st
 func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) ([]codacy.Result, error) {
 	var result []codacy.Result
 
-	scanner := bufio.NewScanner(strings.NewReader(commandOutput))
-	for scanner.Scan() {
-		var semgrepOutput SemgrepOutput
-		json.Unmarshal([]byte(scanner.Text()), &semgrepOutput)
+	var semgrepOutput SemgrepOutput
+	err := json.Unmarshal([]byte(commandOutput), &semgrepOutput)
+	if err != nil {
+		return nil, err
+	}
 
-		for _, semgrepRes := range semgrepOutput.Results {
-			result = append(result, codacy.Issue{
-				PatternID:  semgrepRes.CheckID,
-				Message:    writeMessage(strings.TrimSpace(semgrepRes.Extra.Message)),
-				Line:       semgrepRes.StartLocation.Line,
-				File:       semgrepRes.Path,
-				Suggestion: semgrepRes.Extra.RenderedFix,
-			})
-		}
-		for _, semgrepError := range semgrepOutput.Errors {
-			result = append(result, codacy.FileError{
-				Message: semgrepError.Message,
-				File:    semgrepError.Location.Path,
-			})
-		}
+	for _, semgrepRes := range semgrepOutput.Results {
+		result = append(result, codacy.Issue{
+			PatternID:  semgrepRes.CheckID,
+			Message:    writeMessage(strings.TrimSpace(semgrepRes.Extra.Message)),
+			Line:       semgrepRes.StartLocation.Line,
+			File:       semgrepRes.Path,
+			Suggestion: semgrepRes.Extra.RenderedFix,
+		})
+	}
+	for _, semgrepError := range semgrepOutput.Errors {
+		result = append(result, codacy.FileError{
+			Message: semgrepError.Message,
+			File:    semgrepError.Location.Path,
+		})
 	}
 
 	return result, nil
