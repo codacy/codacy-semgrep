@@ -210,7 +210,7 @@ func (r SemgrepRule) toPatternWithExplanation(defaultRules SemgrepRules) Pattern
 	return PatternWithExplanation{
 		ID:          r.ID,
 		Title:       getLastSegment(r.ID),
-		Description: getFirstSentence(r.Message),
+		Description: GetFirstSentence(r.Message),
 		Level:       toCodacyLevel(r.Severity),
 		Category:    toCodacyCategory(r),
 		SubCategory: getCodacySubCategory(toCodacyCategory(r), r.Metadata.OWASP),
@@ -235,7 +235,7 @@ func getLastSegment(s string) string {
 	return lastSegment
 }
 
-func getFirstSentence(s string) string {
+func GetFirstSentence(s string) string {
 	r := regexp.MustCompile(`(^.*?[a-z]{2,}[.!?])\s+\W*[A-Z]`)
 	matches := r.FindStringSubmatch(s)
 	if len(matches) > 0 {

@@ -86,7 +86,7 @@ func TestGetFirstSentence(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.test_name, func(t *testing.T) {
-			if got := getFirstSentence(test.input); got != test.expected {
+			if got := GetFirstSentence(test.input); got != test.expected {
 				t.Errorf("getFirstSentence() = %v, expected %v", got, test.expected)
 			}
 		})

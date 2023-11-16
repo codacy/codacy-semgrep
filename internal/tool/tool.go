@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -14,6 +15,7 @@ import (
 	"strings"
 
 	codacy "github.com/codacy/codacy-engine-golang-seed/v6"
+	docgen "github.com/codacy/codacy-semgrep/internal/docgen"
 	"github.com/samber/lo"
 )
 
@@ -54,7 +56,12 @@ func (s codacySemgrep) Run(ctx context.Context, toolExecution codacy.ToolExecuti
 		return nil, errors.New("Error getting files to analyse: " + err.Error())
 	}
 
-	result, err := run(configFile, toolExecution)
+	patternDescriptions, err := loadPatternDescriptions()
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := run(configFile, toolExecution, patternDescriptions)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +69,7 @@ func (s codacySemgrep) Run(ctx context.Context, toolExecution codacy.ToolExecuti
 	return result, nil
 }
 
-func run(configFile *os.File, toolExecution codacy.ToolExecution) ([]codacy.Result, error) {
+func run(configFile *os.File, toolExecution codacy.ToolExecution, patternDescriptions *[]codacy.PatternDescription) ([]codacy.Result, error) {
 	var result []codacy.Result
 	for language, files := range filesByLanguage {
 		semgrepCmd := semgrepCommand(configFile, toolExecution.SourceDir, language, files)
@@ -72,7 +79,7 @@ func run(configFile *os.File, toolExecution codacy.ToolExecution) ([]codacy.Resu
 			return nil, errors.New("Error running semgrep: " + semgrepError + "\n" + err.Error())
 		}
 
-		output, err := parseOutput(toolExecution.ToolDefinition, semgrepOutput)
+		output, err := parseOutput(toolExecution.ToolDefinition, patternDescriptions, semgrepOutput)
 		if err != nil {
 			return nil, err
 		}
@@ -374,7 +381,7 @@ func commandParameters(configFile *os.File, language string, filesToAnalyse []st
 	return cmdParams
 }
 
-func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) ([]codacy.Result, error) {
+func parseOutput(toolDefinition codacy.ToolDefinition, patternDescriptions *[]codacy.PatternDescription, commandOutput string) ([]codacy.Result, error) {
 	var result []codacy.Result
 
 	var semgrepOutput SemgrepOutput
@@ -386,7 +393,7 @@ func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) ([]
 	for _, semgrepRes := range semgrepOutput.Results {
 		result = append(result, codacy.Issue{
 			PatternID:  semgrepRes.CheckID,
-			Message:    writeMessage(strings.TrimSpace(semgrepRes.Extra.Message)),
+			Message:    writeMessage(patternDescriptions, semgrepRes.CheckID, strings.TrimSpace(semgrepRes.Extra.Message)),
 			Line:       semgrepRes.StartLocation.Line,
 			File:       semgrepRes.Path,
 			Suggestion: semgrepRes.Extra.RenderedFix,
@@ -402,12 +409,34 @@ func parseOutput(toolDefinition codacy.ToolDefinition, commandOutput string) ([]
 	return result, nil
 }
 
-func writeMessage(s string) string {
-	// If message is empty, write a default message
+func writeMessage(patternDescriptions *[]codacy.PatternDescription, ID string, s string) string {
+	// If message is empty, get the pattern title
+	// TODO: In addition to that, Semgrep also interpolates metavars: https://github.com/semgrep/semgrep/blob/a1476e252c84d407a10e0a2e018e8468b49a0dc1/cli/src/semgrep/core_output.py#L169C24-L169C24
 	if s == "" {
-		return "Potential security issue detected. No specific details available. Please review the identified code segment for potential security vulnerabilities."
+		description, ok := lo.Find(*patternDescriptions, func(d codacy.PatternDescription) bool {
+			return d.PatternID == ID
+		})
+		if ok {
+			return description.Description
+		}
 	}
-	return s
+	return docgen.GetFirstSentence(s)
+}
+
+func loadPatternDescriptions() (*[]codacy.PatternDescription, error) {
+	// TODO: should respect cli flag for docs location
+	fileLocation := filepath.Join("/docs", "description/description.json")
+
+	fileContent, err := os.ReadFile(fileLocation)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read tool descriptions file: %s\n%w", fileLocation, err)
+	}
+
+	descriptions := []codacy.PatternDescription{}
+	if err := json.Unmarshal(fileContent, &descriptions); err != nil {
+		return nil, fmt.Errorf("failed to parse tool definition file: %s\n%w", string(fileContent), err)
+	}
+	return &descriptions, nil
 }
 
 func semgrepCommand(configFile *os.File, sourceDir, language string, files []string) *exec.Cmd {
