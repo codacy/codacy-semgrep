@@ -156,6 +156,7 @@ func isValidSemgrepRegistryRuleFile(filename string) bool {
 		!strings.HasPrefix(filename, "scripts/") &&
 		!strings.HasPrefix(filename, "libsonnet/") &&
 		filename != "template.yaml" && // or example file
+		!strings.HasPrefix(filename, "apex/") && // Pro Engine rules
 		!strings.HasPrefix(filename, "generic/bicep/") && // Unsupported generic languages
 		!strings.HasPrefix(filename, "generic/ci/") &&
 		!strings.HasPrefix(filename, "generic/html-templates/") &&
@@ -405,7 +406,6 @@ func toCodacyLanguages(r SemgrepRule) []string {
 		"swift":       "Swift",
 		"hcl":         "Terraform",
 		"terraform":   "Terraform",
-		"apex":        "Apex",
 		"elixir":      "Elixir",
 		"visualforce": "VisualForce",
 	}
