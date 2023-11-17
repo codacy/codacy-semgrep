@@ -146,7 +146,7 @@ func getRules(url string, validate FilenameValidator, generate IDGenerator) (*Pa
 }
 
 func isValidSemgrepRegistryRuleFile(filename string) bool {
-	return strings.HasSuffix(filename, ".yaml") && // Rules files
+	return (strings.HasSuffix(filename, ".yaml") || strings.HasSuffix(filename, ".yml")) && // Rules files
 		!strings.HasSuffix(filename, ".test.yaml") && // but not test files
 		!strings.HasPrefix(filename, ".") && // Or shadow directories
 		// Or Semgrep ignored dirs: https://github.com/semgrep/semgrep-rules/blob/c495d664cbb75e8347fae9d27725436717a7926e/scripts/run-tests#L48
@@ -168,7 +168,7 @@ func isValidSemgrepRegistryRuleFile(filename string) bool {
 }
 
 func isValidGitLabRuleFile(filename string) bool {
-	return strings.HasSuffix(filename, ".yml") &&
+	return (strings.HasSuffix(filename, ".yaml") || strings.HasSuffix(filename, ".yml")) &&
 		!strings.HasPrefix(filename, "dist/") &&
 		!strings.HasPrefix(filename, "docs/") &&
 		!strings.HasPrefix(filename, "mappings/")
