@@ -58,7 +58,7 @@
         <error source="ruby.lang.security.no-send.bad-send" line="3" message="Checks for unsafe use of Object#send, try, __send__, and public_send." severity="error" />
     </file>
     <file name="rust/unsafe-usage.rs">
-        <error source="rust.lang.security.unsafe-usage.unsafe-usage" line="3" message="" severity="error" />
+        <error source="rust.lang.security.unsafe-usage.unsafe-usage" line="2" message="Detected 'unsafe' usage, please audit for secure usage" severity="info" />
     </file>
     <file name="scala/jwt-hardcode.scala">
         <error source="scala.scala-jwt.security.jwt-hardcode.scala-jwt-hardcoded-secret" line="16" message="Hardcoded JWT secret or private key is used." severity="error" />
@@ -118,5 +118,12 @@
         <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="50" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
         <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="50" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
         <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="50" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
+    </file>
+    <file name="yaml/third-party-action-not-pinned-to-commit-sha.test.yml">
+        <error source="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha" line="35" message="An action sourced from a third-party repository on GitHub is not pinned to a full length commit SHA. Pinning an action to a full length commit SHA is currently the only way to use an action as an immutable release." severity="warning" />
+        <error source="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha" line="40" message="An action sourced from a third-party repository on GitHub is not pinned to a full length commit SHA. Pinning an action to a full length commit SHA is currently the only way to use an action as an immutable release." severity="warning" />
+        <error source="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha" line="46" message="An action sourced from a third-party repository on GitHub is not pinned to a full length commit SHA. Pinning an action to a full length commit SHA is currently the only way to use an action as an immutable release." severity="warning" />
+        <error source="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha" line="52" message="An action sourced from a third-party repository on GitHub is not pinned to a full length commit SHA. Pinning an action to a full length commit SHA is currently the only way to use an action as an immutable release." severity="warning" />
+        <error source="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha" line="55" message="An action sourced from a third-party repository on GitHub is not pinned to a full length commit SHA. Pinning an action to a full length commit SHA is currently the only way to use an action as an immutable release." severity="warning" />
     </file>
 </checkstyle>
