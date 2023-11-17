@@ -57,6 +57,9 @@
     <file name="ruby/no-send.rb">
         <error source="ruby.lang.security.no-send.bad-send" line="3" message="Checks for unsafe use of Object#send, try, __send__, and public_send." severity="error" />
     </file>
+    <file name="rust/unsafe-usage.rs">
+        <error source="rust.lang.security.unsafe-usage.unsafe-usage" line="3" message="" severity="error" />
+    </file>
     <file name="scala/jwt-hardcode.scala">
         <error source="scala.scala-jwt.security.jwt-hardcode.scala-jwt-hardcoded-secret" line="16" message="Hardcoded JWT secret or private key is used." severity="error" />
     </file>
