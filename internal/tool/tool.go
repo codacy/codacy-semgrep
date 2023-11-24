@@ -25,25 +25,12 @@ var _ codacy.Tool = (*codacySemgrep)(nil)
 
 // Run runs the Semgrep implementation
 func (s codacySemgrep) Run(ctx context.Context, toolExecution codacy.ToolExecution) ([]codacy.Result, error) {
-	var configFile *os.File
-	var err error
-
-	configFile, err = createConfigFile(toolExecution)
+	configFile, patternDescriptions, err := prepareToRun(toolExecution)
 	if err != nil {
 		return nil, err
 	}
 	if configFile == nil {
 		return []codacy.Result{}, nil
-	}
-
-	err = populateFilesByLanguage(toolExecution.Files, toolExecution.SourceDir)
-	if err != nil {
-		return nil, errors.New("Error getting files to analyse: " + err.Error())
-	}
-
-	patternDescriptions, err := loadPatternDescriptions()
-	if err != nil {
-		return nil, err
 	}
 
 	result, err := run(configFile, toolExecution, patternDescriptions)
@@ -54,55 +41,23 @@ func (s codacySemgrep) Run(ctx context.Context, toolExecution codacy.ToolExecuti
 	return result, nil
 }
 
-func run(configFile *os.File, toolExecution codacy.ToolExecution, patternDescriptions *[]codacy.PatternDescription) ([]codacy.Result, error) {
-	var result []codacy.Result
-	for language, files := range filesByLanguage {
-		semgrepCmd := createCommand(configFile, toolExecution.SourceDir, language, files)
-
-		semgrepOutput, semgrepError, err := runCommand(semgrepCmd)
-		if err != nil {
-			return nil, errors.New("Error running semgrep: " + semgrepError + "\n" + err.Error())
-		}
-
-		output, err := parseCommandOutput(toolExecution.ToolDefinition, patternDescriptions, semgrepOutput)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, output...)
+func prepareToRun(toolExecution codacy.ToolExecution) (*os.File, *[]codacy.PatternDescription, error){
+	configFile, err := createConfigFile(toolExecution)
+	if err != nil {
+		return nil, nil, err
 	}
 
-	return result, nil
-}
+	err = populateFilesByLanguage(toolExecution.Files, toolExecution.SourceDir)
+	if err != nil {
+		return nil, nil, errors.New("Error getting files to analyse: " + err.Error())
+	}
 
-type SemgrepOutput struct {
-	Results []SemgrepResult `json:"results"`
-	Errors  []SemgrepError  `json:"errors"`
-}
+	patternDescriptions, err := loadPatternDescriptions()
+	if err != nil {
+		return nil, nil, err
+	}
 
-type SemgrepResult struct {
-	CheckID       string          `json:"check_id"`
-	Path          string          `json:"path"`
-	StartLocation SemgrepLocation `json:"start"`
-	EndLocation   SemgrepLocation `json:"end"`
-	Extra         SemgrepExtra    `json:"extra"`
-}
-
-type SemgrepLocation struct {
-	Line int `json:"line"`
-}
-
-type SemgrepExtra struct {
-	Message     string `json:"message"`
-	RenderedFix string `json:"rendered_fix,omitempty"`
-}
-
-type SemgrepError struct {
-	Message  string               `json:"message"`
-	Location SemgrepErrorLocation `json:"location"`
-}
-
-type SemgrepErrorLocation struct {
-	Path string `json:"path"`
+	return configFile, patternDescriptions, nil
 }
 
 func loadPatternDescriptions() (*[]codacy.PatternDescription, error) {
@@ -119,4 +74,17 @@ func loadPatternDescriptions() (*[]codacy.PatternDescription, error) {
 		return nil, fmt.Errorf("failed to parse tool definition file: %s\n%w", string(fileContent), err)
 	}
 	return &descriptions, nil
+}
+
+func run(configFile *os.File, toolExecution codacy.ToolExecution, patternDescriptions *[]codacy.PatternDescription) ([]codacy.Result, error) {
+	var result []codacy.Result
+	for language, files := range filesByLanguage {
+		resultForFile, err := executeCommandForFiles(configFile, toolExecution, patternDescriptions, language, files)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, resultForFile...)
+	}
+
+	return result, nil
 }
