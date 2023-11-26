@@ -44,14 +44,31 @@ func createUnifiedRuleFile(filename string, parsedSemgrepRules *ParsedSemgrepRul
 		processLineIntoFile(line, indentation, parsedSemgrepRules, unifiedRuleFile, semgrepRuleFile)
 
 		for scanner.Scan() {
+			var linesToProcess []string
 			line := scanner.Text()
 
 			// Special case for: https://gitlab.com/gitlab-org/security-products/sast-rules/-/blob/main/java/strings/rule-ModifyAfterValidation.yml#L64
 			if line == "..." {
 				continue
 			}
+			// Apply C rules to C++
+			if strings.TrimSpace(line) == "languages: [c]" {
+				line = strings.Replace(line, "[c]", "[c,cpp]", 1)
+			}
 
-			processLineIntoFile(line, indentation, parsedSemgrepRules, unifiedRuleFile, semgrepRuleFile)
+			// Process the current line
+			linesToProcess = append(linesToProcess, line)
+
+			// Apply C rules to C++ (case that adds a new line)
+			if strings.TrimSpace(line) == "- c" || strings.TrimSpace(line) == "- \"c\"" {
+				line = strings.Replace(line, "c", "cpp", 1)
+				linesToProcess = append(linesToProcess, line)
+			}
+
+			// Process all lines generated from current source line
+			for _, line := range linesToProcess {
+				processLineIntoFile(line, indentation, parsedSemgrepRules, unifiedRuleFile, semgrepRuleFile)
+			}
 		}
 	}
 

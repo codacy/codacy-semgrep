@@ -3,6 +3,7 @@
     <module name="bash.curl.security.curl-eval.curl-eval" />
     <module name="c.lang.security.double-free.double-free" />
     <module name="clojure.lang.security.use-of-md5.use-of-md5" />
+    <module name="c.lang.security.insecure-use-gets-fn.insecure-use-gets-fn" />
     <module name="csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration" />
     <module name="dockerfile.security.last-user-is-root.last-user-is-root" />
     <module name="dockerfile.security.missing-user.missing-user" />

@@ -12,6 +12,9 @@
         <file name="clojure/use-of-md5.clj">
         <error source="clojure.lang.security.use-of-md5.use-of-md5" line="6" message="MD5 hash algorithm detected." severity="warning" />
     </file>
+    <file name="cpp/insecure-use-gets-fn.cpp">
+        <error source="c.lang.security.insecure-use-gets-fn.insecure-use-gets-fn" line="8" message="Avoid 'gets()'. This function does not consider buffer boundaries and can lead to buffer overflows." severity="error" />
+    </file>
     <file name="csharp/use_weak_rng_for_keygeneration.cs">
         <error source="csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration" line="12" message="You are using an insecure random number generator (RNG) to create a cryptographic key." severity="error" />
         <error source="csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration" line="20" message="You are using an insecure random number generator (RNG) to create a cryptographic key." severity="error" />

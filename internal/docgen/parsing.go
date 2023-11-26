@@ -385,6 +385,7 @@ func toCodacyLanguages(r SemgrepRule) []string {
 		"bash":        "Shell",
 		"c":           "C",
 		"clojure":     "Clojure",
+		"cpp":         "CPP",
 		"javascript":  "Javascript",
 		"js":          "Javascript",
 		"java":        "Java",
@@ -426,19 +427,29 @@ func toCodacyLanguages(r SemgrepRule) []string {
 
 	// Fallback for generic rules
 	if len(codacyLanguages) == 0 {
+		// Secret detection rules are compatible with all languages
 		if strings.HasPrefix(r.ID, "generic.secrets") {
 			return lo.Uniq(lo.Values(supportedLanguages))
 		}
 
+		// Other generic rules are have the language encoded in the ID
 		if strings.Contains(r.ID, ".") {
 			for _, s := range strings.Split(r.ID, ".") {
 				codacyLanguage := supportedLanguages[s]
 				if len(codacyLanguage) > 0 {
-					return []string{codacyLanguage}
+					codacyLanguages = []string{codacyLanguage}
+					break
 				}
 			}
 		}
-		panic(fmt.Sprintf("lack of supported languages: %s %s", r.Languages, r.ID))
+		if len(codacyLanguages) == 0 {
+			panic(fmt.Sprintf("lack of supported languages: %s %s", r.Languages, r.ID))
+		}
+	}
+
+	// Apply C rules to C++
+	if lo.Contains(codacyLanguages, "C") {
+		codacyLanguages = lo.Uniq(append(codacyLanguages, "CPP"))
 	}
 
 	return codacyLanguages
