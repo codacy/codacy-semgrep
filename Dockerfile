@@ -25,15 +25,27 @@ RUN go run ./cmd/docgen -docFolder /docs
 
 FROM returntocorp/semgrep:$TOOL_VERSION as semgrep-cli
 
+# Compress binaries for smaller image size
+
+FROM golang:1.21.0-alpine3.18 as compressor
+
+RUN apk add --no-cache upx
+
+COPY --from=semgrep-cli /usr/local/bin/semgrep-core /usr/local/bin/semgrep-core
+RUN chmod 777 /usr/local/bin/semgrep-core && upx --lzma /usr/local/bin/semgrep-core
+
+COPY --from=builder /src/bin/codacy-semgrep /src/bin/codacy-semgrep
+RUN upx --lzma /src/bin/codacy-semgrep
+
 # Final published image for the codacy-semgrep wrapper
 # Tries to be as small as possible with only the Go static binary, the docs and the semgrep binary
 
 FROM busybox
 
-COPY --from=semgrep-cli /usr/local/bin/semgrep-core /usr/bin/semgrep
+COPY --from=compressor /usr/local/bin/semgrep-core /usr/bin/semgrep
 COPY --from=semgrep-cli /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-COPY --from=builder /src/bin /dist/bin
+COPY --from=compressor /src/bin /dist/bin
 COPY --from=builder /docs/ /docs/
 
 RUN adduser -u 2004 -D docker
