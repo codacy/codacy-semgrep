@@ -13,14 +13,14 @@ import (
 
 func TestCreateCommand(t *testing.T) {
 	// Arrange
-	configFile, _ := os.CreateTemp("", "config.*.yaml")
-	defer os.Remove(configFile.Name())
+	configurationFile, _ := os.CreateTemp("", "config.*.yaml")
+	defer os.Remove(configurationFile.Name())
 	sourceDir := "/path/to/source"
 	language := "go"
 	files := []string{"file1.go", "file2.go"}
 
 	// Act
-	cmd := createCommand(configFile, sourceDir, language, files)
+	cmd := createCommand(configurationFile, sourceDir, language, files)
 
 	// Assert
 	assert.IsType(t, &exec.Cmd{}, cmd)
@@ -30,19 +30,19 @@ func TestCreateCommand(t *testing.T) {
 
 func TestCreateCommandParameters(t *testing.T) {
 	// Arrange
-	configFile, _ := os.CreateTemp("", "semgrep.yaml")
-	defer os.Remove(configFile.Name())
+	configurationFile, _ := os.CreateTemp("", "semgrep.yaml")
+	defer os.Remove(configurationFile.Name())
 	language := "go"
 	filesToAnalyse := []string{"file1.go", "file2.go"}
 
 	// Act
-	cmdParams := createCommandParameters(language, configFile, filesToAnalyse)
+	cmdParams := createCommandParameters(language, configurationFile, filesToAnalyse)
 
 	// Assert
 	expectedParams := []string{
 		"-json", "-json_nodots",
 		"-lang", language,
-		"-rules", configFile.Name(),
+		"-rules", configurationFile.Name(),
 		"file1.go", "file2.go",
 	}
 
@@ -58,8 +58,8 @@ func TestRunCommand(t *testing.T) {
 
 	// Assert
 	assert.NoError(t, err)
-	assert.Empty(t, stderr)
-	assert.Equal(t, "Testing runCommand()\n", stdout)
+	assert.Nil(t, stderr)
+	assert.Equal(t, "Testing runCommand()\n", *stdout)
 }
 
 func TestRunCommand_Error(t *testing.T) {
@@ -79,7 +79,7 @@ func TestParseCommandOutput(t *testing.T) {
 	// Arrange
 	mockPatternDescriptions := []codacy.PatternDescription{
 		{
-			PatternID:   "bash.curl.security.curl-eval.curl-eval",
+			PatternID: "bash.curl.security.curl-eval.curl-eval",
 		},
 	}
 
@@ -248,7 +248,7 @@ func TestWriteMessageWithEmptyMessageAndPatternDescriptionExists(t *testing.T) {
 	}
 
 	// Act
-	description := writeMessage(&mockPatternDescriptions, "pattern_1", "")
+	description := getMessage(&mockPatternDescriptions, "pattern_1", "")
 
 	// Assert
 	assert.Equal(t, "Description for Pattern 1", description, "Expected description to be retrieved when message is empty")
@@ -268,7 +268,7 @@ func TestWriteMessageWithNonEmptyMessageAndPatternDescriptionExists(t *testing.T
 	firstSentence := docgen.GetFirstSentence(nonEmptyMessage)
 
 	// Act
-	description := writeMessage(&mockPatternDescriptions, "pattern_1", nonEmptyMessage)
+	description := getMessage(&mockPatternDescriptions, "pattern_1", nonEmptyMessage)
 
 	// Assert
 	assert.Equal(t, firstSentence, description, "Expected first sentence of non-empty message")
@@ -289,7 +289,7 @@ func TestWriteMessageWithNonEmptyMessageAndNoPatternDescriptionExists(t *testing
 	firstSentence := docgen.GetFirstSentence(nonEmptyMessage)
 
 	// Act
-	description := writeMessage(&mockPatternDescriptions, nonExistingPatternID, nonEmptyMessage)
+	description := getMessage(&mockPatternDescriptions, nonExistingPatternID, nonEmptyMessage)
 
 	// Assert
 	assert.Equal(t, firstSentence, description, "Expected first sentence of non-empty message when no pattern description exists")
@@ -309,7 +309,7 @@ func TestWriteMessageWithInvalidPatternID(t *testing.T) {
 	nonEmptyMessage := "This is a sample message."
 
 	// Act
-	description := writeMessage(&mockPatternDescriptions, invalidPatternID, nonEmptyMessage)
+	description := getMessage(&mockPatternDescriptions, invalidPatternID, nonEmptyMessage)
 
 	// Assert
 	assert.Equal(t, docgen.GetFirstSentence(nonEmptyMessage), description, "Expected first sentence of non-empty message for invalid pattern ID")

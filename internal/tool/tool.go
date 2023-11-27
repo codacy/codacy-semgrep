@@ -25,15 +25,15 @@ var _ codacy.Tool = (*codacySemgrep)(nil)
 
 // Run runs the Semgrep implementation
 func (s codacySemgrep) Run(ctx context.Context, toolExecution codacy.ToolExecution) ([]codacy.Result, error) {
-	configFile, patternDescriptions, err := prepareToRun(toolExecution)
+	configurationFile, patternDescriptions, err := prepareToRun(toolExecution)
 	if err != nil {
 		return nil, err
 	}
-	if configFile == nil {
+	if configurationFile == nil {
 		return []codacy.Result{}, nil
 	}
 
-	result, err := run(configFile, toolExecution, patternDescriptions)
+	result, err := run(configurationFile, toolExecution, patternDescriptions)
 	if err != nil {
 		return nil, err
 	}
@@ -41,8 +41,8 @@ func (s codacySemgrep) Run(ctx context.Context, toolExecution codacy.ToolExecuti
 	return result, nil
 }
 
-func prepareToRun(toolExecution codacy.ToolExecution) (*os.File, *[]codacy.PatternDescription, error){
-	configFile, err := createConfigFile(toolExecution)
+func prepareToRun(toolExecution codacy.ToolExecution) (*os.File, *[]codacy.PatternDescription, error) {
+	configurationFile, err := newConfigurationFile(toolExecution)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -57,7 +57,7 @@ func prepareToRun(toolExecution codacy.ToolExecution) (*os.File, *[]codacy.Patte
 		return nil, nil, err
 	}
 
-	return configFile, patternDescriptions, nil
+	return configurationFile, patternDescriptions, nil
 }
 
 func loadPatternDescriptions() (*[]codacy.PatternDescription, error) {
@@ -76,15 +76,15 @@ func loadPatternDescriptions() (*[]codacy.PatternDescription, error) {
 	return &descriptions, nil
 }
 
-func run(configFile *os.File, toolExecution codacy.ToolExecution, patternDescriptions *[]codacy.PatternDescription) ([]codacy.Result, error) {
-	var result []codacy.Result
+func run(configurationFile *os.File, toolExecution codacy.ToolExecution, patternDescriptions *[]codacy.PatternDescription) ([]codacy.Result, error) {
+	var results []codacy.Result
 	for language, files := range filesByLanguage {
-		resultForFile, err := executeCommandForFiles(configFile, toolExecution, patternDescriptions, language, files)
+		result, err := executeCommandForFiles(configurationFile, toolExecution, patternDescriptions, language, files)
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, resultForFile...)
+		results = append(results, result...)
 	}
 
-	return result, nil
+	return results, nil
 }

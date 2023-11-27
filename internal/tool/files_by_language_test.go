@@ -67,7 +67,7 @@ func TestWalkDirFuncForFileNotHidden(t *testing.T) {
 	}
 
 	// Act
-	err := walkDirFunc(filePath, mockDirEntry, nil)
+	err := processFile(filePath, mockDirEntry, nil)
 
 	// Assert
 	assert.NoError(t, err)
@@ -84,7 +84,7 @@ func TestWalkDirFuncForDirectory(t *testing.T) {
 	}
 
 	// Act
-	err := walkDirFunc(dirPath, mockDirEntry, nil)
+	err := processFile(dirPath, mockDirEntry, nil)
 
 	// Assert
 	assert.NoError(t, err)
@@ -101,7 +101,7 @@ func TestWalkDirFuncForHiddenFile(t *testing.T) {
 	}
 
 	// Act
-	err := walkDirFunc(hiddenFilePath, mockDirEntry, nil)
+	err := processFile(hiddenFilePath, mockDirEntry, nil)
 
 	// Assert
 	assert.NoError(t, err)
@@ -118,7 +118,7 @@ func TestWalkDirFuncWithPathError(t *testing.T) {
 	}
 
 	// Act
-	err := walkDirFunc(filePath, mockDirEntry, nil)
+	err := processFile(filePath, mockDirEntry, nil)
 
 	// Assert
 	assert.Error(t, err)
@@ -134,7 +134,7 @@ func TestWalkDirFuncWithError(t *testing.T) {
 	}
 
 	// Act
-	err := walkDirFunc(filePath, mockDirEntry, assert.AnError)
+	err := processFile(filePath, mockDirEntry, assert.AnError)
 
 	// Assert
 	assert.Error(t, err)
