@@ -43,6 +43,7 @@ func TestCreateCommandParameters(t *testing.T) {
 		"-json", "-json_nodots",
 		"-lang", language,
 		"-rules", configurationFile.Name(),
+		"-timeout", "5", "-timeout_threshold", "3",
 		"file1.go", "file2.go",
 	}
 
