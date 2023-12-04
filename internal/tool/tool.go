@@ -2,20 +2,17 @@ package tool
 
 import (
 	"bufio"
-	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/fs"
 	"os"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
 
 	codacy "github.com/codacy/codacy-engine-golang-seed/v6"
-	docgen "github.com/codacy/codacy-semgrep/internal/docgen"
 	"github.com/samber/lo"
 )
 
@@ -72,14 +69,14 @@ func (s codacySemgrep) Run(ctx context.Context, toolExecution codacy.ToolExecuti
 func run(configFile *os.File, toolExecution codacy.ToolExecution, patternDescriptions *[]codacy.PatternDescription) ([]codacy.Result, error) {
 	var result []codacy.Result
 	for language, files := range filesByLanguage {
-		semgrepCmd := semgrepCommand(configFile, toolExecution.SourceDir, language, files)
+		semgrepCmd := createCommand(configFile, toolExecution.SourceDir, language, files)
 
 		semgrepOutput, semgrepError, err := runCommand(semgrepCmd)
 		if err != nil {
 			return nil, errors.New("Error running semgrep: " + semgrepError + "\n" + err.Error())
 		}
 
-		output, err := parseOutput(toolExecution.ToolDefinition, patternDescriptions, semgrepOutput)
+		output, err := parseCommandOutput(toolExecution.ToolDefinition, patternDescriptions, semgrepOutput)
 		if err != nil {
 			return nil, err
 		}
@@ -358,77 +355,6 @@ func isIDPresent(id string, patterns *[]codacy.Pattern) bool {
 	return false // The target ID is not present in any pattern
 }
 
-func commandParameters(configFile *os.File, language string, filesToAnalyse []string) []string {
-	// adding -json parameters
-	cmdParams := []string{
-		"-json", "-json_nodots",
-	}
-	// adding -lang parameter
-	cmdParams = append(
-		cmdParams,
-		"-lang", language,
-	)
-	// adding -rules parameter
-	cmdParams = append(
-		cmdParams,
-		"-rules", configFile.Name(),
-	)
-	// adding -timeout parameters
-	cmdParams = append(
-		cmdParams,
-		"-timeout", "5",
-		"-timeout_threshold", "3",
-	)
-	// adding files to analyse
-	cmdParams = append(
-		cmdParams,
-		filesToAnalyse...,
-	)
-	return cmdParams
-}
-
-func parseOutput(toolDefinition codacy.ToolDefinition, patternDescriptions *[]codacy.PatternDescription, commandOutput string) ([]codacy.Result, error) {
-	var result []codacy.Result
-
-	var semgrepOutput SemgrepOutput
-	err := json.Unmarshal([]byte(commandOutput), &semgrepOutput)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, semgrepRes := range semgrepOutput.Results {
-		result = append(result, codacy.Issue{
-			PatternID:  semgrepRes.CheckID,
-			Message:    writeMessage(patternDescriptions, semgrepRes.CheckID, strings.TrimSpace(semgrepRes.Extra.Message)),
-			Line:       semgrepRes.StartLocation.Line,
-			File:       semgrepRes.Path,
-			Suggestion: semgrepRes.Extra.RenderedFix,
-		})
-	}
-	for _, semgrepError := range semgrepOutput.Errors {
-		result = append(result, codacy.FileError{
-			Message: semgrepError.Message,
-			File:    semgrepError.Location.Path,
-		})
-	}
-
-	return result, nil
-}
-
-func writeMessage(patternDescriptions *[]codacy.PatternDescription, ID string, s string) string {
-	// If message is empty, get the pattern title
-	// TODO: In addition to that, Semgrep also interpolates metavars: https://github.com/semgrep/semgrep/blob/a1476e252c84d407a10e0a2e018e8468b49a0dc1/cli/src/semgrep/core_output.py#L169C24-L169C24
-	if s == "" {
-		description, ok := lo.Find(*patternDescriptions, func(d codacy.PatternDescription) bool {
-			return d.PatternID == ID
-		})
-		if ok {
-			return description.Description
-		}
-	}
-	return docgen.GetFirstSentence(s)
-}
-
 func loadPatternDescriptions() (*[]codacy.PatternDescription, error) {
 	// TODO: should respect cli flag for docs location
 	fileLocation := filepath.Join("/docs", "description/description.json")
@@ -443,22 +369,4 @@ func loadPatternDescriptions() (*[]codacy.PatternDescription, error) {
 		return nil, fmt.Errorf("failed to parse tool definition file: %s\n%w", string(fileContent), err)
 	}
 	return &descriptions, nil
-}
-
-func semgrepCommand(configFile *os.File, sourceDir, language string, files []string) *exec.Cmd {
-	params := commandParameters(configFile, language, files)
-	cmd := exec.Command("semgrep", params...)
-	cmd.Dir = sourceDir
-
-	return cmd
-}
-
-func runCommand(cmd *exec.Cmd) (string, string, error) {
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	cmdOutput, err := cmd.Output()
-	if err != nil {
-		return "", stderr.String(), err
-	}
-	return string(cmdOutput), "", nil
 }
