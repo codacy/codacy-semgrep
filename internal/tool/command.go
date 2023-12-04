@@ -76,13 +76,10 @@ func createCommandParameters(language string, configurationFile *os.File, filesT
 		"-lang", language,
 		// adding -rules parameter
 		"-rules", configurationFile.Name(),
-	}
-	// adding -timeout parameters
-	cmdParams = append(
-		cmdParams,
+		// adding -timeout parameters
 		"-timeout", "5",
 		"-timeout_threshold", "3",
-	)
+	}
 	// adding files to analyse
 	cmdParams = append(
 		cmdParams,
