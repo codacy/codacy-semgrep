@@ -13,13 +13,13 @@ import (
 func TestSourceConfigurationFileExistsWhenFileExists(t *testing.T) {
 	// Arrange
 	sourceDir := "./test_folder"
-	sourceConfigFileName := ".semgrep.yaml"
+	sourceConfigurationFileName := ".semgrep.yaml"
 
 	// Create a test file within the test folder
 	err := os.MkdirAll(sourceDir, 0755)
 	assert.NoError(t, err)
 
-	testFilePath := path.Join(sourceDir, sourceConfigFileName)
+	testFilePath := path.Join(sourceDir, sourceConfigurationFileName)
 	_, err = os.Create(testFilePath)
 	assert.NoError(t, err)
 	defer func() {
@@ -48,13 +48,13 @@ func TestSourceConfigurationFileExistsWhenFileDoesNotExist(t *testing.T) {
 func TestGetSourceConfigurationFileSuccessfully(t *testing.T) {
 	// Arrange
 	sourceFolder := "./test_folder"
-	sourceConfigFileName := ".semgrep.yaml"
+	sourceConfigurationFileName := ".semgrep.yaml"
 
 	// Create a test file within the test folder
 	err := os.MkdirAll(sourceFolder, 0755)
 	assert.NoError(t, err)
 
-	testFilePath := path.Join(sourceFolder, sourceConfigFileName)
+	testFilePath := path.Join(sourceFolder, sourceConfigurationFileName)
 	testFile, err := os.Create(testFilePath)
 	assert.NoError(t, err)
 	defer func() {
@@ -84,38 +84,6 @@ func TestGetSourceConfigurationFileWithError(t *testing.T) {
 	assert.Nil(t, file, "Expected file to be nil due to error")
 }
 
-func TestOpenFileSuccessfully(t *testing.T) {
-	// Arrange
-	fileName := "testfile.txt"
-
-	// Create a test file for opening
-	testFile, err := os.Create(fileName)
-	assert.NoError(t, err)
-	defer os.Remove(testFile.Name())
-
-	// Act
-	file, err := openFile(fileName)
-
-	// Assert
-	assert.NoError(t, err)
-	assert.NotNil(t, file, "Expected file to be opened")
-
-	// Close the file after the test
-	defer file.Close()
-}
-
-func TestOpenFileWithError(t *testing.T) {
-	// Arrange
-	nonExistentFile := "non_existent_file.txt"
-
-	// Act
-	file, err := openFile(nonExistentFile)
-
-	// Assert
-	assert.Error(t, err, "Expected an error while opening the file")
-	assert.Nil(t, file, "Expected file to be nil due to error")
-}
-
 func TestWriteTmpFileWhenIDIsPresent(t *testing.T) {
 	// Arrange
 	patterns := []codacy.Pattern{
@@ -131,7 +99,7 @@ func TestWriteTmpFileWhenIDIsPresent(t *testing.T) {
 
 	content := "- id: pattern123\nsome content\n- id: pattern789\nsome other content\n"
 
-	expectedContent := "- id: pattern123\nsome content\n"
+	expectedContent := "rules:\n- id: pattern123\nsome content\n"
 
 	// Create a rules file to read from and write to
 	rulesFile, err := os.CreateTemp("", "rulesFile.yaml")
@@ -149,12 +117,8 @@ func TestWriteTmpFileWhenIDIsPresent(t *testing.T) {
 	// Create a scanner to read the temporary file
 	scanner := bufio.NewScanner(rulesFile)
 
-	tmpFile, err := os.CreateTemp("", "tmpFile.yaml")
-	assert.NoError(t, err)
-	defer os.Remove(tmpFile.Name())
-
 	// Act
-	resultFile, err := writeTmpFile(scanner, tmpFile, &patterns)
+	resultFile, err := createAndWriteConfigurationFile(scanner, &patterns)
 	assert.NoError(t, err)
 
 	// Read the resulting file content
@@ -176,7 +140,7 @@ func TestWriteTmpFileWhenIDIsNotPresent(t *testing.T) {
 
 	content := "- id: pattern123\nsome content\n- id: pattern456\nsome other content\n"
 
-	expectedContent := "" // Expecting an empty file as the ID is not present
+	expectedContent := "rules:\n" // Expecting an empty file as the ID is not present
 
 	// Create a rules file to read from and write to
 	rulesFile, err := os.CreateTemp("", "rulesFile.txt")
@@ -194,12 +158,8 @@ func TestWriteTmpFileWhenIDIsNotPresent(t *testing.T) {
 	// Create a scanner to read the rules file
 	scanner := bufio.NewScanner(rulesFile)
 
-	tmpFile, err := os.CreateTemp("", "tmpFile.yaml")
-	assert.NoError(t, err)
-	defer os.Remove(tmpFile.Name())
-
 	// Act
-	resultFile, err := writeTmpFile(scanner, tmpFile, &patterns)
+	resultFile, err := createAndWriteConfigurationFile(scanner, &patterns)
 	assert.NoError(t, err)
 
 	// Read the resulting file content
@@ -226,7 +186,7 @@ func TestInsideDesiredIDBlockWhenLineContainsID(t *testing.T) {
 	}
 
 	// Act
-	result := insideDesiredIDBlock(line, &patterns, idIsPresent)
+	result := defaultRuleIsConfigured(line, &patterns, idIsPresent)
 
 	// Assert
 	assert.True(t, result, "Expected ID to be present in patterns")
@@ -248,7 +208,7 @@ func TestInsideDesiredIDBlockWhenLineDoesNotContainID(t *testing.T) {
 	}
 
 	// Act
-	result := insideDesiredIDBlock(line, &patterns, idIsPresent)
+	result := defaultRuleIsConfigured(line, &patterns, idIsPresent)
 
 	// Assert
 	assert.True(t, result, "Expected ID presence to remain unchanged")

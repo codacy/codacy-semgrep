@@ -123,7 +123,7 @@ func populateFilesByLanguageFromSourceDir(toolExecutionSourceDir string) error {
 	// Semgrep can analyse full directories and its subdirectories
 	// but we will have to analyse every extension from every file
 	// so we will have to do this walk somewhere else if we dont do it here
-	err := filepath.WalkDir(toolExecutionSourceDir, walkDirFunc)
+	err := filepath.WalkDir(toolExecutionSourceDir, processFile)
 	if err != nil {
 		return err
 	}
@@ -131,7 +131,7 @@ func populateFilesByLanguageFromSourceDir(toolExecutionSourceDir string) error {
 	return nil
 }
 
-func walkDirFunc(path string, info fs.DirEntry, err error) error {
+func processFile(path string, info fs.DirEntry, err error) error {
 	if err != nil {
 		return err
 	}

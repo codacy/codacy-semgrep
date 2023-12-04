@@ -45,44 +45,38 @@ type SemgrepErrorLocation struct {
 	Path string `json:"path"`
 }
 
-func executeCommandForFiles(configFile *os.File, toolExecution codacy.ToolExecution, patternDescriptions *[]codacy.PatternDescription, language string, files []string) ([]codacy.Result, error) {
-	semgrepCmd := createCommand(configFile, toolExecution.SourceDir, language, files)
+func executeCommandForFiles(configurationFile *os.File, toolExecution codacy.ToolExecution, patternDescriptions *[]codacy.PatternDescription, language string, files []string) ([]codacy.Result, error) {
+	semgrepCmd := createCommand(configurationFile, toolExecution.SourceDir, language, files)
 
 	semgrepOutput, semgrepError, err := runCommand(semgrepCmd)
 	if err != nil {
-		return nil, errors.New("Error running semgrep: " + semgrepError + "\n" + err.Error())
+		return nil, errors.New("Error running semgrep: " + *semgrepError + "\n" + err.Error())
 	}
 
-	output, err := parseCommandOutput(toolExecution.ToolDefinition, patternDescriptions, semgrepOutput)
+	output, err := parseCommandOutput(toolExecution.ToolDefinition, patternDescriptions, *semgrepOutput)
 	if err != nil {
 		return nil, err
 	}
 	return output, nil
 }
 
-func createCommand(configFile *os.File, sourceDir, language string, files []string) *exec.Cmd {
-	params := createCommandParameters(language, configFile, files)
+func createCommand(configurationFile *os.File, sourceDir, language string, files []string) *exec.Cmd {
+	params := createCommandParameters(language, configurationFile, files)
 	cmd := exec.Command("semgrep", params...)
 	cmd.Dir = sourceDir
 
 	return cmd
 }
 
-func createCommandParameters(language string, configFile *os.File, filesToAnalyse []string) []string {
-	// adding -json parameters
+func createCommandParameters(language string, configurationFile *os.File, filesToAnalyse []string) []string {
 	cmdParams := []string{
+		// adding -json parameters
 		"-json", "-json_nodots",
-	}
-	// adding -lang parameter
-	cmdParams = append(
-		cmdParams,
+		// adding -lang parameter
 		"-lang", language,
-	)
-	// adding -rules parameter
-	cmdParams = append(
-		cmdParams,
-		"-rules", configFile.Name(),
-	)
+		// adding -rules parameter
+		"-rules", configurationFile.Name(),
+	}
 	// adding -timeout parameters
 	cmdParams = append(
 		cmdParams,
@@ -94,17 +88,20 @@ func createCommandParameters(language string, configFile *os.File, filesToAnalys
 		cmdParams,
 		filesToAnalyse...,
 	)
+
 	return cmdParams
 }
 
-func runCommand(cmd *exec.Cmd) (string, string, error) {
+func runCommand(cmd *exec.Cmd) (*string, *string, error) {
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	cmdOutput, err := cmd.Output()
 	if err != nil {
-		return "", stderr.String(), err
+		stderrString := stderr.String()
+		return nil, &stderrString, err
 	}
-	return string(cmdOutput), "", nil
+	cmdOutputString := string(cmdOutput)
+	return &cmdOutputString, nil, nil
 }
 
 func parseCommandOutput(toolDefinition codacy.ToolDefinition, patternDescriptions *[]codacy.PatternDescription, commandOutput string) ([]codacy.Result, error) {
@@ -131,7 +128,7 @@ func appendIssueToResult(result []codacy.Result, patternDescriptions *[]codacy.P
 	for _, semgrepRes := range semgrepOutput.Results {
 		result = append(result, codacy.Issue{
 			PatternID:  semgrepRes.CheckID,
-			Message:    writeMessage(patternDescriptions, semgrepRes.CheckID, strings.TrimSpace(semgrepRes.Extra.Message)),
+			Message:    getMessage(patternDescriptions, semgrepRes.CheckID, strings.TrimSpace(semgrepRes.Extra.Message)),
 			Line:       semgrepRes.StartLocation.Line,
 			File:       semgrepRes.Path,
 			Suggestion: semgrepRes.Extra.RenderedFix,
@@ -141,18 +138,18 @@ func appendIssueToResult(result []codacy.Result, patternDescriptions *[]codacy.P
 	return result
 }
 
-func writeMessage(patternDescriptions *[]codacy.PatternDescription, ID string, s string) string {
+func getMessage(patternDescriptions *[]codacy.PatternDescription, id string, extraMessage string) string {
 	// If message is empty, get the pattern title
 	// TODO: In addition to that, Semgrep also interpolates metavars: https://github.com/semgrep/semgrep/blob/a1476e252c84d407a10e0a2e018e8468b49a0dc1/cli/src/semgrep/core_output.py#L169C24-L169C24
-	if s == "" {
+	if extraMessage == "" {
 		description, ok := lo.Find(*patternDescriptions, func(d codacy.PatternDescription) bool {
-			return d.PatternID == ID
+			return d.PatternID == id
 		})
 		if ok {
 			return description.Description
 		}
 	}
-	return docgen.GetFirstSentence(s)
+	return docgen.GetFirstSentence(extraMessage)
 }
 
 func appendErrorToResult(result []codacy.Result, semgrepOutput SemgrepOutput) []codacy.Result {
