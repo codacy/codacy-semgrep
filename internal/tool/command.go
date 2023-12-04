@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"os"
 	"os/exec"
 	"strings"
@@ -12,6 +13,52 @@ import (
 	docgen "github.com/codacy/codacy-semgrep/internal/docgen"
 	"github.com/samber/lo"
 )
+
+type SemgrepOutput struct {
+	Results []SemgrepResult `json:"results"`
+	Errors  []SemgrepError  `json:"errors"`
+}
+
+type SemgrepResult struct {
+	CheckID       string          `json:"check_id"`
+	Path          string          `json:"path"`
+	StartLocation SemgrepLocation `json:"start"`
+	EndLocation   SemgrepLocation `json:"end"`
+	Extra         SemgrepExtra    `json:"extra"`
+}
+
+type SemgrepLocation struct {
+	Line int `json:"line"`
+}
+
+type SemgrepExtra struct {
+	Message     string `json:"message"`
+	RenderedFix string `json:"rendered_fix,omitempty"`
+}
+
+type SemgrepError struct {
+	Message  string               `json:"message"`
+	Location SemgrepErrorLocation `json:"location"`
+}
+
+type SemgrepErrorLocation struct {
+	Path string `json:"path"`
+}
+
+func executeCommandForFiles(configFile *os.File, toolExecution codacy.ToolExecution, patternDescriptions *[]codacy.PatternDescription, language string, files []string) ([]codacy.Result, error) {
+	semgrepCmd := createCommand(configFile, toolExecution.SourceDir, language, files)
+
+	semgrepOutput, semgrepError, err := runCommand(semgrepCmd)
+	if err != nil {
+		return nil, errors.New("Error running semgrep: " + semgrepError + "\n" + err.Error())
+	}
+
+	output, err := parseCommandOutput(toolExecution.ToolDefinition, patternDescriptions, semgrepOutput)
+	if err != nil {
+		return nil, err
+	}
+	return output, nil
+}
 
 func createCommand(configFile *os.File, sourceDir, language string, files []string) *exec.Cmd {
 	params := createCommandParameters(language, configFile, files)
