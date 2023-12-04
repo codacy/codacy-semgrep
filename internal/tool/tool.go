@@ -1,25 +1,17 @@
 package tool
 
 import (
-	"bufio"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/fs"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 
 	codacy "github.com/codacy/codacy-engine-golang-seed/v6"
-	"github.com/samber/lo"
 )
-
-const sourceConfigFileName = ".semgrep.yaml"
-
-// TODO: should respect cli flag for docs location
-const rulesDefinitionFileName = "/docs/rules.yaml"
 
 var filesByLanguage map[string][]string = make(map[string][]string)
 
@@ -271,88 +263,6 @@ type SemgrepError struct {
 
 type SemgrepErrorLocation struct {
 	Path string `json:"path"`
-}
-
-func openFile(filename string) (*os.File, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	return file, nil
-}
-
-func getConfigurationFile(sourceFolder string) (*os.File, error) {
-	filename := path.Join(sourceFolder, sourceConfigFileName)
-	return openFile(filename)
-}
-
-func createConfigFile(toolExecution codacy.ToolExecution) (*os.File, error) {
-	// if there is no configuration file, try to use default configuration file
-	// otherwise configuration from source code
-
-	if toolExecution.Patterns == nil {
-		// if there is no configuration file use default configuration file
-		if _, err := os.Stat(path.Join(toolExecution.SourceDir, sourceConfigFileName)); err != nil {
-			defaultPatterns := lo.Filter(*toolExecution.ToolDefinition.Patterns, func(pattern codacy.Pattern, index int) bool {
-				return pattern.Enabled
-			})
-			return createConfigFileFromPatterns(&defaultPatterns)
-		}
-
-		// otherwise use configuration from source code
-		return getConfigurationFile(toolExecution.SourceDir)
-	}
-
-	if len(*toolExecution.Patterns) == 0 {
-		return nil, nil
-	}
-
-	// if there are patterns, create a configuration file from them
-	return createConfigFileFromPatterns(toolExecution.Patterns)
-}
-
-func createConfigFileFromPatterns(patterns *[]codacy.Pattern) (*os.File, error) {
-	tmpFile, err := os.CreateTemp(os.TempDir(), "semgrep-")
-	if err != nil {
-		return nil, err
-	}
-	rulesConfigFile, err := os.Open(rulesDefinitionFileName)
-	if err != nil {
-		return nil, err
-	}
-
-	defaultConfigFileScanner := bufio.NewScanner(rulesConfigFile)
-
-	idIsPresent := false
-	_, err = tmpFile.WriteString("rules:\n")
-	if err != nil {
-		return nil, err
-	}
-	for defaultConfigFileScanner.Scan() {
-		line := defaultConfigFileScanner.Text()
-		if strings.Contains(line, "- id:") {
-			id := strings.TrimSpace(strings.Split(line, ":")[1])
-			idIsPresent = isIDPresent(id, patterns)
-		}
-
-		if idIsPresent {
-			_, err = tmpFile.WriteString(line + "\n")
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	return tmpFile, nil
-}
-
-func isIDPresent(id string, patterns *[]codacy.Pattern) bool {
-	for _, pattern := range *patterns {
-		if pattern.ID == id {
-			return true // The target ID is present in a pattern
-		}
-	}
-	return false // The target ID is not present in any pattern
 }
 
 func loadPatternDescriptions() (*[]codacy.PatternDescription, error) {
