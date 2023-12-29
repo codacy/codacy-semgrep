@@ -45,8 +45,8 @@ type SemgrepErrorLocation struct {
 	Path string `json:"path"`
 }
 
-func executeCommandForFiles(configurationFile *os.File, toolExecution codacy.ToolExecution, patternDescriptions *[]codacy.PatternDescription, language string, files []string) ([]codacy.Result, error) {
-	semgrepCmd := createCommand(configurationFile, toolExecution.SourceDir, language, files)
+func executeCommand(configurationFile *os.File, toolExecution codacy.ToolExecution, patternDescriptions *[]codacy.PatternDescription) ([]codacy.Result, error) {
+	semgrepCmd := createCommand(configurationFile, toolExecution.SourceDir, *toolExecution.Language, *toolExecution.Files)
 
 	semgrepOutput, semgrepError, err := runCommand(semgrepCmd)
 	if err != nil {
@@ -113,7 +113,6 @@ func parseCommandOutput(toolDefinition codacy.ToolDefinition, patternDescription
 }
 
 func appendToResult(result []codacy.Result, patternDescriptions *[]codacy.PatternDescription, output string) []codacy.Result {
-
 	var semgrepOutput SemgrepOutput
 	json.Unmarshal([]byte(output), &semgrepOutput)
 	result = appendIssueToResult(result, patternDescriptions, semgrepOutput)

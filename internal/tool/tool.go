@@ -3,7 +3,6 @@ package tool
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -47,11 +46,6 @@ func prepareToRun(toolExecution codacy.ToolExecution) (*os.File, *[]codacy.Patte
 		return nil, nil, err
 	}
 
-	err = populateFilesByLanguage(toolExecution.Files, toolExecution.SourceDir)
-	if err != nil {
-		return nil, nil, errors.New("Error getting files to analyse: " + err.Error())
-	}
-
 	patternDescriptions, err := loadPatternDescriptions()
 	if err != nil {
 		return nil, nil, err
@@ -78,13 +72,12 @@ func loadPatternDescriptions() (*[]codacy.PatternDescription, error) {
 
 func run(configurationFile *os.File, toolExecution codacy.ToolExecution, patternDescriptions *[]codacy.PatternDescription) ([]codacy.Result, error) {
 	var results []codacy.Result
-	for language, files := range filesByLanguage {
-		result, err := executeCommandForFiles(configurationFile, toolExecution, patternDescriptions, language, files)
-		if err != nil {
-			return nil, err
-		}
-		results = append(results, result...)
+
+	result, err := executeCommand(configurationFile, toolExecution, patternDescriptions)
+	if err != nil {
+		return nil, err
 	}
+	results = append(results, result...)
 
 	return results, nil
 }
