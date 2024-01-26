@@ -14,7 +14,7 @@ func main() {
 }
 func main_good() {
 	// ok:bad-tmp-file-creation
-	err := ioutil.Tempfile("/tmp", "my_temp")
+	_, err := ioutil.TempFile("/tmp", "my_temp")
 	if err != nil {
 		fmt.Println("Error while writing!")
 	}

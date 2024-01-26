@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<checkstyle version="1.5">
-    <file name="c_buffer_rule-strncat.c">
-        <error source="c_buffer_rule-strncat" line="11" message="The `strncat` family of functions are easy to use incorrectly when calculating destination\nbuffer\nsizes. It is recommended to use more secure alternatives such as `snprintf`.\nFor more information please see: https://linux.die.net/man/3/snprintf\nIf developing for C Runtime Library (CRT), more secure versions of these functions should be\nused, see: \nhttps://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/strncat-s-strncat-s-l-wcsncat-s-wcsncat-s-l-mbsncat-s-mbsncat-s-l?view=msvc-170" severity="info" />
-        <error source="c_buffer_rule-strncat" line="12" message="The `strncat` family of functions are easy to use incorrectly when calculating destination\nbuffer\nsizes. It is recommended to use more secure alternatives such as `snprintf`.\nFor more information please see: https://linux.die.net/man/3/snprintf\nIf developing for C Runtime Library (CRT), more secure versions of these functions should be\nused, see: \nhttps://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/strncat-s-strncat-s-l-wcsncat-s-wcsncat-s-l-mbsncat-s-mbsncat-s-l?view=msvc-170" severity="info" />
-    </file>
-</checkstyle>

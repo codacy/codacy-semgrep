@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<checkstyle version="1.5">
+    <file name="c_buffer_rule-strncat.c">
+        <error source="c_buffer_rule-strncat" line="11" message="The `strncat` family of functions are easy to use incorrectly when calculating destination buffer sizes." severity="info" />
+        <error source="c_buffer_rule-strncat" line="12" message="The `strncat` family of functions are easy to use incorrectly when calculating destination buffer sizes." severity="info" />
+    </file>
+</checkstyle>

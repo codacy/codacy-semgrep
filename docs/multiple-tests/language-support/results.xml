@@ -7,7 +7,7 @@
         <error source="bash.curl.security.curl-eval.curl-eval" line="19" message="Data is being eval'd from a `curl` command." severity="warning" />
     </file>
     <file name="c/double-free.c">
-        <error source="c.lang.security.double-free.double-free" line="7" message="Variable '$VAR' was freed twice." severity="error" />
+        <error source="c.lang.security.double-free.double-free" line="7" message="Variable 'var' was freed twice." severity="error" />
     </file>
         <file name="clojure/use-of-md5.clj">
         <error source="clojure.lang.security.use-of-md5.use-of-md5" line="6" message="MD5 hash algorithm detected." severity="warning" />
@@ -24,11 +24,6 @@
     <file name="dockerfile/missing-user.dockerfile">
         <error source="dockerfile.security.missing-user.missing-user" line="10" message="By not specifying a USER, a program in the container may run as 'root'. This is a security hazard." severity="error" />
         <error source="dockerfile.security.missing-user.missing-user" line="13" message="By not specifying a USER, a program in the container may run as 'root'. This is a security hazard." severity="error" />
-    </file>
-    <file name="elixir/enum-map-into.exs">
-        <error source="elixir.lang.best-practice.enum-map-into.enum_map_into" line="2" message="Using `Enum.into/3` is more efficient than using `Enum.map/2 |> Enum.into/2`." severity="warning" />
-        <error source="elixir.lang.best-practice.enum-map-into.enum_map_into" line="5" message="Using `Enum.into/3` is more efficient than using `Enum.map/2 |> Enum.into/2`." severity="warning" />
-        <error source="elixir.lang.best-practice.enum-map-into.enum_map_into" line="9" message="Using `Enum.into/3` is more efficient than using `Enum.map/2 |> Enum.into/2`." severity="warning" />
     </file>
     <file name="go/bad_tmp.go">
         <error source="go.lang.security.bad_tmp.bad-tmp-file-creation" line="10" message="File creation in shared tmp directory without using ioutil.Tempfile" severity="warning" />
@@ -85,12 +80,12 @@
         <error source="terraform.lang.security.rds-public-access.rds-public-access" line="29" message="RDS instance accessible from the Internet detected." severity="warning" />
     </file>
     <file name="typescript/detect-child-process.ts">
-        <error source="javascript.lang.security.detect-child-process.detect-child-process" line="6" message="Detected calls to child_process from a function argument `$FUNC`. This could lead to a command injection if the input is user controllable." severity="error" />
-        <error source="javascript.lang.security.detect-child-process.detect-child-process" line="13" message="Detected calls to child_process from a function argument `$FUNC`. This could lead to a command injection if the input is user controllable." severity="error" />
-        <error source="javascript.lang.security.detect-child-process.detect-child-process" line="13" message="Detected calls to child_process from a function argument `$FUNC`. This could lead to a command injection if the input is user controllable." severity="error" />
+        <error source="javascript.lang.security.detect-child-process.detect-child-process" line="6" message="Detected calls to child_process from a function argument `args`. This could lead to a command injection if the input is user controllable." severity="error" />
+        <error source="javascript.lang.security.detect-child-process.detect-child-process" line="13" message="Detected calls to child_process from a function argument `userInput`. This could lead to a command injection if the input is user controllable." severity="error" />
+        <error source="javascript.lang.security.detect-child-process.detect-child-process" line="13" message="Detected calls to child_process from a function argument `userInput`. This could lead to a command injection if the input is user controllable." severity="error" />
     </file>
     <file name="unknown_extension/double-free.h">
-        <error source="c.lang.security.double-free.double-free" line="7" message="Variable '$VAR' was freed twice." severity="error" />
+        <error source="c.lang.security.double-free.double-free" line="7" message="Variable 'var' was freed twice." severity="error" />
     </file>
     <file name="yaml/argo-workflow-parameter-command-injection.test.yaml">
         <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="19" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />

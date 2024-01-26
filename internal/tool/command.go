@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	codacy "github.com/codacy/codacy-engine-golang-seed/v6"
-	docgen "github.com/codacy/codacy-semgrep/internal/docgen"
+	"github.com/codacy/codacy-semgrep/internal/docgen"
 	"github.com/samber/lo"
 )
 
@@ -137,7 +137,6 @@ func appendIssueToResult(result []codacy.Result, patternDescriptions *[]codacy.P
 
 func getMessage(patternDescriptions *[]codacy.PatternDescription, id string, extraMessage string) string {
 	// If message is empty, get the pattern title
-	// TODO: In addition to that, Semgrep also interpolates metavars: https://github.com/semgrep/semgrep/blob/a1476e252c84d407a10e0a2e018e8468b49a0dc1/cli/src/semgrep/core_output.py#L169C24-L169C24
 	if extraMessage == "" {
 		description, ok := lo.Find(*patternDescriptions, func(d codacy.PatternDescription) bool {
 			return d.PatternID == id
@@ -146,7 +145,7 @@ func getMessage(patternDescriptions *[]codacy.PatternDescription, id string, ext
 			return description.Description
 		}
 	}
-	return docgen.GetFirstSentence(extraMessage)
+	return docgen.GetFirstSentence(strings.ReplaceAll(extraMessage, "\n", " "))
 }
 
 func appendErrorToResult(result []codacy.Result, semgrepOutput SemgrepOutput) []codacy.Result {

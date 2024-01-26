@@ -164,7 +164,8 @@ func isValidSemgrepRegistryRuleFile(filename string) bool {
 		!strings.HasPrefix(filename, "generic/nginx/") &&
 		!strings.HasPrefix(filename, "html/") &&
 		!strings.HasPrefix(filename, "ocaml/") &&
-		!strings.HasPrefix(filename, "solidity/")
+		!strings.HasPrefix(filename, "solidity/") &&
+		!strings.HasPrefix(filename, "elixir/")
 }
 
 func isValidGitLabRuleFile(filename string) bool {
@@ -210,7 +211,7 @@ func (r SemgrepRule) toPatternWithExplanation(defaultRules SemgrepRules) Pattern
 	return PatternWithExplanation{
 		ID:          r.ID,
 		Title:       getLastSegment(r.ID),
-		Description: GetFirstSentence(r.Message),
+		Description: GetFirstSentence(strings.ReplaceAll(r.Message, "\n", " ")),
 		Level:       toCodacyLevel(r.Severity),
 		Category:    toCodacyCategory(r),
 		SubCategory: getCodacySubCategory(toCodacyCategory(r), r.Metadata.OWASP),
@@ -327,6 +328,8 @@ func getCodacySubCategory(category Category, OWASPCategories []string) SubCatego
 			return InputValidation
 		case "A02:2017 - Broken Authentication":
 			return Auth
+		case "A2:2017-Broken Authentication":
+			return Auth
 		case "A03:2017 - Sensitive Data Exposure":
 			return Visibility
 		case "A3:2017-Sensitive Data Exposure":
@@ -365,9 +368,13 @@ func getCodacySubCategory(category Category, OWASPCategories []string) SubCatego
 			return InputValidation
 		case "A8:2017 Insecure Deserialization":
 			return InputValidation
+		case "A08:2017-Insecure Deserialization":
+			return InputValidation
 		case "A09:2017 - Using Components with Known Vulnerabilities":
 			return InsecureModulesLibraries
 		case "A9:2017-Using Components with Known Vulnerabilities":
+			return InsecureModulesLibraries
+		case "A09:2017-Using Components with Known Vulnerabilities":
 			return InsecureModulesLibraries
 		case "A10:2017 - Insufficient Logging & Monitoring":
 			return Visibility
@@ -414,7 +421,8 @@ func toCodacyLanguages(r SemgrepRule) []string {
 	codacyLanguages := lo.Map(
 		lo.Filter(r.Languages, func(s string, index int) bool {
 			return s != "generic" && s != "regex" && // internal rules?
-				s != "lua" && s != "ocaml" && s != "html" && s != "solidity" // not supported by Codacy
+				s != "lua" && s != "ocaml" && s != "html" && s != "solidity" && // not supported by Codacy
+				s != "elixir" // Pro languages
 		}),
 		func(s string, index int) string {
 			codacyLanguage := supportedLanguages[s]

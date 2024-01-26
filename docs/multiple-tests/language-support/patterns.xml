@@ -7,7 +7,6 @@
     <module name="csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration" />
     <module name="dockerfile.security.last-user-is-root.last-user-is-root" />
     <module name="dockerfile.security.missing-user.missing-user" />
-    <module name="elixir.lang.best-practice.enum-map-into.enum_map_into" />
     <module name="go.lang.security.bad_tmp.bad-tmp-file-creation" />
     <module name="java.java-jwt.security.jwt-none-alg.java-jwt-none-alg" />
     <module name="javascript.ajv.security.audit.ajv-allerrors-true.ajv-allerrors-true" />
