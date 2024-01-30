@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	toolName        = "Semgrep"
+	toolName        = "semgrep"
 	toolVersionFile = ".tool_version"
 )
 
