@@ -1,10 +1,10 @@
 package tool
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"os"
 	"os/exec"
 	"strings"
@@ -53,7 +53,7 @@ func executeCommandForFiles(configurationFile *os.File, toolExecution codacy.Too
 		return nil, errors.New("Error running semgrep: " + *semgrepError + "\n" + err.Error())
 	}
 
-	output, err := parseCommandOutput(toolExecution.ToolDefinition, patternDescriptions, *semgrepOutput)
+	output, err := parseCommandOutput(patternDescriptions, *semgrepOutput)
 	if err != nil {
 		return nil, err
 	}
@@ -101,24 +101,31 @@ func runCommand(cmd *exec.Cmd) (*string, *string, error) {
 	return &cmdOutputString, nil, nil
 }
 
-func parseCommandOutput(toolDefinition codacy.ToolDefinition, patternDescriptions *[]codacy.PatternDescription, commandOutput string) ([]codacy.Result, error) {
+func parseCommandOutput(patternDescriptions *[]codacy.PatternDescription, commandOutput string) ([]codacy.Result, error) {
 	var result []codacy.Result
-	scanner := bufio.NewScanner(strings.NewReader(commandOutput))
-	for scanner.Scan() {
-		output := scanner.Text()
-		result = appendToResult(result, patternDescriptions, output)
+
+	// Convert the JSON string to a []byte slice
+	jsonData := []byte(commandOutput)
+	// Create a bytes.Reader from the []byte slice
+	reader := bytes.NewReader(jsonData)
+	// Create a JSON decoder
+	decoder := json.NewDecoder(reader)
+	// Read and process the JSON stream
+	for {
+		var semgrepOutput SemgrepOutput // or a struct that matches your JSON structure
+		if err := decoder.Decode(&semgrepOutput); err != nil {
+			if err == io.EOF {
+				break // End of input
+			}
+			return nil, err
+		}
+
+		// Process the data
+		result = appendIssueToResult(result, patternDescriptions, semgrepOutput)
+		result = appendErrorToResult(result, semgrepOutput)
 	}
 
 	return result, nil
-}
-
-func appendToResult(result []codacy.Result, patternDescriptions *[]codacy.PatternDescription, output string) []codacy.Result {
-
-	var semgrepOutput SemgrepOutput
-	json.Unmarshal([]byte(output), &semgrepOutput)
-	result = appendIssueToResult(result, patternDescriptions, semgrepOutput)
-	result = appendErrorToResult(result, semgrepOutput)
-	return result
 }
 
 func appendIssueToResult(result []codacy.Result, patternDescriptions *[]codacy.PatternDescription, semgrepOutput SemgrepOutput) []codacy.Result {

@@ -88,7 +88,7 @@ func TestParseCommandOutput(t *testing.T) {
 	commandOutput := "{\"version\": \"1.49.0\", \"results\": [{\"check_id\": \"bash.curl.security.curl-eval.curl-eval\", \"path\": \"src/bash/curl-eval.bash\", \"start\": {\"line\": 5}, \"end\": {\"line\": 5}, \"extra\": {\"message\": \"Sample message\"}}], \"errors\": []}"
 
 	// Act
-	result, err := parseCommandOutput(codacy.ToolDefinition{}, &mockPatternDescriptions, commandOutput)
+	result, err := parseCommandOutput(&mockPatternDescriptions, commandOutput)
 
 	// Assert
 	assert.NoError(t, err, "Expected no error during parsing command output")
@@ -137,10 +137,8 @@ func TestAppendToResult(t *testing.T) {
 		]
 	}`
 
-	initialResults := []codacy.Result{}
-
 	// Act
-	result := appendToResult(initialResults, &mockPatternDescriptions, validSemgrepOutput)
+	result, _ := parseCommandOutput(&mockPatternDescriptions, validSemgrepOutput)
 
 	// Assert
 	assert.Len(t, result, 2, "Expected length of the result slice to be 2")
