@@ -4,30 +4,30 @@ ARG TOOL_VERSION
 # Explicitly adding go.mod and go.sum avoids re-downloading dependencies on every build
 # Go builds static binaries by default, -ldflags="-s -w" strips debug information and reduces the binary size
 
-FROM golang:1.21.0-alpine3.18 as builder
+FROM golang:1.21-alpine as builder
 
 WORKDIR /src
 
-ADD go.mod go.mod
-ADD go.sum go.sum
+COPY go.mod go.mod
+COPY go.sum go.sum
 RUN go mod download
 
-ADD cmd cmd
-ADD internal internal
+COPY cmd cmd
+COPY internal internal
 
 RUN go build -o bin/codacy-semgrep -ldflags="-s -w" ./cmd/tool
 
-ADD .tool_version .tool_version
+COPY .tool_version .tool_version
 COPY docs/ /docs/
 RUN go run ./cmd/docgen -docFolder /docs
 
 # Semgrep official image used to copy the semgrep binary
 
-FROM returntocorp/semgrep:$TOOL_VERSION as semgrep-cli
+FROM semgrep/semgrep:$TOOL_VERSION as semgrep-cli
 
 # Compress binaries for smaller image size
 
-FROM golang:1.21.0-alpine3.18 as compressor
+FROM golang:1.21-alpine as compressor
 
 RUN apk add --no-cache upx
 
@@ -41,7 +41,7 @@ RUN upx --lzma /src/bin/codacy-semgrep
 # Final published image for the codacy-semgrep wrapper
 # Tries to be as small as possible with only the Go static binary, the docs and the semgrep binary
 
-FROM busybox
+FROM busybox:1.36
 
 COPY --from=compressor /usr/local/bin/semgrep-core /usr/bin/semgrep
 COPY --from=semgrep-cli /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/

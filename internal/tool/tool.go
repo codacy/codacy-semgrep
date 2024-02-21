@@ -62,7 +62,7 @@ func prepareToRun(toolExecution codacy.ToolExecution) (*os.File, *[]codacy.Patte
 
 func loadPatternDescriptions() (*[]codacy.PatternDescription, error) {
 	// TODO: should respect cli flag for docs location
-	fileLocation := filepath.Join("/docs", "description/description.json")
+	fileLocation := filepath.Join("/docs", "description", "description.json")
 
 	fileContent, err := os.ReadFile(fileLocation)
 	if err != nil {

@@ -2,34 +2,36 @@
 
 This is the docker engine we use at Codacy to have [Semgrep](https://github.com/returntocorp/semgrep) support.
 
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/689e72eabdb24722a24b8bc08b979cfa)](https://app.codacy.com/gh/codacy/codacy-semgrep/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+[![CircleCI](https://circleci.com/gh/codacy/codacy-semgrep.svg?style=svg)](https://circleci.com/gh/codacy/codacy-semgrep)
+
 ## Usage
 
 You can create the docker by doing:
 
-  ```bash
-  docker build -t codacy-semgrep:latest .
-  ```
+```bash
+docker build --build-arg TOOL_VERSION=1.61.1 -t codacy-semgrep:latest .
+```
 
 The docker is ran with the following command:
 
-  ```bash
-  docker run -it -v $srcDir:/src codacy-semgrep:latest
-  ```
+```bash
+docker run -it -v $srcDir:/src codacy-semgrep:latest
+```
 
 ## Generate Docs
 
- 1. Update the version in `go.mod`
- 2. Install the dependencies:
+1.  Update the version in `go.mod`
 
+2.  Install the dependencies:
 ```bash
 go mod download
+go mod tidy
 ```
 
- 3. Run the DocGenerator:
-
+3.  Run the DocGenerator:
 ```bash
-go run ./doc-generator.go &&\
-scala-cli doc-generator.sc
+go run ./cmd/docgen -docFolder /docs
 ```
 
 ## Test
@@ -43,11 +45,11 @@ You can follow the instructions there to make sure your tool is working as expec
 
 ### Among Codacy’s features
 
-- Identify new Static Analysis issues
-- Commit and Pull Request Analysis with GitHub, BitBucket/Stash, GitLab (and also direct git repositories)
-- Auto-comments on Commits and Pull Requests
-- Integrations with Slack, HipChat, Jira, YouTrack
-- Track issues in Code Style, Security, Error Proneness, Performance, Unused Code and other categories
+-   Identify new Static Analysis issues
+-   Commit and Pull Request Analysis with GitHub, BitBucket/Stash, GitLab (and also direct git repositories)
+-   Auto-comments on Commits and Pull Requests
+-   Integrations with Slack, HipChat, Jira, YouTrack
+-   Track issues in Code Style, Security, Error Proneness, Performance, Unused Code and other categories
 
 Codacy also helps keep track of Code Coverage, Code Duplication, and Code Complexity.
 
