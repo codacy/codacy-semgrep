@@ -18,7 +18,7 @@ func TestSourceConfigurationFileExistsWhenFileExists(t *testing.T) {
 	sourceConfigurationFileName := ".semgrep.yaml"
 
 	// Create a test file within the test folder
-	err := os.MkdirAll(sourceDir, 0755)
+	err := os.MkdirAll(sourceDir, 0700)
 	assert.NoError(t, err)
 
 	testFilePath := path.Join(sourceDir, sourceConfigurationFileName)
@@ -53,7 +53,7 @@ func TestGetSourceConfigurationFileSuccessfully(t *testing.T) {
 	sourceConfigurationFileName := ".semgrep.yaml"
 
 	// Create a test file within the test folder
-	err := os.MkdirAll(sourceFolder, 0755)
+	err := os.MkdirAll(sourceFolder, 0700)
 	assert.NoError(t, err)
 
 	testFilePath := path.Join(sourceFolder, sourceConfigurationFileName)

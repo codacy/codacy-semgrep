@@ -290,94 +290,73 @@ func toCodacyCategory(r SemgrepRule) Category {
 func getCodacySubCategory(category Category, OWASPCategories []string) SubCategory {
 	if category == Security && len(OWASPCategories) > 0 {
 		switch OWASPCategories[0] {
-		case "A01:2021 - Broken Access Control":
-			return InsecureStorage
-		case "A02:2021 - Cryptographic Failures":
-			return Cryptography
-		case "A02:2021 – Cryptographic Failures":
-			return Cryptography
-		case "A2:2021 Cryptographic Failures":
-			return Cryptography
-		case "A03:2021 - Injection":
-			return InputValidation
-		case "A03:2021 – Injection":
-			return InputValidation
-		case "A04:2021 - Insecure Design":
-			return Other
-		case "A05:2021 - Security Misconfiguration":
-			return Other
-		case "A5:2021 Security Misconfiguration":
-			return Other
-		case "A06:2021 - Vulnerable and Outdated Components":
-			return InsecureModulesLibraries
-		case "A07:2021 - Identification and Authentication Failures":
-			return Auth
-		case "A08:2021 - Software and Data Integrity Failures":
-			return UnexpectedBehaviour
-		case "A09:2021 - Security Logging and Monitoring Failures":
-			return Visibility
-		case "A09:2021 – Security Logging and Monitoring Failures":
-			return Visibility
-		case "A09:2021 Security Logging and Monitoring Failures":
-			return Visibility
-		case "A10:2021 - Server-Side Request Forgery (SSRF)":
-			return InputValidation
+		case "A1:2017-Injection":
 		case "A01:2017 - Injection":
 			return InputValidation
-		case "A1:2017-Injection":
-			return InputValidation
+		case "A01:2021 - Broken Access Control":
+			return InsecureStorage
+		case "A2:2017-Broken Authentication":
 		case "A02:2017 - Broken Authentication":
 			return Auth
-		case "A2:2017-Broken Authentication":
-			return Auth
+		case "A2:2021 Cryptographic Failures":
+		case "A02:2021 – Cryptographic Failures":
+		case "A02:2021 - Cryptographic Failures":
+			return Cryptography
+		case "A3:2017 Sensitive Data Exposure":
+		case "A3:2017-Sensitive Data Exposure":
+		case "A03:2017-Sensitive Data Exposure":
 		case "A03:2017 - Sensitive Data Exposure":
 			return Visibility
-		case "A3:2017-Sensitive Data Exposure":
-			return Visibility
-		case "A3:2017 Sensitive Data Exposure":
-			return Visibility
-		case "A04:2017 - XML External Entities (XXE)":
-			return InputValidation
-		case "A4:2017 - XML External Entities (XXE)":
+		case "A03:2021 – Injection":
+		case "A03:2021 - Injection":
 			return InputValidation
 		case "A4:2017-XML External Entities (XXE)":
+		case "A4:2017 - XML External Entities (XXE)":
+		case "A04:2017 - XML External Entities (XXE)":
 			return InputValidation
 		case "A04:2021 - XML External Entities (XXE)":
 			return InputValidation
+		case "A04:2021 - Insecure Design":
+			return Other
+		case "A5:2017-Broken Access Control":
 		case "A05:2017 - Broken Access Control":
 			return InsecureStorage
 		case "A05:2017 - Sensitive Data Exposure":
 			return InsecureStorage
-		case "A5:2017-Broken Access Control":
-			return InsecureStorage
-		case "A06:2017 - Security Misconfiguration":
+		case "A5:2021 Security Misconfiguration":
+		case "A05:2021 - Security Misconfiguration":
 			return Other
 		case "A6:2017 misconfiguration":
-			return Other
 		case "A6:2017-Security Misconfiguration":
+		case "A06:2017 - Security Misconfiguration":
 			return Other
+		case "A06:2021 - Vulnerable and Outdated Components":
+			return InsecureModulesLibraries
+		case "A7: Cross-Site Scripting (XSS)":
+		case "A7:2017-Cross-Site Scripting (XSS)":
 		case "A07:2017 - Cross-Site Scripting (XSS)":
 			return InputValidation
-		case "A7:2017-Cross-Site Scripting (XSS)":
-			return InputValidation
-		case "A7: Cross-Site Scripting (XSS)":
-			return InputValidation
+		case "A07:2021 - Identification and Authentication Failures":
+			return Auth
+		case "A8:2017 Insecure Deserialization":
+		case "A8:2017-Insecure Deserialization":
+		case "A08:2017-Insecure Deserialization":
 		case "A08:2017 - Insecure Deserialization":
 			return InputValidation
-		case "A8:2017-Insecure Deserialization":
-			return InputValidation
-		case "A8:2017 Insecure Deserialization":
-			return InputValidation
-		case "A08:2017-Insecure Deserialization":
-			return InputValidation
+		case "A08:2021 - Software and Data Integrity Failures":
+			return UnexpectedBehaviour
+		case "A9:2017-Using Components with Known Vulnerabilities":
+		case "A09:2017-Using Components with Known Vulnerabilities":
 		case "A09:2017 - Using Components with Known Vulnerabilities":
 			return InsecureModulesLibraries
-		case "A9:2017-Using Components with Known Vulnerabilities":
-			return InsecureModulesLibraries
-		case "A09:2017-Using Components with Known Vulnerabilities":
-			return InsecureModulesLibraries
+		case "A09:2021 Security Logging and Monitoring Failures":
+		case "A09:2021 – Security Logging and Monitoring Failures":
+		case "A09:2021 - Security Logging and Monitoring Failures":
+			return Visibility
 		case "A10:2017 - Insufficient Logging & Monitoring":
 			return Visibility
+		case "A10:2021 - Server-Side Request Forgery (SSRF)":
+			return InputValidation
 		default:
 			panic(fmt.Sprintf("unknown subcategory: %s", OWASPCategories[0]))
 		}
@@ -388,34 +367,34 @@ func getCodacySubCategory(category Category, OWASPCategories []string) SubCatego
 // https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/languages/Language.scala#L41
 func toCodacyLanguages(r SemgrepRule) []string {
 	supportedLanguages := map[string]string{
-		"python":      "Python",
-		"bash":        "Shell",
 		"c":           "C",
 		"clojure":     "Clojure",
 		"cpp":         "CPP",
-		"javascript":  "Javascript",
-		"js":          "Javascript",
-		"java":        "Java",
 		"csharp":      "CSharp",
 		"C#":          "CSharp",
 		"dockerfile":  "Dockerfile",
+		"elixir":      "Elixir",
 		"go":          "Go",
+		"java":        "Java",
+		"javascript":  "Javascript",
+		"js":          "Javascript",
 		"json":        "JSON",
 		"kotlin":      "Kotlin",
 		"kt":          "Kotlin",
 		"php":         "PHP",
+		"python":      "Python",
 		"ruby":        "Ruby",
 		"rust":        "Rust",
 		"scala":       "Scala",
+		"bash":        "Shell",
 		"sh":          "Shell",
-		"ts":          "TypeScript",
-		"typescript":  "TypeScript",
-		"yaml":        "YAML",
 		"swift":       "Swift",
 		"hcl":         "Terraform",
 		"terraform":   "Terraform",
-		"elixir":      "Elixir",
+		"ts":          "TypeScript",
+		"typescript":  "TypeScript",
 		"visualforce": "VisualForce",
+		"yaml":        "YAML",
 	}
 
 	codacyLanguages := lo.Map(
