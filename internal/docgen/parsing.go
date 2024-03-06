@@ -33,6 +33,7 @@ type SemgrepRule struct {
 type SemgrepRuleMetadata struct {
 	Category string      `yaml:"category"`
 	OWASP    StringArray `yaml:"owasp"`
+	CWEs     StringArray `yaml:"cwe"`
 }
 
 type SemgrepRules []SemgrepRule
@@ -280,7 +281,11 @@ func toCodacyCategory(r SemgrepRule) Category {
 	case "maintainability":
 		return BestPractice
 	case "":
-		return BestPractice
+		if len(r.Metadata.CWEs) > 0 {
+			return Security
+		} else {
+			return BestPractice
+		}
 	default:
 		panic(fmt.Sprintf("unknown category: %s %s", r.Metadata.Category, r.ID))
 	}
@@ -291,6 +296,7 @@ func getCodacySubCategory(category Category, OWASPCategories []string) SubCatego
 	if category == Security && len(OWASPCategories) > 0 {
 		switch OWASPCategories[0] {
 		case "A1:2017-Injection":
+		case "A01:2017-Injection":
 		case "A01:2017 - Injection":
 			return InputValidation
 		case "A01:2021 - Broken Access Control":
