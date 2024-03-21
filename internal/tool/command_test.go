@@ -102,11 +102,14 @@ func TestParseCommandOutput(t *testing.T) {
 	assert.Equal(t, "", parsedResult.Suggestion, "Expected suggestion in parsed result")
 }
 
-func TestAppendToResult(t *testing.T) {
+func TestAppendToResultWithIgnore(t *testing.T) {
 	// Arrange
 	mockPatternDescriptions := []codacy.PatternDescription{
 		{
 			PatternID: "pattern_1",
+		},
+		{
+			PatternID: "pattern_2",
 		},
 	}
 
@@ -123,7 +126,23 @@ func TestAppendToResult(t *testing.T) {
 				},
 				"extra": {
 					"message": "Sample message",
-					"rendered_fix": "Suggested fix for issue"
+					"rendered_fix": "Suggested fix for issue",
+					"is_ignored": false
+				}
+			},
+			{
+				"check_id": "pattern_2",
+				"path": "path/to/file.txt",
+				"start": {
+					"line": 5
+				},
+				"end": {
+					"line": 6
+				},
+				"extra": {
+					"message": "Sample message",
+					"rendered_fix": "Suggested fix for issue",
+					"is_ignored": true
 				}
 			}
 		],

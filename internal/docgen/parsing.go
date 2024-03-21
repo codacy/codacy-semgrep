@@ -269,15 +269,12 @@ func toCodacyCategory(r SemgrepRule) Category {
 	case "performance":
 		return Performance
 	case "compatibility":
-		return Compatibility
 	case "portability":
-		return Compatibility
 	case "caching":
 		return Compatibility
 	case "correctness":
 		return ErrorProne
 	case "best-practice":
-		return BestPractice
 	case "maintainability":
 		return BestPractice
 	case "":
@@ -289,6 +286,7 @@ func toCodacyCategory(r SemgrepRule) Category {
 	default:
 		panic(fmt.Sprintf("unknown category: %s %s", r.Metadata.Category, r.ID))
 	}
+	return ""
 }
 
 // https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Pattern.scala#L49
