@@ -173,7 +173,8 @@ func isValidGitLabRuleFile(filename string) bool {
 	return (strings.HasSuffix(filename, ".yaml") || strings.HasSuffix(filename, ".yml")) &&
 		!strings.HasPrefix(filename, "dist/") &&
 		!strings.HasPrefix(filename, "docs/") &&
-		!strings.HasPrefix(filename, "mappings/")
+		!strings.HasPrefix(filename, "mappings/") &&
+		!strings.HasPrefix(filename, "qa/")
 }
 
 func prefixRuleIDWithPath(relativePath string, unprefixedID string) string {
