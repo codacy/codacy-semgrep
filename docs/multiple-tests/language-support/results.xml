@@ -42,7 +42,6 @@
     </file>
     <file name="kotlin/weak-rsa.kt">
         <error source="kotlin.lang.security.weak-rsa.use-of-weak-rsa-key" line="7" message="RSA keys should be at least 2048 bits based on NIST recommendation." severity="warning" />
-        <error source="kotlin.lang.security.weak-rsa.use-of-weak-rsa-key" line="7" message="RSA keys should be at least 2048 bits based on NIST recommendation." severity="warning" />
     </file>
     <file name="php/ftp-use.php">
         <error source="php.lang.security.ftp-use.ftp-use" line="4" message="FTP allows for unencrypted file transfers." severity="error" />
@@ -82,39 +81,14 @@
     <file name="typescript/detect-child-process.ts">
         <error source="javascript.lang.security.detect-child-process.detect-child-process" line="6" message="Detected calls to child_process from a function argument `args`. This could lead to a command injection if the input is user controllable." severity="error" />
         <error source="javascript.lang.security.detect-child-process.detect-child-process" line="13" message="Detected calls to child_process from a function argument `userInput`. This could lead to a command injection if the input is user controllable." severity="error" />
-        <error source="javascript.lang.security.detect-child-process.detect-child-process" line="13" message="Detected calls to child_process from a function argument `userInput`. This could lead to a command injection if the input is user controllable." severity="error" />
     </file>
     <file name="unknown_extension/double-free.h">
         <error source="c.lang.security.double-free.double-free" line="7" message="Variable 'var' was freed twice." severity="error" />
     </file>
     <file name="yaml/argo-workflow-parameter-command-injection.test.yaml">
         <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="19" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="19" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="19" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="19" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="19" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="19" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="19" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="19" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="30" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="30" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="30" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="30" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="30" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="30" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="30" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
         <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="30" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
         <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="40" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="40" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="40" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="40" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="40" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="40" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="50" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="50" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="50" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="50" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="50" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
         <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="50" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
     </file>
     <file name="yaml/third-party-action-not-pinned-to-commit-sha.test.yml">

@@ -32,6 +32,7 @@ type SemgrepLocation struct {
 }
 
 type SemgrepExtra struct {
+	IsIgnored   bool   `json:"is_ignored"`
 	Message     string `json:"message"`
 	RenderedFix string `json:"rendered_fix,omitempty"`
 }
@@ -130,6 +131,10 @@ func parseCommandOutput(patternDescriptions *[]codacy.PatternDescription, comman
 
 func appendIssueToResult(result []codacy.Result, patternDescriptions *[]codacy.PatternDescription, semgrepOutput SemgrepOutput) []codacy.Result {
 	for _, semgrepRes := range semgrepOutput.Results {
+		if semgrepRes.Extra.IsIgnored {
+			continue
+		}
+
 		result = append(result, codacy.Issue{
 			PatternID:  semgrepRes.CheckID,
 			Message:    getMessage(patternDescriptions, semgrepRes.CheckID, strings.TrimSpace(semgrepRes.Extra.Message)),

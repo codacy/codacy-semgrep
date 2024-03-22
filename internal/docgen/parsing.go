@@ -268,17 +268,14 @@ func toCodacyCategory(r SemgrepRule) Category {
 		return Security
 	case "performance":
 		return Performance
-	case "compatibility":
-		return Compatibility
-	case "portability":
-		return Compatibility
-	case "caching":
+	case "compatibility",
+		"portability",
+		"caching":
 		return Compatibility
 	case "correctness":
 		return ErrorProne
-	case "best-practice":
-		return BestPractice
-	case "maintainability":
+	case "best-practice",
+		"maintainability":
 		return BestPractice
 	case "":
 		if len(r.Metadata.CWEs) > 0 {
@@ -295,69 +292,68 @@ func toCodacyCategory(r SemgrepRule) Category {
 func getCodacySubCategory(category Category, OWASPCategories []string) SubCategory {
 	if category == Security && len(OWASPCategories) > 0 {
 		switch OWASPCategories[0] {
-		case "A1:2017-Injection":
-		case "A01:2017-Injection":
-		case "A01:2017 - Injection":
+		case "A1:2017-Injection",
+			"A01:2017-Injection",
+			"A01:2017 - Injection":
 			return InputValidation
 		case "A01:2021 - Broken Access Control":
 			return InsecureStorage
-		case "A2:2017-Broken Authentication":
-		case "A02:2017 - Broken Authentication":
+		case "A2:2017-Broken Authentication",
+			"A02:2017 - Broken Authentication":
 			return Auth
-		case "A2:2021 Cryptographic Failures":
-		case "A02:2021 – Cryptographic Failures":
-		case "A02:2021 - Cryptographic Failures":
+		case "A2:2021 Cryptographic Failures",
+			"A02:2021 – Cryptographic Failures",
+			"A02:2021 - Cryptographic Failures":
 			return Cryptography
-		case "A3:2017 Sensitive Data Exposure":
-		case "A3:2017-Sensitive Data Exposure":
-		case "A03:2017-Sensitive Data Exposure":
-		case "A03:2017 - Sensitive Data Exposure":
+		case "A3:2017 Sensitive Data Exposure",
+			"A3:2017-Sensitive Data Exposure",
+			"A03:2017-Sensitive Data Exposure",
+			"A03:2017 - Sensitive Data Exposure":
 			return Visibility
-		case "A03:2021 – Injection":
-		case "A03:2021 - Injection":
+		case "A03:2021 – Injection",
+			"A03:2021 - Injection":
 			return InputValidation
-		case "A4:2017-XML External Entities (XXE)":
-		case "A4:2017 - XML External Entities (XXE)":
-		case "A04:2017 - XML External Entities (XXE)":
-			return InputValidation
-		case "A04:2021 - XML External Entities (XXE)":
+		case "A4:2017-XML External Entities (XXE)",
+			"A4:2017 - XML External Entities (XXE)",
+			"A04:2017 - XML External Entities (XXE)",
+			"A04:2021 - XML External Entities (XXE)":
 			return InputValidation
 		case "A04:2021 - Insecure Design":
 			return Other
-		case "A5:2017-Broken Access Control":
-		case "A05:2017 - Broken Access Control":
+		case "A5:2017-Broken Access Control",
+			"A05:2017 - Broken Access Control":
 			return InsecureStorage
 		case "A05:2017 - Sensitive Data Exposure":
 			return InsecureStorage
-		case "A5:2021 Security Misconfiguration":
-		case "A05:2021 - Security Misconfiguration":
+		case "A5:2021 Security Misconfiguration",
+			"A05:2021 - Security Misconfiguration":
 			return Other
-		case "A6:2017 misconfiguration":
-		case "A6:2017-Security Misconfiguration":
-		case "A06:2017 - Security Misconfiguration":
+		case "A6:2017 misconfiguration",
+			"A6:2017-Security Misconfiguration",
+			"A06:2017 - Security Misconfiguration":
 			return Other
 		case "A06:2021 - Vulnerable and Outdated Components":
 			return InsecureModulesLibraries
-		case "A7: Cross-Site Scripting (XSS)":
-		case "A7:2017-Cross-Site Scripting (XSS)":
-		case "A07:2017 - Cross-Site Scripting (XSS)":
+		case "A7: Cross-Site Scripting (XSS)",
+			"A7:2017-Cross-Site Scripting (XSS)",
+			"A07:2017 - Cross-Site Scripting (XSS)":
 			return InputValidation
 		case "A07:2021 - Identification and Authentication Failures":
 			return Auth
-		case "A8:2017 Insecure Deserialization":
-		case "A8:2017-Insecure Deserialization":
-		case "A08:2017-Insecure Deserialization":
-		case "A08:2017 - Insecure Deserialization":
+		case "A8:2017 Insecure Deserialization",
+			"A8:2017-Insecure Deserialization",
+			"A08:2017-Insecure Deserialization",
+			"A08:2017 - Insecure Deserialization":
 			return InputValidation
 		case "A08:2021 - Software and Data Integrity Failures":
 			return UnexpectedBehaviour
-		case "A9:2017-Using Components with Known Vulnerabilities":
-		case "A09:2017-Using Components with Known Vulnerabilities":
-		case "A09:2017 - Using Components with Known Vulnerabilities":
+		case "A9:2017-Using Components with Known Vulnerabilities",
+			"A09:2017-Using Components with Known Vulnerabilities",
+			"A09:2017 - Using Components with Known Vulnerabilities":
 			return InsecureModulesLibraries
-		case "A09:2021 Security Logging and Monitoring Failures":
-		case "A09:2021 – Security Logging and Monitoring Failures":
-		case "A09:2021 - Security Logging and Monitoring Failures":
+		case "A09:2021 Security Logging and Monitoring Failures",
+			"A09:2021 – Security Logging and Monitoring Failures",
+			"A09:2021 - Security Logging and Monitoring Failures":
 			return Visibility
 		case "A10:2017 - Insufficient Logging & Monitoring":
 			return Visibility
