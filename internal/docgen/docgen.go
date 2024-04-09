@@ -90,7 +90,7 @@ func (g documentationGenerator) createPatternsFile(rules PatternsWithExplanation
 		return newFileContentError(patternsFile, err)
 	}
 
-	if err := os.WriteFile(path.Join(destinationDir, patternsFile), toolJSON, 0644); err != nil {
+	if err := os.WriteFile(path.Join(destinationDir, patternsFile), toolJSON, 0400); err != nil {
 		return newFileCreationError(patternsFile, err)
 	}
 	return nil
@@ -106,7 +106,7 @@ func (g documentationGenerator) createPatternsDescriptionFiles(rules PatternsWit
 		fileName := fmt.Sprintf("%s.md", r.ID)
 		fileContent := fmt.Sprintf("## %s\n%s", r.Title, r.Explanation)
 
-		if err := os.WriteFile(path.Join(destinationDir, patternsDescriptionFolder, fileName), []byte(fileContent), 0644); err != nil {
+		if err := os.WriteFile(path.Join(destinationDir, patternsDescriptionFolder, fileName), []byte(fileContent), 0400); err != nil {
 			return newFileCreationError(fileName, err)
 		}
 	}
@@ -120,7 +120,7 @@ func (g documentationGenerator) createPatternsDescriptionFiles(rules PatternsWit
 		return newFileContentError(patternsDescriptionFile, err)
 	}
 
-	if err := os.WriteFile(path.Join(destinationDir, patternsDescriptionFolder, patternsDescriptionFile), descriptionsJSON, 0644); err != nil {
+	if err := os.WriteFile(path.Join(destinationDir, patternsDescriptionFolder, patternsDescriptionFile), descriptionsJSON, 0400); err != nil {
 		return newFileCreationError(patternsDescriptionFile, err)
 	}
 	return nil

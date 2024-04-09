@@ -14,11 +14,10 @@ RUN go mod download
 
 COPY cmd cmd
 COPY internal internal
-
 RUN go build -o bin/codacy-semgrep -ldflags="-s -w" ./cmd/tool
 
 COPY .tool_version .tool_version
-COPY docs/ /docs/
+COPY docs /docs
 RUN go run ./cmd/docgen -docFolder /docs
 
 # Semgrep official image used to copy the semgrep binary
@@ -27,7 +26,7 @@ FROM semgrep/semgrep:$TOOL_VERSION as semgrep-cli
 
 # Compress binaries for smaller image size
 
-FROM golang:1.21-alpine as compressor
+FROM alpine:3.19 as compressor
 
 RUN apk add --no-cache upx
 
@@ -41,15 +40,13 @@ RUN upx --lzma /src/bin/codacy-semgrep
 # Final published image for the codacy-semgrep wrapper
 # Tries to be as small as possible with only the Go static binary, the docs and the semgrep binary
 
-FROM busybox:1.36
-
-COPY --from=compressor /usr/local/bin/semgrep-core /usr/bin/semgrep
-COPY --from=semgrep-cli /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-
-COPY --from=compressor /src/bin /dist/bin
-COPY --from=builder /docs/ /docs/
+FROM alpine:3.19
 
 RUN adduser -u 2004 -D docker
-RUN chown -R docker:docker /docs
+
+COPY --from=builder --chown=docker:docker /docs /docs
+COPY --from=compressor /usr/local/bin/semgrep-core /usr/bin/semgrep
+COPY --from=compressor /src/bin /dist/bin
+COPY --from=semgrep-cli /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 CMD [ "/dist/bin/codacy-semgrep" ]
