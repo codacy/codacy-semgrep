@@ -46,7 +46,7 @@ func sourceConfigurationFileExists(sourceDir string) bool {
 }
 
 func createConfigurationFileFromDefaultPatterns(patterns []codacy.Pattern) (*os.File, error) {
-	defaultPatterns := lo.Filter(patterns, func(pattern codacy.Pattern, index int) bool {
+	defaultPatterns := lo.Filter(patterns, func(pattern codacy.Pattern, _ int) bool {
 		return pattern.Enabled
 	})
 	return createConfigurationFileFromPatterns(&defaultPatterns)
@@ -88,7 +88,7 @@ func newRulesScanner() (*bufio.Scanner, error) {
 }
 
 func createAndWriteConfigurationFile(scanner *bufio.Scanner, patterns *[]codacy.Pattern) (*os.File, error) {
-	configurationFile, err := os.CreateTemp(os.TempDir(), "semgrep-")
+	configurationFile, err := os.CreateTemp(os.TempDir(), "semgrep-*.yaml")
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func isIDPresent(id string, patterns *[]codacy.Pattern) bool {
 	return res
 }
 
-var filesByLanguage map[string][]string = make(map[string][]string)
+var filesByLanguage = make(map[string][]string)
 
 // Semgrep: supported language tags are: apex, bash, c, c#, c++, cairo, clojure, cpp, csharp, dart, docker, dockerfile, elixir, ex, generic, go, golang, hack, hcl, html, java, javascript, js, json, jsonnet, julia, kotlin, kt, lisp, lua, none, ocaml, php, promql, proto, proto3, protobuf, py, python, python2, python3, r, regex, ruby, rust, scala, scheme, sh, sol, solidity, swift, terraform, tf, ts, typescript, vue, xml, yaml
 // Semgrep: https://github.com/semgrep/semgrep/blob/0ec2b95ec8c3afb8e31fc0295d3604e540c982b0/src/parsing/Unit_parsing.ml#L61

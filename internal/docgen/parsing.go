@@ -38,7 +38,7 @@ type SemgrepRuleMetadata struct {
 
 type SemgrepRules []SemgrepRule
 
-func semgrepRules(destinationDir string) ([]PatternWithExplanation, *ParsedSemgrepRules, error) {
+func semgrepRules(_ string) ([]PatternWithExplanation, *ParsedSemgrepRules, error) {
 	fmt.Println("Getting Semgrep rules...")
 	parsedSemgrepRegistryRules, err := getSemgrepRegistryRules()
 	if err != nil {
@@ -87,7 +87,7 @@ func getGitLabRules() (*ParsedSemgrepRules, error) {
 	return getRules(
 		"https://gitlab.com/gitlab-org/security-products/sast-rules.git",
 		isValidGitLabRuleFile,
-		func(relativePath string, unprefixedID string) string { return unprefixedID })
+		func(_ string, unprefixedID string) string { return unprefixedID })
 }
 
 type FilenameValidator func(string) bool
@@ -110,20 +110,20 @@ func getRules(url string, validate FilenameValidator, generate IDGenerator) (*Pa
 		return nil, err
 	}
 
-	rulesFiles = lo.Filter(rulesFiles, func(file SemgrepRuleFile, index int) bool {
+	rulesFiles = lo.Filter(rulesFiles, func(file SemgrepRuleFile, _ int) bool {
 		return validate(file.RelativePath)
 	})
 
 	mappings := make(map[IDMapperKey]string)
 
 	var errorWithinMap error
-	rules := lo.FlatMap(rulesFiles, func(file SemgrepRuleFile, index int) []SemgrepRule {
+	rules := lo.FlatMap(rulesFiles, func(file SemgrepRuleFile, _ int) []SemgrepRule {
 		rs, err := readRulesFromYaml(file.AbsolutePath)
 		if err != nil {
 			errorWithinMap = err
 		}
 
-		rs = lo.Map(rs, func(r SemgrepRule, index int) SemgrepRule {
+		rs = lo.Map(rs, func(r SemgrepRule, _ int) SemgrepRule {
 			unprefixedID := r.ID
 			r.ID = generate(file.RelativePath, unprefixedID)
 			mappings[IDMapperKey{
@@ -401,12 +401,12 @@ func toCodacyLanguages(r SemgrepRule) []string {
 	}
 
 	codacyLanguages := lo.Map(
-		lo.Filter(r.Languages, func(s string, index int) bool {
+		lo.Filter(r.Languages, func(s string, _ int) bool {
 			return s != "generic" && s != "regex" && // internal rules?
 				s != "lua" && s != "ocaml" && s != "html" && s != "solidity" && // not supported by Codacy
 				s != "elixir" // Pro languages
 		}),
-		func(s string, index int) string {
+		func(s string, _ int) string {
 			codacyLanguage := supportedLanguages[s]
 
 			if len(codacyLanguage) == 0 {
