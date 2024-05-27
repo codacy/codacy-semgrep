@@ -1,4 +1,4 @@
-ARG TOOL_VERSION
+ARG TOOL_VERSION=1.74.0
 
 # Development image used to build the codacy-semgrep wrapper
 # Explicitly adding go.mod and go.sum avoids re-downloading dependencies on every build
@@ -26,7 +26,7 @@ FROM semgrep/semgrep:$TOOL_VERSION as semgrep-cli
 
 # Compress binaries for smaller image size
 
-FROM alpine:3.19 as compressor
+FROM alpine:3.20 as compressor
 
 RUN apk add --no-cache upx
 
@@ -40,7 +40,7 @@ RUN upx --lzma /src/bin/codacy-semgrep
 # Final published image for the codacy-semgrep wrapper
 # Tries to be as small as possible with only the Go static binary, the docs and the semgrep binary
 
-FROM alpine:3.19
+FROM alpine:3.20
 
 RUN adduser -u 2004 -D docker
 

@@ -57,6 +57,8 @@ func semgrepRules(_ string) ([]PatternWithExplanation, *ParsedSemgrepRules, erro
 		return nil, nil, err
 	}
 
+	// TODO: add the Codacy yaml source to the rules
+
 	allRules := append(parsedSemgrepRegistryRules.Rules, parsedGitLabRules.Rules...)
 	defaultRules := append(semgrepRegistryDefaultRules, parsedGitLabRules.Rules...)
 
@@ -174,7 +176,8 @@ func isValidGitLabRuleFile(filename string) bool {
 		!strings.HasPrefix(filename, "dist/") &&
 		!strings.HasPrefix(filename, "docs/") &&
 		!strings.HasPrefix(filename, "mappings/") &&
-		!strings.HasPrefix(filename, "qa/")
+		!strings.HasPrefix(filename, "qa/") &&
+		!strings.HasPrefix(filename, "rules/lgpl/oc/other/")
 }
 
 func prefixRuleIDWithPath(relativePath string, unprefixedID string) string {
@@ -227,7 +230,9 @@ func (rs SemgrepRules) toPatternWithExplanation(defaultRules SemgrepRules) Patte
 	pwes := make(PatternsWithExplanation, len(rs))
 
 	for i, r := range rs {
-		pwes[i] = r.toPatternWithExplanation(defaultRules)
+		if r.ID != "rules_lgpl_oc_other_rule-ios-self-signed-ssl" {
+			pwes[i] = r.toPatternWithExplanation(defaultRules)
+		}
 	}
 	return pwes
 }
@@ -289,79 +294,71 @@ func toCodacyCategory(r SemgrepRule) Category {
 	}
 }
 
+func standardizeCategory(category string) string {
+	// Remove leading zeros
+	category = strings.ReplaceAll(category, "A0", "A")
+
+	// Standardize spaces and dashes
+	category = strings.ReplaceAll(category, "–", "-")
+	category = strings.ReplaceAll(category, " - ", "-")
+	category = strings.ReplaceAll(category, " ", "-")
+
+	// Convert to lower case
+	category = strings.ToLower(category)
+
+	return category
+}
+
 // https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Pattern.scala#L49
 func getCodacySubCategory(category Category, OWASPCategories []string) SubCategory {
 	if category == Security && len(OWASPCategories) > 0 {
-		switch OWASPCategories[0] {
-		case "A1:2017-Injection",
-			"A01:2017-Injection",
-			"A01:2017 - Injection":
+		standardizeCategory := standardizeCategory(OWASPCategories[0])
+		switch standardizeCategory {
+		case "a1:2017-injection":
 			return InputValidation
-		case "A01:2021 - Broken Access Control":
+		case "a1:2021-broken-access-control":
 			return InsecureStorage
-		case "A2:2017-Broken Authentication",
-			"A02:2017 - Broken Authentication":
+		case "a2:2017-broken-authentication":
 			return Auth
-		case "A2:2021 Cryptographic Failures",
-			"A02:2021 – Cryptographic Failures",
-			"A02:2021 - Cryptographic Failures":
+		case "a2:2021-cryptographic-failures":
 			return Cryptography
-		case "A3:2017 Sensitive Data Exposure",
-			"A3:2017-Sensitive Data Exposure",
-			"A03:2017-Sensitive Data Exposure",
-			"A03:2017 - Sensitive Data Exposure":
+		case "a3:2017-sensitive-data-exposure":
 			return Visibility
-		case "A03:2021 – Injection",
-			"A03:2021 - Injection":
+		case "a3:2021-injection":
 			return InputValidation
-		case "A4:2017-XML External Entities (XXE)",
-			"A4:2017 - XML External Entities (XXE)",
-			"A04:2017 - XML External Entities (XXE)",
-			"A04:2021 - XML External Entities (XXE)":
+		case "a4:2017-xml-external-entities-(xxe)":
 			return InputValidation
-		case "A04:2021 - Insecure Design":
+		case "a4:2021-insecure-design":
 			return Other
-		case "A5:2017-Broken Access Control",
-			"A05:2017 - Broken Access Control":
+		case "a5:2017-broken-access-control":
 			return InsecureStorage
-		case "A05:2017 - Sensitive Data Exposure":
+		case "a5:2017-sensitive-data-exposure":
 			return InsecureStorage
-		case "A5:2021 Security Misconfiguration",
-			"A05:2021 - Security Misconfiguration":
+		case "a5:2021-security-misconfiguration":
 			return Other
-		case "A6:2017 misconfiguration",
-			"A6:2017-Security Misconfiguration",
-			"A06:2017 - Security Misconfiguration":
+		case "a6:2017-misconfiguration",
+			"a6:2017-security-misconfiguration":
 			return Other
-		case "A06:2021 - Vulnerable and Outdated Components":
+		case "a6:2021-vulnerable-and-outdated-components":
 			return InsecureModulesLibraries
-		case "A7: Cross-Site Scripting (XSS)",
-			"A7:2017-Cross-Site Scripting (XSS)",
-			"A07:2017 - Cross-Site Scripting (XSS)":
+		case "a7:2017-cross-site-scripting-(xss)":
 			return InputValidation
-		case "A07:2021 - Identification and Authentication Failures":
+		case "a7:2021-identification-and-authentication-failures":
 			return Auth
-		case "A8:2017 Insecure Deserialization",
-			"A8:2017-Insecure Deserialization",
-			"A08:2017-Insecure Deserialization",
-			"A08:2017 - Insecure Deserialization":
+		case "a8:2017-insecure-deserialization":
 			return InputValidation
-		case "A08:2021 - Software and Data Integrity Failures":
+		case "a8:2021-software-and-data-integrity-failures":
 			return UnexpectedBehaviour
-		case "A9:2017-Using Components with Known Vulnerabilities",
-			"A09:2017-Using Components with Known Vulnerabilities",
-			"A09:2017 - Using Components with Known Vulnerabilities":
+		case "a9:2017-using-components-with-known-vulnerabilities":
 			return InsecureModulesLibraries
-		case "A09:2021 Security Logging and Monitoring Failures",
-			"A09:2021 – Security Logging and Monitoring Failures",
-			"A09:2021 - Security Logging and Monitoring Failures":
+		case "a9:2021-security-logging-and-monitoring-failures":
 			return Visibility
-		case "A10:2017 - Insufficient Logging & Monitoring":
+		case "a10:2017-insufficient-logging-&-monitoring":
 			return Visibility
-		case "A10:2021 - Server-Side Request Forgery (SSRF)":
+		case "a10:2021-server-side-request-forgery-(ssrf)":
 			return InputValidation
 		default:
-			panic(fmt.Sprintf("unknown subcategory: %s", OWASPCategories[0]))
+			panic(fmt.Sprintf("unknown subcategory: %s -> %s", standardizeCategory, OWASPCategories[0]))
 		}
 	}
 	return ""
@@ -422,7 +419,7 @@ func toCodacyLanguages(r SemgrepRule) []string {
 			return lo.Uniq(lo.Values(supportedLanguages))
 		}
 
-		// Other generic rules are have the language encoded in the ID
+		// Other generic rules have the language encoded in the ID
 		if strings.Contains(r.ID, ".") {
 			for _, s := range strings.Split(r.ID, ".") {
 				codacyLanguage := supportedLanguages[s]
