@@ -1,5 +1,6 @@
 package tool
 
+// comments are allowed
 import (
 	"context"
 	"encoding/json"
