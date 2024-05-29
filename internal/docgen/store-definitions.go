@@ -116,3 +116,5 @@ func removeIndentation(line string, indentation int) string {
 	}
 	return line
 }
+
+func concatRulesFiles()
