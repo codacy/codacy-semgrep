@@ -57,8 +57,16 @@ func semgrepRules(_ string) ([]PatternWithExplanation, *ParsedSemgrepRules, erro
 		return nil, nil, err
 	}
 
+	fmt.Println("Getting Codacy rules...")
+	codacyRules, err := getCodacyRules("/docs/codacy-rules.yaml") // Path to the Codacy rules file
+	if err != nil {
+		return nil, nil, err
+	}
+
 	allRules := append(parsedSemgrepRegistryRules.Rules, parsedGitLabRules.Rules...)
+	allRules = append(allRules, codacyRules...) // Add Codacy rules to the list
 	defaultRules := append(semgrepRegistryDefaultRules, parsedGitLabRules.Rules...)
+	defaultRules = append(defaultRules, codacyRules...) // Add Codacy rules to the default rules
 
 	fmt.Println("Converting rules...")
 	pwes := allRules.toPatternWithExplanation(defaultRules)
@@ -88,6 +96,41 @@ func getGitLabRules() (*ParsedSemgrepRules, error) {
 		"https://gitlab.com/gitlab-org/security-products/sast-rules.git",
 		isValidGitLabRuleFile,
 		func(_ string, unprefixedID string) string { return unprefixedID })
+}
+
+func getCodacyRules(filePath string) ([]SemgrepRule, error) {
+	// Read the entire file content
+	buf, err := os.ReadFile(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file: %s, error: %v", filePath, err)
+	}
+
+	// Split the content by lines and ignore the first line
+	lines := strings.Split(string(buf), "\n")
+	if len(lines) > 1 {
+		buf = []byte(strings.Join(lines[1:], "\n"))
+	} else {
+		return nil, fmt.Errorf("file: %s is empty or has only one line", filePath)
+	}
+
+	// Unmarshal the remaining content
+	var codacyConfig struct {
+		Rules []SemgrepRule `yaml:"rules"`
+	}
+
+	err = yaml.Unmarshal(buf, &codacyConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal file: %s, error: %v", filePath, err)
+	}
+
+	// Adjust the metadata for Codacy rules if necessary
+	for i := range codacyConfig.Rules {
+		codacyConfig.Rules[i].Metadata = SemgrepRuleMetadata{
+			Category: "security", // Assuming all Codacy rules are security-related, adjust as necessary
+		}
+	}
+
+	return codacyConfig.Rules, nil
 }
 
 type FilenameValidator func(string) bool
