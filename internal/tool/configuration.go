@@ -2,6 +2,7 @@ package tool
 
 import (
 	"bufio"
+	"fmt"
 	"io/fs"
 	"os"
 	"path"
@@ -16,6 +17,67 @@ const sourceConfigurationFileName = ".semgrep.yaml"
 
 // TODO: should respect cli flag for docs location
 const rulesDefinitionFileName = "/docs/rules.yaml"
+const customRulesDefinitionFileName = "/docs/codacy-rules.yaml"
+const concatRulesDefinitionFileName = "/docs/concatenated-rules.yaml"
+
+func concatRuleFiles() error {
+	// Open the first file for reading
+	file1, err := os.Open(rulesDefinitionFileName)
+	if err != nil {
+		return fmt.Errorf("failed to open file1: %w", err)
+	}
+	defer file1.Close()
+
+	// Open the second file for reading
+	file2, err := os.Open(customRulesDefinitionFileName)
+	if err != nil {
+		return fmt.Errorf("failed to open file2: %w", err)
+	}
+	defer file2.Close()
+
+	outputFile, err := os.Create(concatRulesDefinitionFileName)
+
+	// Create a writer to write to the new file
+	writer := bufio.NewWriter(outputFile)
+
+	// Write the contents of the first file to the new file
+	scanner := bufio.NewScanner(file1)
+	for scanner.Scan() {
+		_, err := writer.WriteString(scanner.Text() + "\n")
+		if err != nil {
+			return fmt.Errorf("failed to write from file1: %w", err)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("failed to read from file1: %w", err)
+	}
+
+	// Skip the first line of the second file
+	scanner = bufio.NewScanner(file2)
+	scanner.Scan() // Skip the first line
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("failed to read from file2: %w", err)
+	}
+
+	// Write the rest of the contents of the second file to the new file
+	for scanner.Scan() {
+		_, err := writer.WriteString(scanner.Text() + "\n")
+		if err != nil {
+			return fmt.Errorf("failed to write from file2: %w", err)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("failed to read from file2: %w", err)
+	}
+
+	// Flush the writer
+	err = writer.Flush()
+	if err != nil {
+		return fmt.Errorf("failed to flush writer: %w", err)
+	}
+
+	return nil
+}
 
 func newConfigurationFile(toolExecution codacy.ToolExecution) (*os.File, error) {
 
@@ -77,7 +139,13 @@ func createConfigurationFileFromPatterns(patterns *[]codacy.Pattern) (*os.File, 
 
 func newRulesScanner() (*bufio.Scanner, error) {
 
-	rulesConfigurationFile, err := os.Open(rulesDefinitionFileName)
+	if err := concatRuleFiles(); err != nil {
+		fmt.Printf("Error concatenating files: %v\n", err)
+	} else {
+		fmt.Println("Files concatenated successfully")
+	}
+
+	rulesConfigurationFile, err := os.Open(concatRulesDefinitionFileName)
 	if err != nil {
 		return nil, err
 	}

@@ -57,8 +57,6 @@ func semgrepRules(_ string) ([]PatternWithExplanation, *ParsedSemgrepRules, erro
 		return nil, nil, err
 	}
 
-	// TODO: add the Codacy yaml source to the rules
-
 	allRules := append(parsedSemgrepRegistryRules.Rules, parsedGitLabRules.Rules...)
 	defaultRules := append(semgrepRegistryDefaultRules, parsedGitLabRules.Rules...)
 
