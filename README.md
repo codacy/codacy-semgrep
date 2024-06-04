@@ -10,7 +10,7 @@ This is the docker engine we use at Codacy to have [Semgrep](https://github.com/
 You can create the docker by doing:
 
 ```bash
-docker build --build-arg TOOL_VERSION=1.74.0 -t codacy-semgrep:latest .
+docker build --build-arg TOOL_VERSION=1.68.0 -t codacy-semgrep:latest .
 ```
 
 The docker is ran with the following command:

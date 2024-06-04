@@ -80,9 +80,9 @@ func createCommandParameters(language string, configurationFile *os.File, filesT
 		// adding -timeout parameters
 		"-timeout", "5",
 		"-timeout_threshold", "3",
-		//"-max_target_bytes", "0",
-		//"-error_recovery",
-		//"-max_memory", "2560",
+		"-max_target_bytes", "0",
+		"-error_recovery",
+		"-max_memory", "2560",
 	}
 	// adding files to analyse
 	cmdParams = append(
