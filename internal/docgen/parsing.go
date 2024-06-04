@@ -160,6 +160,7 @@ func getRules(url string, validate FilenameValidator, generate IDGenerator) (*Pa
 
 		rs = lo.Map(rs, func(r SemgrepRule, _ int) SemgrepRule {
 			unprefixedID := r.ID
+
 			r.ID = generate(file.RelativePath, unprefixedID)
 			mappings[IDMapperKey{
 				Filename:     file.RelativePath,
@@ -263,7 +264,7 @@ func (rs SemgrepRules) toPatternWithExplanation(defaultRules SemgrepRules) Patte
 	pwes := make(PatternsWithExplanation, len(rs))
 
 	for i, r := range rs {
-		if r.ID != "rules_lgpl_oc_other_rule-ios-self-signed-ssl" {
+		if r.ID != "rules_lgpl_oc_other_rule-ios-self-signed-ssl" && r.ID != "java_deserialization_rule-JacksonUnsafeDeserialization" {
 			pwes[i] = r.toPatternWithExplanation(defaultRules)
 		}
 	}
