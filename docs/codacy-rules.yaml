@@ -1,8 +1,8 @@
 rules:
-- id: codacy.csharp.security.hard-coded-password
-  severity: CRITICAL
+- id: codacy.csharp.security.hard-coded-password.cincin
+  severity: "ERROR"
   languages:
-  - csharp
+  - "csharp"
   pattern: var $PASSWORD = "$VALUE";
   regex: "(?i).*(password|motdepasse|heslo|adgangskode|wachtwoord|salasana|passwort|passord|senha|geslo|clave|losenord|clave|parola|secret|pwd).*"
-  message: "Hardcoded password"
+  message: Hardcoded password

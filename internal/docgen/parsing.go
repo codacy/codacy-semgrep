@@ -58,7 +58,7 @@ func semgrepRules(_ string) ([]PatternWithExplanation, *ParsedSemgrepRules, erro
 	}
 
 	fmt.Println("Getting Codacy rules...")
-	codacyRules, err := getCodacyRules("/docs/codacy-rules.yaml") // Path to the Codacy rules file
+	codacyRules, err := getCodacyRules("./docs/codacy-rules.yaml") // Path to the Codacy rules file
 	if err != nil {
 		return nil, nil, err
 	}
@@ -106,12 +106,12 @@ func getCodacyRules(filePath string) ([]SemgrepRule, error) {
 	}
 
 	// Split the content by lines and ignore the first line
-	lines := strings.Split(string(buf), "\n")
-	if len(lines) > 1 {
-		buf = []byte(strings.Join(lines[1:], "\n"))
-	} else {
-		return nil, fmt.Errorf("file: %s is empty or has only one line", filePath)
-	}
+	//lines := strings.Split(string(buf), "\n")
+	//if len(lines) > 1 {
+	//	buf = []byte(strings.Join(lines[1:], "\n"))
+	//} else {
+	//	return nil, fmt.Errorf("file: %s is empty or has only one line", filePath)
+	//}
 
 	// Unmarshal the remaining content
 	var codacyConfig struct {

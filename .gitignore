@@ -6,6 +6,7 @@
 .scala-build
 .bsp
 .metals
+codacy-semgrep.iml
 .vscode
 project
 target
