@@ -58,7 +58,7 @@ func semgrepRules(_ string) ([]PatternWithExplanation, *ParsedSemgrepRules, erro
 	}
 
 	fmt.Println("Getting Codacy rules...")
-	codacyRules, err := getCodacyRules("./docs/codacy-rules.yaml") // Path to the Codacy rules file
+	codacyRules, err := getCodacyRules("/docs/codacy-rules.yaml") // Path to the Codacy rules file
 	if err != nil {
 		return nil, nil, err
 	}
