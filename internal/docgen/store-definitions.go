@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func createUnifiedRuleFile(filename string, parsedSemgrepRules *ParsedSemgrepRules) error {
+func createUnifiedRuleFile(filename string, codacyFilename string, parsedSemgrepRules *ParsedSemgrepRules) error {
 	unifiedRuleFile, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -70,6 +70,28 @@ func createUnifiedRuleFile(filename string, parsedSemgrepRules *ParsedSemgrepRul
 				processLineIntoFile(line, indentation, parsedSemgrepRules, unifiedRuleFile, semgrepRuleFile)
 			}
 		}
+	}
+
+	// Open the codacy-rules.yaml file and append its content
+	codacyRulesFile, err := os.Open(codacyFilename)
+	if err != nil {
+		return err
+	}
+	defer codacyRulesFile.Close()
+
+	scanner := bufio.NewScanner(codacyRulesFile)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if !strings.Contains(line, "rules:") {
+			_, err = unifiedRuleFile.WriteString(line + "\n")
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return err
 	}
 
 	return nil

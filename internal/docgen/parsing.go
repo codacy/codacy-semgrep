@@ -105,14 +105,6 @@ func getCodacyRules(filePath string) ([]SemgrepRule, error) {
 		return nil, fmt.Errorf("failed to read file: %s, error: %v", filePath, err)
 	}
 
-	// Split the content by lines and ignore the first line
-	//lines := strings.Split(string(buf), "\n")
-	//if len(lines) > 1 {
-	//	buf = []byte(strings.Join(lines[1:], "\n"))
-	//} else {
-	//	return nil, fmt.Errorf("file: %s is empty or has only one line", filePath)
-	//}
-
 	// Unmarshal the remaining content
 	var codacyConfig struct {
 		Rules []SemgrepRule `yaml:"rules"`

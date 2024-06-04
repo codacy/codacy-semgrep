@@ -69,9 +69,11 @@ func (g documentationGenerator) createRulesDefinitionFile(parsedSemgrepRules *Pa
 	fmt.Println("Creating rules.yaml file...")
 
 	rulesDefinitionFileName := "rules.yaml"
+	codacyRulesDefinitionFileName := "codacy-rules.yaml"
 	rulesDefinitionFilePath := path.Join(destinationDir, rulesDefinitionFileName)
+	codacyRulesDefinitionFilePath := path.Join(destinationDir, codacyRulesDefinitionFileName)
 
-	return createUnifiedRuleFile(rulesDefinitionFilePath, parsedSemgrepRules)
+	return createUnifiedRuleFile(rulesDefinitionFilePath, codacyRulesDefinitionFilePath, parsedSemgrepRules)
 }
 
 func (g documentationGenerator) createPatternsFile(rules PatternsWithExplanation, toolVersion, destinationDir string) error {
