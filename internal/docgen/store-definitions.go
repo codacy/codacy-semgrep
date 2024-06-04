@@ -72,10 +72,6 @@ func createUnifiedRuleFile(filename string, parsedSemgrepRules *ParsedSemgrepRul
 		}
 	}
 
-	if err := scanner.Err(); err != nil {
-		return err
-	}
-
 	return nil
 }
 

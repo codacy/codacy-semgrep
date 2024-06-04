@@ -78,7 +78,6 @@ func createConfigurationFileFromPatterns(patterns *[]codacy.Pattern) (*os.File, 
 func newRulesScanner() (*bufio.Scanner, error) {
 
 	rulesConfigurationFile, err := os.Open(rulesDefinitionFileName)
-
 	if err != nil {
 		return nil, err
 	}
