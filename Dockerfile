@@ -4,7 +4,7 @@ ARG TOOL_VERSION=1.74.0
 # Explicitly adding go.mod and go.sum avoids re-downloading dependencies on every build
 # Go builds static binaries by default, -ldflags="-s -w" strips debug information and reduces the binary size
 
-FROM golang:1.21-alpine as builder
+FROM golang:1.22-alpine3.20 as builder
 
 WORKDIR /src
 
