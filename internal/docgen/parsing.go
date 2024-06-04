@@ -264,7 +264,7 @@ func (rs SemgrepRules) toPatternWithExplanation(defaultRules SemgrepRules) Patte
 	pwes := make(PatternsWithExplanation, len(rs))
 
 	for i, r := range rs {
-		if r.ID != "rules_lgpl_oc_other_rule-ios-self-signed-ssl" && r.ID != "java_deserialization_rule-JacksonUnsafeDeserialization" {
+		if r.ID != "rules_lgpl_oc_other_rule-ios-self-signed-ssl" && r.ID != "java_deserialization_rule-JacksonUnsafeDeserialization" && r.ID != "java_deserialization_rule-InsecureJmsDeserialization" {
 			pwes[i] = r.toPatternWithExplanation(defaultRules)
 		}
 	}
