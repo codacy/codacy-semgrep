@@ -1,9 +1,9 @@
 module github.com/codacy/codacy-semgrep
 
-go 1.21
+go 1.22.3
 
 require (
-	github.com/codacy/codacy-engine-golang-seed/v6 v6.1.4
+	github.com/codacy/codacy-engine-golang-seed/v6 v6.2.1
 	github.com/go-git/go-git/v5 v5.12.0
 	github.com/samber/lo v1.39.0
 	github.com/stretchr/testify v1.9.0
