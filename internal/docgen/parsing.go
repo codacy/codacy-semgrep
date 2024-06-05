@@ -93,7 +93,7 @@ func semgrepRules(_ string) ([]PatternWithExplanation, *ParsedSemgrepRules, erro
 }
 
 func isBlacklisted(rule SemgrepRule) bool {
-	blacklist := []string{"java_deserialization_rule-JacksonUnsafeDeserialization"}
+	blacklist := []string{"java_deserialization_rule-JacksonUnsafeDeserialization", "python_exec_rule-linux-command-wildcard-injection"}
 	for _, blacklistedID := range blacklist {
 		if rule.ID == blacklistedID {
 			return true
@@ -282,7 +282,7 @@ func (rs SemgrepRules) toPatternWithExplanation(defaultRules SemgrepRules) Patte
 	pwes := make(PatternsWithExplanation, len(rs))
 
 	for i, r := range rs {
-		if r.ID != "rules_lgpl_oc_other_rule-ios-self-signed-ssl" && r.ID != "java_deserialization_rule-JacksonUnsafeDeserialization" {
+		if r.ID != "rules_lgpl_oc_other_rule-ios-self-signed-ssl" {
 			pwes[i] = r.toPatternWithExplanation(defaultRules)
 		}
 	}
