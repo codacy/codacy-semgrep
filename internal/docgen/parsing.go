@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"maps"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -38,7 +39,7 @@ type SemgrepRuleMetadata struct {
 
 type SemgrepRules []SemgrepRule
 
-func semgrepRules(_ string) ([]PatternWithExplanation, *ParsedSemgrepRules, error) {
+func semgrepRules(destinationDir string) ([]PatternWithExplanation, *ParsedSemgrepRules, error) {
 	fmt.Println("Getting Semgrep rules...")
 	parsedSemgrepRegistryRules, err := getSemgrepRegistryRules()
 	if err != nil {
@@ -58,33 +59,30 @@ func semgrepRules(_ string) ([]PatternWithExplanation, *ParsedSemgrepRules, erro
 	}
 
 	fmt.Println("Getting Codacy rules...")
-	codacyRules, err := getCodacyRules("./docs/codacy-rules.yaml") // Path to the Codacy rules file
+	codacyRules, err := getCodacyRules(destinationDir)
 	if err != nil {
 		return nil, nil, err
 	}
+
+	fmt.Println("Filtering blacklisted rules...")
+	parsedSemgrepRegistryRules = filterBlacklistedParsedRules(parsedSemgrepRegistryRules)
+	semgrepRegistryDefaultRules = filterBlacklistedRules(semgrepRegistryDefaultRules)
+	parsedGitLabRules = filterBlacklistedParsedRules(parsedGitLabRules)
 
 	allRules := append(parsedSemgrepRegistryRules.Rules, parsedGitLabRules.Rules...)
 	allRules = append(allRules, codacyRules...) // Add Codacy rules to the list
 	defaultRules := append(semgrepRegistryDefaultRules, parsedGitLabRules.Rules...)
 	defaultRules = append(defaultRules, codacyRules...) // Add Codacy rules to the default rules
 
-	// filtering blacklisted rules
-	filteredRules := SemgrepRules{}
-	for _, rule := range allRules {
-		if !isBlacklisted(rule.ID) {
-			filteredRules = append(filteredRules, rule)
-		}
-	}
-
 	fmt.Println("Converting rules...")
-	pwes := filteredRules.toPatternWithExplanation(defaultRules)
+	pwes := allRules.toPatternWithExplanation(defaultRules)
 
 	idMapper := make(map[IDMapperKey]string)
 	maps.Copy(idMapper, parsedSemgrepRegistryRules.IDMapper)
 	maps.Copy(idMapper, parsedGitLabRules.IDMapper)
 
 	parsedRules := ParsedSemgrepRules{
-		Rules:    filteredRules,
+		Rules:    allRules,
 		Files:    append(parsedSemgrepRegistryRules.Files, parsedGitLabRules.Files...),
 		IDMapper: idMapper,
 	}
@@ -92,14 +90,39 @@ func semgrepRules(_ string) ([]PatternWithExplanation, *ParsedSemgrepRules, erro
 	return pwes, &parsedRules, nil
 }
 
-func isBlacklisted(rule string) bool {
-	blacklist := []string{"java_deserialization_rule-JacksonUnsafeDeserialization", "python_exec_rule-linux-command-wildcard-injection", "rules_lgpl_oc_other_rule-ios-self-signed-ssl"}
-	for _, blacklistedID := range blacklist {
-		if strings.Contains(rule, blacklistedID) {
-			return true
+func isBlacklistedRule(rule string) bool {
+	blacklist := map[string]bool{
+		"java_deserialization_rule-JacksonUnsafeDeserialization": true,
+		"python_exec_rule-linux-command-wildcard-injection":      true,
+		"rules_lgpl_oc_other_rule-ios-self-signed-ssl":           true,
+		"kotlin_password_rule-HardcodePassword":                  true,
+	}
+
+	_, found := blacklist[rule]
+	return found
+}
+
+func filterBlacklistedRules(rules SemgrepRules) SemgrepRules {
+	i := 0
+	for _, rule := range rules {
+		if !isBlacklistedRule(rule.ID) {
+			rules[i] = rule
+			i++
 		}
 	}
-	return false
+	return rules[:i]
+}
+
+func filterBlacklistedParsedRules(rules *ParsedSemgrepRules) *ParsedSemgrepRules {
+	i := 0
+	for _, rule := range rules.Rules {
+		if !isBlacklistedRule(rule.ID) {
+			rules.Rules[i] = rule
+			i++
+		}
+	}
+	rules.Rules = rules.Rules[:i]
+	return rules
 }
 
 func getSemgrepRegistryRules() (*ParsedSemgrepRules, error) {
@@ -116,7 +139,9 @@ func getGitLabRules() (*ParsedSemgrepRules, error) {
 		func(_ string, unprefixedID string) string { return unprefixedID })
 }
 
-func getCodacyRules(filePath string) ([]SemgrepRule, error) {
+func getCodacyRules(destinationDir string) (SemgrepRules, error) {
+
+	filePath := path.Join(destinationDir, "codacy-rules.yaml") // Path to the Codacy rules file
 	// Read the entire file content
 	buf, err := os.ReadFile(filePath)
 	if err != nil {
@@ -124,23 +149,16 @@ func getCodacyRules(filePath string) ([]SemgrepRule, error) {
 	}
 
 	// Unmarshal the remaining content
-	var codacyConfig struct {
-		Rules []SemgrepRule `yaml:"rules"`
+	var codacyRules struct {
+		Rules SemgrepRules `yaml:"rules"`
 	}
 
-	err = yaml.Unmarshal(buf, &codacyConfig)
+	err = yaml.Unmarshal(buf, &codacyRules)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal file: %s, error: %v", filePath, err)
 	}
 
-	// Adjust the metadata for Codacy rules if necessary
-	for i := range codacyConfig.Rules {
-		codacyConfig.Rules[i].Metadata = SemgrepRuleMetadata{
-			Category: "security", // Assuming all Codacy rules are security-related, adjust as necessary
-		}
-	}
-
-	return codacyConfig.Rules, nil
+	return codacyRules.Rules, nil
 }
 
 type FilenameValidator func(string) bool

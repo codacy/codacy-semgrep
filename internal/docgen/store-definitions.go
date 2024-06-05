@@ -42,7 +42,7 @@ func createUnifiedRuleFile(filename string, codacyFilename string, parsedSemgrep
 		// This is done because withing a file the identation is consistent
 		indentation := getIndentationCount(line)
 		processLineIntoFile(line, indentation, parsedSemgrepRules, unifiedRuleFile, semgrepRuleFile)
-		var escapeFlag = false
+		var skipLine = false
 		for scanner.Scan() {
 			var linesToProcess []string
 			line := scanner.Text()
@@ -53,16 +53,9 @@ func createUnifiedRuleFile(filename string, codacyFilename string, parsedSemgrep
 			}
 
 			if strings.HasPrefix(line, "- id: ") {
-				println("I am an id line" + line)
-				if isBlacklisted(line) {
-					println("I am a blacklisted line" + line)
-					escapeFlag = true
-				} else {
-					escapeFlag = false
-				}
+				skipLine = isBlacklistedRule(line[6:])
 			}
-
-			if escapeFlag {
+			if skipLine {
 				continue
 			}
 
