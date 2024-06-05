@@ -42,7 +42,7 @@ func createUnifiedRuleFile(filename string, codacyFilename string, parsedSemgrep
 		// This is done because withing a file the identation is consistent
 		indentation := getIndentationCount(line)
 		processLineIntoFile(line, indentation, parsedSemgrepRules, unifiedRuleFile, semgrepRuleFile)
-
+		var escapeFlag = false
 		for scanner.Scan() {
 			var linesToProcess []string
 			line := scanner.Text()
@@ -51,6 +51,21 @@ func createUnifiedRuleFile(filename string, codacyFilename string, parsedSemgrep
 			if line == "..." {
 				continue
 			}
+
+			if strings.HasPrefix(line, "- id: ") {
+				println("I am an id line" + line)
+				if isBlacklisted(line) {
+					println("I am a blacklisted line" + line)
+					escapeFlag = true
+				} else {
+					escapeFlag = false
+				}
+			}
+
+			if escapeFlag {
+				continue
+			}
+
 			// Apply C rules to C++
 			if strings.TrimSpace(line) == "languages: [c]" {
 				line = strings.Replace(line, "[c]", "[c,cpp]", 1)
