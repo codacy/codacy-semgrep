@@ -68,20 +68,38 @@ func semgrepRules(_ string) ([]PatternWithExplanation, *ParsedSemgrepRules, erro
 	defaultRules := append(semgrepRegistryDefaultRules, parsedGitLabRules.Rules...)
 	defaultRules = append(defaultRules, codacyRules...) // Add Codacy rules to the default rules
 
+	// filtering blacklisted rules
+	filteredRules := SemgrepRules{}
+	for _, rule := range allRules {
+		if !isBlacklisted(rule) {
+			filteredRules = append(filteredRules, rule)
+		}
+	}
+
 	fmt.Println("Converting rules...")
-	pwes := allRules.toPatternWithExplanation(defaultRules)
+	pwes := filteredRules.toPatternWithExplanation(defaultRules)
 
 	idMapper := make(map[IDMapperKey]string)
 	maps.Copy(idMapper, parsedSemgrepRegistryRules.IDMapper)
 	maps.Copy(idMapper, parsedGitLabRules.IDMapper)
 
 	parsedRules := ParsedSemgrepRules{
-		Rules:    allRules,
+		Rules:    filteredRules,
 		Files:    append(parsedSemgrepRegistryRules.Files, parsedGitLabRules.Files...),
 		IDMapper: idMapper,
 	}
 
 	return pwes, &parsedRules, nil
+}
+
+func isBlacklisted(rule SemgrepRule) bool {
+	blacklist := []string{"java_deserialization_rule-JacksonUnsafeDeserialization"}
+	for _, blacklistedID := range blacklist {
+		if rule.ID == blacklistedID {
+			return true
+		}
+	}
+	return false
 }
 
 func getSemgrepRegistryRules() (*ParsedSemgrepRules, error) {
@@ -264,7 +282,7 @@ func (rs SemgrepRules) toPatternWithExplanation(defaultRules SemgrepRules) Patte
 	pwes := make(PatternsWithExplanation, len(rs))
 
 	for i, r := range rs {
-		if r.ID != "rules_lgpl_oc_other_rule-ios-self-signed-ssl" && r.ID != "java_deserialization_rule-JacksonUnsafeDeserialization" && r.ID != "java_deserialization_rule-InsecureJmsDeserialization" {
+		if r.ID != "rules_lgpl_oc_other_rule-ios-self-signed-ssl" {
 			pwes[i] = r.toPatternWithExplanation(defaultRules)
 		}
 	}
