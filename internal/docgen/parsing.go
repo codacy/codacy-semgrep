@@ -463,8 +463,9 @@ func toCodacyLanguages(r SemgrepRule) []string {
 		"typescript":  "TypeScript",
 		"visualforce": "VisualForce",
 		"yaml":        "YAML",
-		"generic":     "generic",
 	}
+
+	plsqlLanguage := map[string]string{"generic": "generic"}
 
 	codacyLanguages := lo.Map(
 		lo.Filter(r.Languages, func(s string, _ int) bool {
@@ -486,6 +487,10 @@ func toCodacyLanguages(r SemgrepRule) []string {
 		// Secret detection rules are compatible with all languages
 		if strings.HasPrefix(r.ID, "generic.secrets") {
 			return lo.Uniq(lo.Values(supportedLanguages))
+		}
+
+		if strings.HasPrefix(r.ID, "codacy.generic.plsql") {
+			return lo.Uniq(lo.Values(plsqlLanguage))
 		}
 
 		// Other generic rules have the language encoded in the ID
