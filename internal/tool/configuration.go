@@ -164,7 +164,7 @@ var extensionToLanguageMap = map[string]string{
 	".tsx":        "typescript",
 	".dockerfile": "dockerfile",
 	"Dockerfile":  "dockerfile",
-	// ".sql"
+	".sql":        "plsql",
 	// ".tsql"
 	// ".trg", ".prc", ".fnc", ".pld", ".pls", ".plh", ".plb", ".pck", ".pks", ".pkh", ".pkb", ".typ", ".tyb", ".tps", ".tpb"
 	".json": "json",
