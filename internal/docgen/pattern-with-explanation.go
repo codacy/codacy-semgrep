@@ -13,6 +13,7 @@ type PatternWithExplanation struct {
 	Level       Level
 	Category    Category
 	SubCategory SubCategory
+	ScanType    string
 	Languages   []string
 	Enabled     bool
 	Explanation string
@@ -23,6 +24,7 @@ func (r PatternWithExplanation) toCodacyPattern() codacy.Pattern {
 		ID:          r.ID,
 		Category:    string(r.Category),
 		SubCategory: string(r.SubCategory),
+		ScanType:    r.ScanType,
 		Level:       string(r.Level),
 		Languages:   r.Languages,
 		Enabled:     r.Enabled,
