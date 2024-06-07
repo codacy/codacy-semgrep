@@ -24,8 +24,6 @@ rules:
   metadata:
     description: Detects empty strings in the code which might cause issues or bugs.
     category: security
-    technology:
-      - plsql
     impact: MEDIUM
 - id: codacy.plsql.find_all_passwords
   severity: "ERROR"
@@ -39,6 +37,4 @@ rules:
       - A3:2017 Sensitive Data Exposure
     description: Finding all occurrences of passwords in different languages and formats, while avoiding common false positives.
     category: security
-    technology:
-      - plsql
     impact: HIGH
