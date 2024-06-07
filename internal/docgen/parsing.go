@@ -463,6 +463,7 @@ func toCodacyLanguages(r SemgrepRule) []string {
 		"typescript":  "TypeScript",
 		"visualforce": "VisualForce",
 		"yaml":        "YAML",
+		"plsql":       "PLSQL",
 	}
 
 	codacyLanguages := lo.Map(

@@ -3,4 +3,8 @@
     <file name="codacy-csharp-security-hard-coded-password.cs">
         <error source="codacy.csharp.security.hard-coded-password" line="9" message="Hardcoded passwords are a security risk." severity="error" />
     </file>
+    <file name="test_find_all_passwords_and_empty_string.sql">
+        <error source="codacy.plsql.empty-strings" line="9" message="Hardcoded passwords are a security risk." severity="error" />
+        <error source="codacy.plsql.find_all_passwords" line="9" message="Hardcoded passwords are a security risk." severity="error" />
+    </file>
 </checkstyle>
