@@ -465,7 +465,7 @@ func toCodacyLanguages(r SemgrepRule) []string {
 		"yaml":        "YAML",
 	}
 
-	plsqlLanguage := map[string]string{"generic": "generic"}
+	plsqlLanguage := map[string]string{"generic": "plsql"}
 
 	codacyLanguages := lo.Map(
 		lo.Filter(r.Languages, func(s string, _ int) bool {
