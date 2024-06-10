@@ -290,6 +290,7 @@ func (r SemgrepRule) toPatternWithExplanation(defaultRules SemgrepRules) Pattern
 		Level:       toCodacyLevel(r.Severity),
 		Category:    toCodacyCategory(r),
 		SubCategory: getCodacySubCategory(toCodacyCategory(r), r.Metadata.OWASP),
+		ScanType:    getCodacyScanType(r),
 		Languages:   toCodacyLanguages(r),
 		Enabled:     isEnabledByDefault(defaultRules, r.ID),
 		Explanation: r.Message,
@@ -360,6 +361,13 @@ func toCodacyCategory(r SemgrepRule) Category {
 	default:
 		panic(fmt.Sprintf("unknown category: %s %s", r.Metadata.Category, r.ID))
 	}
+}
+
+func getCodacyScanType(r SemgrepRule) string {
+	if lo.SomeBy(r.Metadata.CWEs, func(str string) bool { return strings.Contains(str, "CWE-798") }) {
+		return "Secrets"
+	}
+	return ""
 }
 
 func standardizeCategory(category string) string {
