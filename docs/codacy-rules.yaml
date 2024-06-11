@@ -26,7 +26,7 @@ rules:
     category: security
     impact: MEDIUM
 - id: codacy.generic.plsql.find_all_passwords
-  severity: "ERROR"
+  severity: ERROR
   languages:
     - generic
   pattern: var $PASSWORD = "$VALUE";
