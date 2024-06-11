@@ -303,7 +303,7 @@ func (rs SemgrepRules) toPatternWithExplanation(defaultRules SemgrepRules) Patte
 	for i, r := range rs {
 		pwes[i] = r.toPatternWithExplanation(defaultRules)
 		if strings.Contains(r.ID, "plsql") {
-			pwes[i].Languages = []string{"plsql"}
+			pwes[i].Languages = []string{"PLSQL"}
 		}
 	}
 	return pwes
@@ -474,7 +474,7 @@ func toCodacyLanguages(r SemgrepRule) []string {
 		"typescript":  "TypeScript",
 		"visualforce": "VisualForce",
 		"yaml":        "YAML",
-		"plsql":       "PLSQL",
+		//		"plsql":       "PLSQL",
 	}
 
 	plsqlLanguage := map[string]string{"generic": "generic"} //the semgrep should run with generic, but the patterns.json should be created with plsql
