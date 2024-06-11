@@ -301,6 +301,9 @@ func (rs SemgrepRules) toPatternWithExplanation(defaultRules SemgrepRules) Patte
 
 	for i, r := range rs {
 		pwes[i] = r.toPatternWithExplanation(defaultRules)
+		if strings.Contains(r.ID, "plsql") {
+			pwes[i].Languages = []string{"plsql"}
+		}
 	}
 	return pwes
 }
@@ -465,7 +468,10 @@ func toCodacyLanguages(r SemgrepRule) []string {
 		"yaml":        "YAML",
 	}
 
-	plsqlLanguage := map[string]string{"generic": "plsql"}
+	plsqlLanguage := map[string]string{"generic": "generic"} //the semgrep should run with generic, but the patterns.json should be created with plsql
+	// for generic, generic we have rules.yaml with generic language
+	// semgrep is running with generic language which is desired
+	// patterns json is created with generic language which breaks the tests
 
 	codacyLanguages := lo.Map(
 		lo.Filter(r.Languages, func(s string, _ int) bool {
