@@ -2,6 +2,7 @@ package docgen
 
 import (
 	codacy "github.com/codacy/codacy-engine-golang-seed/v6"
+	"strings"
 )
 
 // Intermediate representation of Semgrep rules for easier manipulation.
@@ -46,6 +47,9 @@ func (pwes PatternsWithExplanation) toCodacyPattern() *[]codacy.Pattern {
 
 	for i, patternWithExplanation := range pwes {
 		codacyPatterns[i] = patternWithExplanation.toCodacyPattern()
+		if strings.Contains(patternWithExplanation.ID, "plsql") {
+			codacyPatterns[i].Languages = []string{"PLSQL"}
+		}
 	}
 	return &codacyPatterns
 }
