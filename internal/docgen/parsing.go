@@ -474,6 +474,7 @@ func toCodacyLanguages(r SemgrepRule) []string {
 		"typescript":  "TypeScript",
 		"visualforce": "VisualForce",
 		"yaml":        "YAML",
+		"plsql":       "PLSQL",
 	}
 
 	plsqlLanguage := map[string]string{"generic": "generic"} //the semgrep should run with generic, but the patterns.json should be created with plsql
