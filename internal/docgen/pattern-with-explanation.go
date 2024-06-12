@@ -46,9 +46,6 @@ func (pwes PatternsWithExplanation) toCodacyPattern() *[]codacy.Pattern {
 
 	for i, patternWithExplanation := range pwes {
 		codacyPatterns[i] = patternWithExplanation.toCodacyPattern()
-		//if strings.Contains(patternWithExplanation.ID, "plsql") {
-		//	codacyPatterns[i].Languages = []string{"PLSQL"}
-		//}
 	}
 	return &codacyPatterns
 }

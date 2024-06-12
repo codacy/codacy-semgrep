@@ -473,7 +473,7 @@ func toCodacyLanguages(r SemgrepRule) []string {
 		"yaml":        "YAML",
 	}
 
-	plsqlLanguage := map[string]string{"generic": "generic"}
+	genericLanguage := map[string]string{"generic": "Generic"}
 
 	codacyLanguages := lo.Map(
 		lo.Filter(r.Languages, func(s string, _ int) bool {
@@ -497,8 +497,8 @@ func toCodacyLanguages(r SemgrepRule) []string {
 			return lo.Uniq(lo.Values(supportedLanguages))
 		}
 
-		if strings.HasPrefix(r.ID, "codacy.generic.plsql") {
-			return lo.Uniq(lo.Values(plsqlLanguage))
+		if strings.HasPrefix(r.ID, "codacy.generic") {
+			return lo.Uniq(lo.Values(genericLanguage))
 		}
 
 		// Other generic rules have the language encoded in the ID
