@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module name="root">
     <module name="codacy.csharp.security.hard-coded-password" />
+    <module name="codacy.generic.empty-strings"/>
+    <module name="codacy.generic.find_all_passwords"/>
 </module>
