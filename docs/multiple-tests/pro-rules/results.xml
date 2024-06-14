@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<checkstyle version="1.5">
+    <file name="App.java">
+        <error source="dangerous-taint-pro-engine-example" line="10"
+            message="Call of dangerous on tainted value"
+            severity="info" />
+        <error source="dangerous-taint-pro-engine-example" line="13"
+            message="Call of dangerous on tainted value"
+            severity="info" />
+    </file>
+</checkstyle>

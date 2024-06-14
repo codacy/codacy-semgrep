@@ -59,20 +59,15 @@ func semgrepRules(destinationDir string) ([]PatternWithExplanation, *ParsedSemgr
 	}
 
 	fmt.Println("Getting Codacy rules...")
-	codacyRules, err := getCodacyRules(destinationDir)
+	parsedCodacyRules, err := getCodacyRules(destinationDir)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	fmt.Println("Filtering blacklisted rules...")
-	parsedSemgrepRegistryRules = filterBlacklistedParsedRules(parsedSemgrepRegistryRules)
-	semgrepRegistryDefaultRules = filterBlacklistedRules(semgrepRegistryDefaultRules)
-	parsedGitLabRules = filterBlacklistedParsedRules(parsedGitLabRules)
-
 	allRules := append(parsedSemgrepRegistryRules.Rules, parsedGitLabRules.Rules...)
-	allRules = append(allRules, codacyRules...) // Add Codacy rules to the list
+	allRules = append(allRules, parsedCodacyRules.Rules...) // Add Codacy rules to the list
 	defaultRules := append(semgrepRegistryDefaultRules, parsedGitLabRules.Rules...)
-	defaultRules = append(defaultRules, codacyRules...) // Add Codacy rules to the default rules
+	defaultRules = append(defaultRules, parsedCodacyRules.Rules...) // Add Codacy rules to the default rules
 
 	fmt.Println("Converting rules...")
 	pwes := allRules.toPatternWithExplanation(defaultRules)
@@ -80,49 +75,18 @@ func semgrepRules(destinationDir string) ([]PatternWithExplanation, *ParsedSemgr
 	idMapper := make(map[IDMapperKey]string)
 	maps.Copy(idMapper, parsedSemgrepRegistryRules.IDMapper)
 	maps.Copy(idMapper, parsedGitLabRules.IDMapper)
+	maps.Copy(idMapper, parsedCodacyRules.IDMapper)
+
+	allRulesFiles := append(parsedSemgrepRegistryRules.Files, parsedGitLabRules.Files...)
+	allRulesFiles = append(allRulesFiles, parsedCodacyRules.Files...)
 
 	parsedRules := ParsedSemgrepRules{
 		Rules:    allRules,
-		Files:    append(parsedSemgrepRegistryRules.Files, parsedGitLabRules.Files...),
+		Files:    allRulesFiles,
 		IDMapper: idMapper,
 	}
 
 	return pwes, &parsedRules, nil
-}
-
-func isBlacklistedRule(rule string) bool {
-	blacklist := map[string]bool{
-		"java_deserialization_rule-JacksonUnsafeDeserialization": true,
-		"python_exec_rule-linux-command-wildcard-injection":      true,
-		"rules_lgpl_oc_other_rule-ios-self-signed-ssl":           true,
-		"kotlin_password_rule-HardcodePassword":                  true,
-	}
-
-	_, found := blacklist[rule]
-	return found
-}
-
-func filterBlacklistedRules(rules SemgrepRules) SemgrepRules {
-	i := 0
-	for _, rule := range rules {
-		if !isBlacklistedRule(rule.ID) {
-			rules[i] = rule
-			i++
-		}
-	}
-	return rules[:i]
-}
-
-func filterBlacklistedParsedRules(rules *ParsedSemgrepRules) *ParsedSemgrepRules {
-	i := 0
-	for _, rule := range rules.Rules {
-		if !isBlacklistedRule(rule.ID) {
-			rules.Rules[i] = rule
-			i++
-		}
-	}
-	rules.Rules = rules.Rules[:i]
-	return rules
 }
 
 func getSemgrepRegistryRules() (*ParsedSemgrepRules, error) {
@@ -139,26 +103,12 @@ func getGitLabRules() (*ParsedSemgrepRules, error) {
 		func(_ string, unprefixedID string) string { return unprefixedID })
 }
 
-func getCodacyRules(destinationDir string) (SemgrepRules, error) {
-
-	filePath := path.Join(destinationDir, "codacy-rules.yaml") // Path to the Codacy rules file
-	// Read the entire file content
-	buf, err := os.ReadFile(filePath)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read file: %s, error: %v", filePath, err)
-	}
-
-	// Unmarshal the remaining content
-	var codacyRules struct {
-		Rules SemgrepRules `yaml:"rules"`
-	}
-
-	err = yaml.Unmarshal(buf, &codacyRules)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal file: %s, error: %v", filePath, err)
-	}
-
-	return codacyRules.Rules, nil
+func getCodacyRules(docsDir string) (*ParsedSemgrepRules, error) {
+	filePath, _ := filepath.Abs(path.Join(docsDir, "codacy-rules.yaml"))
+	return getRules(
+		filePath,
+		func(_ string) bool { return true },
+		func(_ string, unprefixedID string) string { return unprefixedID })
 }
 
 type FilenameValidator func(string) bool
@@ -175,8 +125,18 @@ type IDMapperKey struct {
 	UnprefixedID string
 }
 
-func getRules(url string, validate FilenameValidator, generate IDGenerator) (*ParsedSemgrepRules, error) {
-	rulesFiles, err := downloadRepo(url)
+func getRules(location string, validate FilenameValidator, generate IDGenerator) (*ParsedSemgrepRules, error) {
+	var rulesFiles []SemgrepRuleFile
+	var err error
+	if strings.HasPrefix(location, "http") {
+		rulesFiles, err = downloadRepo(location)
+	} else {
+		rulesFiles, err = []SemgrepRuleFile{{
+			RelativePath: filepath.Base(location),
+			AbsolutePath: location,
+		}}, nil
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -247,7 +207,11 @@ func isValidGitLabRuleFile(filename string) bool {
 		!strings.HasPrefix(filename, "docs/") &&
 		!strings.HasPrefix(filename, "mappings/") &&
 		!strings.HasPrefix(filename, "qa/") &&
-		!strings.HasPrefix(filename, "rules/lgpl/oc/other/")
+		!strings.HasPrefix(filename, "rules/lgpl/oc/other/") &&
+		// Blacklisted rules
+		!strings.Contains(filename, "java/deserialization/rule-JacksonUnsafeDeserialization") &&
+		!strings.Contains(filename, "python/exec/rule-linux-command-wildcard-injection") &&
+		!strings.Contains(filename, "kotlin/password/rule-HardcodePassword")
 }
 
 func prefixRuleIDWithPath(relativePath string, unprefixedID string) string {
