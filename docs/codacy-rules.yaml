@@ -25,7 +25,7 @@ rules:
     description: Detects empty strings in the code which might cause issues or bugs.
     category: security
     impact: MEDIUM
-- id: codacy.generic.plsql.find_all_passwords
+- id: codacy.generic.plsql.find-all-passwords
   severity: ERROR
   languages:
     - generic
