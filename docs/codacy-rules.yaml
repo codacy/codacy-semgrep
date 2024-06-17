@@ -17,7 +17,7 @@ rules:
 - id: codacy.generic.plsql.empty-strings
   severity: WARNING
   languages:
-    - plsql
+    - generic
   pattern: var $STRING = '';
   regex: "(?i).*''.*"
   message: Empty strings can lead to unexpected behavior and should be handled carefully.
@@ -28,7 +28,7 @@ rules:
 - id: codacy.generic.plsql.find-all-passwords
   severity: ERROR
   languages:
-    - plsql
+    - generic
   pattern: var $PASSWORD = "$VALUE";
   regex: "(?i).*(password|psw|pwd|pass|adgangskode|benutzerkennwort|chiffre|clave|codewort|contrasena|contrasenya|geheimcode|geslo|heslo|jelszo|kennwort|losenord|losung|losungswort|lozinka|modpas|motdepasse|parol|parola|parole|pasahitza|pasfhocal|passe|passord|passwort|pasvorto|paswoord|salasana|schluessel|schluesselwort|senha|sifre|wachtwoord|wagwoord|watchword|zugangswort|PAROLACHIAVE|PAROLA CHIAVE|PAROLECHIAVI|PAROLE CHIAVI|paroladordine|verschluesselt|sisma).*(?<!pass|passable|passage|passenger|passer|passing|passion|passive|passover|passport|passed|compass|bypass).*"
   message: Hardcoded or exposed passwords are a security risk. They can be easily found by attackers and used to gain unauthorized access to the system.
