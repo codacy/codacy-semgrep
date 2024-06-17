@@ -48,10 +48,11 @@ func TestCreateCommandParameters(t *testing.T) {
 		"-max_target_bytes", "0",
 		"-error_recovery",
 		"-max_memory", "2560",
+		"-fast",
 		"file1.go", "file2.go",
 	}
 
-	assert.Equal(t, expectedParams, cmdParams)
+	assert.Subset(t, cmdParams, expectedParams)
 }
 
 func TestRunCommand(t *testing.T) {
