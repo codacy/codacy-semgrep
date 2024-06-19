@@ -1,0 +1,13 @@
+rules:
+  - id: dangerous-taint-pro-engine-example
+    mode: taint
+    options:
+      interfile: true
+    pattern-sources:
+      - pattern: get_user_input(...);
+    pattern-sinks:
+      - pattern: dangerous(...);
+    message: Call of dangerous on tainted value
+    languages:
+      - java
+    severity: WARNING

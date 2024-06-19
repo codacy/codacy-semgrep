@@ -164,7 +164,21 @@ var extensionToLanguageMap = map[string]string{
 	".tsx":        "typescript",
 	".dockerfile": "dockerfile",
 	"Dockerfile":  "dockerfile",
-	// ".sql"
+	".pls":        "generic",
+	".trg":        "generic",
+	".prc":        "generic",
+	".fnc":        "generic",
+	".pld":        "generic",
+	".plh":        "generic",
+	".plb":        "generic",
+	".pck":        "generic",
+	".pks":        "generic",
+	".pkh":        "generic",
+	".pkb":        "generic",
+	".typ":        "generic",
+	".tyb":        "generic",
+	".tps":        "generic",
+	".tpb":        "generic",
 	// ".tsql"
 	// ".trg", ".prc", ".fnc", ".pld", ".pls", ".plh", ".plb", ".pck", ".pks", ".pkh", ".pkb", ".typ", ".tyb", ".tps", ".tpb"
 	".json": "json",

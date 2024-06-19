@@ -1,6 +1,6 @@
 rules:
 - id: codacy.csharp.security.hard-coded-password
-  severity: "ERROR"
+  severity: ERROR
   languages:
     - csharp
   pattern: var $PASSWORD = "$VALUE";
@@ -13,4 +13,28 @@ rules:
     category: security
     technology: 
       - .net
+    impact: HIGH
+- id: codacy.generic.plsql.empty-strings
+  severity: WARNING
+  languages:
+    - generic
+  pattern: var $STRING = '';
+  regex: "(?i).*''.*"
+  message: Empty strings can lead to unexpected behavior and should be handled carefully.
+  metadata:
+    description: Detects empty strings in the code which might cause issues or bugs.
+    category: security
+    impact: MEDIUM
+- id: codacy.generic.plsql.find-all-passwords
+  severity: ERROR
+  languages:
+    - generic
+  pattern: var $PASSWORD = "$VALUE";
+  regex: "(?i).*(password|psw|pwd|pass|adgangskode|benutzerkennwort|chiffre|clave|codewort|contrasena|contrasenya|geheimcode|geslo|heslo|jelszo|kennwort|losenord|losung|losungswort|lozinka|modpas|motdepasse|parol|parola|parole|pasahitza|pasfhocal|passe|passord|passwort|pasvorto|paswoord|salasana|schluessel|schluesselwort|senha|sifre|wachtwoord|wagwoord|watchword|zugangswort|PAROLACHIAVE|PAROLA CHIAVE|PAROLECHIAVI|PAROLE CHIAVI|paroladordine|verschluesselt|sisma).*(?<!pass|passable|passage|passenger|passer|passing|passion|passive|passover|passport|passed|compass|bypass).*"
+  message: Hardcoded or exposed passwords are a security risk. They can be easily found by attackers and used to gain unauthorized access to the system.
+  metadata:
+    owasp:
+      - A3:2017 Sensitive Data Exposure
+    description: Finding all occurrences of passwords in different languages and formats, while avoiding common false positives.
+    category: security
     impact: HIGH
