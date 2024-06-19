@@ -128,6 +128,7 @@ func filterBlacklistedParsedRules(rules *ParsedSemgrepRules) *ParsedSemgrepRules
 func getSemgrepRegistryRules() (*ParsedSemgrepRules, error) {
 	return getRules(
 		"https://github.com/semgrep/semgrep-rules",
+		"express-fp",
 		isValidSemgrepRegistryRuleFile,
 		prefixRuleIDWithPath)
 }
@@ -135,6 +136,7 @@ func getSemgrepRegistryRules() (*ParsedSemgrepRules, error) {
 func getGitLabRules() (*ParsedSemgrepRules, error) {
 	return getRules(
 		"https://gitlab.com/gitlab-org/security-products/sast-rules.git",
+		"",
 		isValidGitLabRuleFile,
 		func(_ string, unprefixedID string) string { return unprefixedID })
 }
@@ -175,8 +177,8 @@ type IDMapperKey struct {
 	UnprefixedID string
 }
 
-func getRules(url string, validate FilenameValidator, generate IDGenerator) (*ParsedSemgrepRules, error) {
-	rulesFiles, err := downloadRepo(url)
+func getRules(url string, branch string, validate FilenameValidator, generate IDGenerator) (*ParsedSemgrepRules, error) {
+	rulesFiles, err := downloadRepo(url, branch)
 	if err != nil {
 		return nil, err
 	}
