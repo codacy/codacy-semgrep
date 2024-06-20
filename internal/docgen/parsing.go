@@ -92,6 +92,7 @@ func semgrepRules(destinationDir string) ([]PatternWithExplanation, *ParsedSemgr
 func getSemgrepRegistryRules() (*ParsedSemgrepRules, error) {
 	return getRules(
 		"https://github.com/semgrep/semgrep-rules",
+		"express-fp",
 		isValidSemgrepRegistryRuleFile,
 		prefixRuleIDWithPath)
 }
@@ -99,6 +100,7 @@ func getSemgrepRegistryRules() (*ParsedSemgrepRules, error) {
 func getGitLabRules() (*ParsedSemgrepRules, error) {
 	return getRules(
 		"https://gitlab.com/gitlab-org/security-products/sast-rules.git",
+		"",
 		isValidGitLabRuleFile,
 		func(_ string, unprefixedID string) string { return unprefixedID })
 }
@@ -107,6 +109,7 @@ func getCodacyRules(docsDir string) (*ParsedSemgrepRules, error) {
 	filePath, _ := filepath.Abs(path.Join(docsDir, "codacy-rules.yaml"))
 	return getRules(
 		filePath,
+		"",
 		func(_ string) bool { return true },
 		func(_ string, unprefixedID string) string { return unprefixedID })
 }
@@ -125,11 +128,11 @@ type IDMapperKey struct {
 	UnprefixedID string
 }
 
-func getRules(location string, validate FilenameValidator, generate IDGenerator) (*ParsedSemgrepRules, error) {
+func getRules(location string, branch string, validate FilenameValidator, generate IDGenerator) (*ParsedSemgrepRules, error) {
 	var rulesFiles []SemgrepRuleFile
 	var err error
 	if strings.HasPrefix(location, "http") {
-		rulesFiles, err = downloadRepo(location)
+		rulesFiles, err = downloadRepo(location, branch)
 	} else {
 		rulesFiles, err = []SemgrepRuleFile{{
 			RelativePath: filepath.Base(location),

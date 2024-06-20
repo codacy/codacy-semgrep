@@ -2,6 +2,7 @@ package docgen
 
 import (
 	"fmt"
+	"github.com/go-git/go-git/v5/plumbing"
 	"io"
 	"net/http"
 	"os"
@@ -16,15 +17,16 @@ type SemgrepRuleFile struct {
 	AbsolutePath string
 }
 
-func downloadRepo(url string) ([]SemgrepRuleFile, error) {
+func downloadRepo(url string, branch string) ([]SemgrepRuleFile, error) {
 	tempFolder, err := os.MkdirTemp(os.TempDir(), "tmp-semgrep-")
 	if err != nil {
 		return nil, &DocGenError{msg: "Failed to create temp directory", w: err}
 	}
 
 	repo, err := git.PlainClone(tempFolder, false, &git.CloneOptions{
-		URL:   url,
-		Depth: 1,
+		URL:           url,
+		Depth:         1,
+		ReferenceName: plumbing.ReferenceName(branch),
 	})
 	if err != nil {
 		return nil, &DocGenError{msg: fmt.Sprintf("Failed to clone repository: %s", url), w: err}
