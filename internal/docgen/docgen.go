@@ -90,7 +90,7 @@ func (g documentationGenerator) createPatternsFile(rules PatternsWithExplanation
 		return newFileContentError(patternsFile, err)
 	}
 
-	if err := os.WriteFile(path.Join(destinationDir, patternsFile), toolJSON, 0400); err != nil {
+	if err := os.WriteFile(path.Join(destinationDir, patternsFile), toolJSON, 0644); err != nil {
 		return newFileCreationError(patternsFile, err)
 	}
 	return nil
@@ -120,7 +120,7 @@ func (g documentationGenerator) createPatternsDescriptionFiles(rules PatternsWit
 		return newFileContentError(patternsDescriptionFile, err)
 	}
 
-	if err := os.WriteFile(path.Join(destinationDir, patternsDescriptionFolder, patternsDescriptionFile), descriptionsJSON, 0400); err != nil {
+	if err := os.WriteFile(path.Join(destinationDir, patternsDescriptionFolder, patternsDescriptionFile), descriptionsJSON, 0644); err != nil {
 		return newFileCreationError(patternsDescriptionFile, err)
 	}
 	return nil
