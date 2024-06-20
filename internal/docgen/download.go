@@ -2,13 +2,13 @@ package docgen
 
 import (
 	"fmt"
-	"github.com/go-git/go-git/v5/plumbing"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
@@ -17,23 +17,28 @@ type SemgrepRuleFile struct {
 	AbsolutePath string
 }
 
-func downloadRepo(url string, branch string) ([]SemgrepRuleFile, error) {
+func downloadRepo(url string, commitUuid string) ([]SemgrepRuleFile, error) {
 	tempFolder, err := os.MkdirTemp(os.TempDir(), "tmp-semgrep-")
 	if err != nil {
 		return nil, &DocGenError{msg: "Failed to create temp directory", w: err}
 	}
 
 	repo, err := git.PlainClone(tempFolder, false, &git.CloneOptions{
-		URL:           url,
-		Depth:         1,
-		ReferenceName: plumbing.ReferenceName(branch),
+		URL:   url,
+		Depth: 10, // The commit we are fetching the rules from must be within the last 10 commits
 	})
 	if err != nil {
 		return nil, &DocGenError{msg: fmt.Sprintf("Failed to clone repository: %s", url), w: err}
 	}
 
-	ref, _ := repo.Head()
-	commit, _ := repo.CommitObject(ref.Hash())
+	var hash plumbing.Hash
+	if commitUuid == "" {
+		ref, _ := repo.Head()
+		hash = ref.Hash()
+	} else {
+		hash = plumbing.NewHash(commitUuid)
+	}
+	commit, _ := repo.CommitObject(hash)
 	tree, _ := commit.Tree()
 
 	var files []SemgrepRuleFile
