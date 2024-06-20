@@ -32,9 +32,11 @@ type SemgrepRule struct {
 }
 
 type SemgrepRuleMetadata struct {
-	Category string      `yaml:"category"`
-	OWASP    StringArray `yaml:"owasp"`
-	CWEs     StringArray `yaml:"cwe"`
+	Category         string      `yaml:"category"`
+	Confidence       string      `yaml:"confidence"`
+	SecuritySeverity string      `yaml:"security-severity"`
+	OWASP            StringArray `yaml:"owasp"`
+	CWEs             StringArray `yaml:"cwe"`
 }
 
 type SemgrepRules []SemgrepRule
@@ -64,10 +66,14 @@ func semgrepRules(destinationDir string) ([]PatternWithExplanation, *ParsedSemgr
 		return nil, nil, err
 	}
 
-	allRules := append(parsedSemgrepRegistryRules.Rules, parsedGitLabRules.Rules...)
-	allRules = append(allRules, parsedCodacyRules.Rules...) // Add Codacy rules to the list
-	defaultRules := append(semgrepRegistryDefaultRules, parsedGitLabRules.Rules...)
-	defaultRules = append(defaultRules, parsedCodacyRules.Rules...) // Add Codacy rules to the default rules
+	allRules := parsedSemgrepRegistryRules.Rules
+	allRules = append(allRules, parsedGitLabRules.Rules...)
+	allRules = append(allRules, parsedCodacyRules.Rules...)
+
+	defaultRules := semgrepRegistryDefaultRules
+	// A lot of GitLab rules are duplicated an prone to false positives.
+	// defaultRules = append(defaultRules, parsedGitLabRules.Rules...)
+	defaultRules = append(defaultRules, parsedCodacyRules.Rules...)
 
 	fmt.Println("Converting rules...")
 	pwes := allRules.toPatternWithExplanation(defaultRules)
@@ -255,7 +261,7 @@ func (r SemgrepRule) toPatternWithExplanation(defaultRules SemgrepRules) Pattern
 		ID:          r.ID,
 		Title:       getLastSegment(r.ID),
 		Description: GetFirstSentence(strings.ReplaceAll(r.Message, "\n", " ")),
-		Level:       toCodacyLevel(r.Severity),
+		Level:       toCodacyLevel(r),
 		Category:    toCodacyCategory(r),
 		SubCategory: getCodacySubCategory(toCodacyCategory(r), r.Metadata.OWASP),
 		ScanType:    getCodacyScanType(r),
@@ -291,8 +297,19 @@ func GetFirstSentence(s string) string {
 }
 
 // https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Result.scala#L36
-func toCodacyLevel(s string) Level {
-	switch s {
+func toCodacyLevel(r SemgrepRule) Level {
+	switch strings.ToUpper(r.Metadata.SecuritySeverity) {
+	case "CRITICAL":
+	case "HIGH":
+		return Critical
+	case "MEDIUM":
+		return Medium
+	case "LOW":
+	case "INFO":
+		return Low
+	default:
+	}
+	switch r.Severity {
 	case "ERROR":
 		return Critical
 	case "WARNING":
@@ -300,7 +317,7 @@ func toCodacyLevel(s string) Level {
 	case "INFO":
 		return Low
 	default:
-		panic(fmt.Sprintf("unknown severity: %s", s))
+		panic(fmt.Sprintf("unknown severity: %s %s", r.Severity, r.Metadata.SecuritySeverity))
 	}
 }
 
@@ -493,6 +510,7 @@ func toCodacyLanguages(r SemgrepRule) []string {
 
 func isEnabledByDefault(defaultRules []SemgrepRule, s string) bool {
 	return lo.ContainsBy(defaultRules, func(r SemgrepRule) bool {
-		return r.ID == s
+		return r.ID == s &&
+			lo.Contains([]string{"high", "medium"}, strings.ToLower(r.Metadata.Confidence))
 	})
 }

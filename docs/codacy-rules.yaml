@@ -14,6 +14,7 @@ rules:
       technology:
         - .net
       impact: HIGH
+      confidence: MEDIUM
   - id: codacy.generic.plsql.empty-strings
     severity: WARNING
     languages:
@@ -24,6 +25,7 @@ rules:
       description: Detects empty strings in the code which might cause issues or bugs.
       category: security
       impact: MEDIUM
+      confidence: MEDIUM
   - id: codacy.generic.plsql.find-all-passwords
     severity: ERROR
     languages:
@@ -40,3 +42,4 @@ rules:
       description: Finding all occurrences of passwords in different languages and formats, while avoiding common false positives.
       category: security
       impact: HIGH
+      confidence: MEDIUM
