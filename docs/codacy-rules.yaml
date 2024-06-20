@@ -29,7 +29,7 @@ rules:
     languages:
       - generic
     pattern: |
-      var $PASSWORD := $...VALUE;
+      $PASSWORD VARCHAR2($LENGTH) := $...VALUE;
     options:
       generic_ellipsis_max_span: 0
     message: >
