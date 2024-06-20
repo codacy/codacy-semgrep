@@ -4,7 +4,7 @@
 CREATE OR REPLACE PACKAGE find_passwords AS
   -- Declaration of passwords
   password1 VARCHAR2(100) := 'Password123!';
-  password2 VARCHAR2(100) = 'Admin@456';
+  password2 VARCHAR2(100) := 'Admin@456';
   password3 VARCHAR2(100) := 'UserPass789';
 
   -- Procedure to output passwords
@@ -26,7 +26,7 @@ END find_passwords;
 -- Example 2: Using empty strings
 CREATE OR REPLACE PACKAGE find_empty_string AS
   -- Declaration of empty strings
-  empty_string1 VARCHAR2(100) = '';
+  empty_string1 VARCHAR2(100) := '';
   empty_string2 VARCHAR2(100);
 
   -- Procedure to output empty strings
