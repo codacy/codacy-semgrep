@@ -3,7 +3,7 @@ rules:
     severity: ERROR
     languages:
       - csharp
-    pattern: var $PASSWORD = "$VALUE"
+    pattern: var $PASSWORD = "$VALUE";
     regex: "(?i).*(password|motdepasse|heslo|adgangskode|wachtwoord|salasana|passwort|passord|senha|geslo|clave|losenord|clave|parola|secret|pwd).*"
     message: Hardcoded passwords are a security risk. They can be easily found by attackers and used to gain unauthorized access to the system.
     metadata:
@@ -18,7 +18,7 @@ rules:
     severity: WARNING
     languages:
       - generic
-    pattern: var $STRING = ''
+    pattern: var $STRING = '';
     message: Empty strings can lead to unexpected behavior and should be handled carefully.
     metadata:
       description: Detects empty strings in the code which might cause issues or bugs.
@@ -29,7 +29,7 @@ rules:
     languages:
       - generic
     pattern: |
-      var $PASSWORD = $...VALUE
+      var $PASSWORD = $...VALUE;
     options:
       generic_ellipsis_max_span: 0
     message: >
