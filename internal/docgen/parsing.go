@@ -305,7 +305,7 @@ func toCodacyLevel(r SemgrepRule) Level {
 		return Low
 	default:
 	}
-	switch r.Severity {
+	switch strings.ToUpper(r.Severity) {
 	case "ERROR":
 		return Critical
 	case "WARNING":
@@ -319,7 +319,7 @@ func toCodacyLevel(r SemgrepRule) Level {
 
 // https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Pattern.scala#L43
 func toCodacyCategory(r SemgrepRule) Category {
-	switch r.Metadata.Category {
+	switch strings.ToLower(r.Metadata.Category) {
 	case "security":
 		return Security
 	case "performance":
@@ -352,16 +352,16 @@ func getCodacyScanType(r SemgrepRule) string {
 }
 
 func standardizeCategory(category string) string {
+	// Convert to lower case
+	category = strings.ToLower(category)
+
 	// Remove leading zeros
-	category = strings.ReplaceAll(category, "A0", "A")
+	category = strings.ReplaceAll(category, "a0", "a")
 
 	// Standardize spaces and dashes
 	category = strings.ReplaceAll(category, "–", "-")
 	category = strings.ReplaceAll(category, " - ", "-")
 	category = strings.ReplaceAll(category, " ", "-")
-
-	// Convert to lower case
-	category = strings.ToLower(category)
 
 	return category
 }
