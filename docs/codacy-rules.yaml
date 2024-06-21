@@ -3,8 +3,12 @@ rules:
     severity: ERROR
     languages:
       - csharp
-    pattern: var $PASSWORD = "$VALUE";
-    regex: "(?i).*(password|motdepasse|heslo|adgangskode|wachtwoord|salasana|passwort|passord|senha|geslo|clave|losenord|clave|parola|secret|pwd).*"
+    patterns:
+        - pattern-either:
+          - pattern: var $PASSWORD = "$VALUE";
+        - metavariable-regex:
+            metavariable: "$PASSWORD"
+            regex: "(?i).*(password|motdepasse|heslo|adgangskode|wachtwoord|salasana|passwort|passord|senha|geslo|clave|losenord|clave|parola|secret|pwd).*"
     message: Hardcoded passwords are a security risk. They can be easily found by attackers and used to gain unauthorized access to the system.
     metadata:
       owasp:
