@@ -184,25 +184,23 @@ func getRules(location string, commit string, validate FilenameValidator, genera
 func isValidSemgrepRegistryRuleFile(filename string) bool {
 	return (strings.HasSuffix(filename, ".yaml") || strings.HasSuffix(filename, ".yml")) && // Rules files
 		!strings.HasSuffix(filename, ".test.yaml") && // but not test files
-		!strings.HasPrefix(filename, ".") && // Or shadow directories
+		filename != "template.yaml" && // or example files
+		!strings.HasPrefix(filename, ".") && // or shadow directories
 		// Or Semgrep ignored dirs: https://github.com/semgrep/semgrep-rules/blob/c495d664cbb75e8347fae9d27725436717a7926e/scripts/run-tests#L48
 		!strings.HasPrefix(filename, "stats/") &&
 		!strings.HasPrefix(filename, "trusted_python/") &&
 		!strings.HasPrefix(filename, "fingerprints/") &&
 		!strings.HasPrefix(filename, "scripts/") &&
 		!strings.HasPrefix(filename, "libsonnet/") &&
-		filename != "template.yaml" && // or example file
-		!strings.HasPrefix(filename, "apex/") && // Pro Engine rules
-		!strings.HasPrefix(filename, "generic/bicep/") && // Unsupported generic languages
+		!strings.HasPrefix(filename, "generic/bicep/") && // generic or unsupported languages
 		!strings.HasPrefix(filename, "generic/ci/") &&
 		!strings.HasPrefix(filename, "generic/html-templates/") &&
 		!strings.HasPrefix(filename, "generic/hugo/") &&
 		!strings.HasPrefix(filename, "generic/nginx/") &&
+		!strings.HasPrefix(filename, "ai/generic/") &&
 		!strings.HasPrefix(filename, "html/") &&
 		!strings.HasPrefix(filename, "ocaml/") &&
-		!strings.HasPrefix(filename, "solidity/") &&
-		!strings.HasPrefix(filename, "elixir/") &&
-		!strings.HasPrefix(filename, "ai/generic/")
+		!strings.HasPrefix(filename, "solidity/")
 }
 
 func isValidGitLabRuleFile(filename string) bool {
@@ -331,11 +329,34 @@ func toCodacyCategory(r SemgrepRule) Category {
 	}
 }
 
+// https://github.com/codacy/codacy-plugins-api/blob/5c3c974caafffc4a0f796e60a1bbad15f398df56/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Pattern.scala#L73
 func getCodacyScanType(r SemgrepRule) string {
-	if lo.SomeBy(r.Metadata.CWEs, func(str string) bool { return strings.Contains(str, "CWE-798") }) {
-		return "Secrets"
+	var infrastructureAsCodeIds = []string{
+		"dockerfile",
+		"generic.dockerfile",
+		"json.aws",
+		"terraform",
+		"yaml.argo",
+		"yaml.docker-compose",
+		"yaml.kubernetes",
+		"yaml.openapi",
 	}
-	return ""
+
+	var cicdIDs = []string{
+		"yaml.github-actions",
+		"yaml.gitlab",
+	}
+
+	switch {
+	case lo.SomeBy(r.Metadata.CWEs, func(str string) bool { return strings.Contains(str, "CWE-798") }): // CWE-798: Use of Hard-coded Credentials
+		return "Secrets"
+	case lo.SomeBy(infrastructureAsCodeIds, func(suffix string) bool { return strings.HasSuffix(r.ID, suffix) }):
+		return "IaC"
+	case lo.SomeBy(cicdIDs, func(suffix string) bool { return strings.HasSuffix(r.ID, suffix) }):
+		return "CICD"
+	default:
+		return "SAST"
+	}
 }
 
 func standardizeCategory(category string) string {
@@ -411,6 +432,7 @@ func getCodacySubCategory(category Category, OWASPCategories []string) SubCatego
 // https://github.com/codacy/codacy-plugins-api/blob/e94cfa10a5f2eafdeeeb91e30a39e2032e1e4cc7/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/languages/Language.scala#L41
 func toCodacyLanguages(r SemgrepRule) []string {
 	supportedLanguages := map[string]string{
+		"apex":        "Apex",
 		"c":           "C",
 		"clojure":     "Clojure",
 		"cpp":         "CPP",
@@ -445,8 +467,7 @@ func toCodacyLanguages(r SemgrepRule) []string {
 	codacyLanguages := lo.Map(
 		lo.Filter(r.Languages, func(s string, _ int) bool {
 			return s != "generic" && s != "regex" && // internal rules?
-				s != "lua" && s != "ocaml" && s != "html" && s != "solidity" && // not supported by Codacy
-				s != "elixir" // Pro languages
+				s != "lua" && s != "ocaml" && s != "html" && s != "solidity" // not supported by Codacy
 		}),
 		func(s string, _ int) string {
 			codacyLanguage := supportedLanguages[s]
