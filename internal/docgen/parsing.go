@@ -331,11 +331,34 @@ func toCodacyCategory(r SemgrepRule) Category {
 	}
 }
 
+// https://github.com/codacy/codacy-plugins-api/blob/5c3c974caafffc4a0f796e60a1bbad15f398df56/codacy-plugins-api/src/main/scala/com/codacy/plugins/api/results/Pattern.scala#L73
 func getCodacyScanType(r SemgrepRule) string {
-	if lo.SomeBy(r.Metadata.CWEs, func(str string) bool { return strings.Contains(str, "CWE-798") }) {
-		return "Secrets"
+	var infrastructureAsCodeIds = []string{
+		"dockerfile",
+		"generic.dockerfile",
+		"json.aws",
+		"terraform",
+		"yaml.argo",
+		"yaml.docker-compose",
+		"yaml.kubernetes",
+		"yaml.openapi",
 	}
-	return ""
+
+	var cicdIDs = []string{
+		"yaml.github-actions",
+		"yaml.gitlab",
+	}
+
+	switch {
+	case lo.SomeBy(r.Metadata.CWEs, func(str string) bool { return strings.Contains(str, "CWE-798") }): // CWE-798: Use of Hard-coded Credentials
+		return "Secrets"
+	case lo.SomeBy(infrastructureAsCodeIds, func(suffix string) bool { return strings.HasSuffix(r.ID, suffix) }):
+		return "IaC"
+	case lo.SomeBy(cicdIDs, func(suffix string) bool { return strings.HasSuffix(r.ID, suffix) }):
+		return "CICD"
+	default:
+		return "SAST"
+	}
 }
 
 func standardizeCategory(category string) string {
