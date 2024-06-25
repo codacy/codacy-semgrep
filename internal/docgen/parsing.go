@@ -350,9 +350,9 @@ func getCodacyScanType(r SemgrepRule) string {
 	switch {
 	case lo.SomeBy(r.Metadata.CWEs, func(str string) bool { return strings.Contains(str, "CWE-798") }): // CWE-798: Use of Hard-coded Credentials
 		return "Secrets"
-	case lo.SomeBy(infrastructureAsCodeIds, func(suffix string) bool { return strings.HasSuffix(r.ID, suffix) }):
+	case lo.SomeBy(infrastructureAsCodeIds, func(prefix string) bool { return strings.HasPrefix(r.ID, prefix) }):
 		return "IaC"
-	case lo.SomeBy(cicdIDs, func(suffix string) bool { return strings.HasSuffix(r.ID, suffix) }):
+	case lo.SomeBy(cicdIDs, func(prefix string) bool { return strings.HasPrefix(r.ID, prefix) }):
 		return "CICD"
 	default:
 		return "SAST"
