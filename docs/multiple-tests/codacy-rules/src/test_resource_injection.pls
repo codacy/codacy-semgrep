@@ -13,7 +13,7 @@ resource1 VARCHAR2(100);
     resource10 VARCHAR2(100);
     resource11 VARCHAR2(100);
 BEGIN
-    resource1 := DBMS_CUBE.BUILD();
+    resource1 := DBMS_CUBE.BUILD('arg1', 'arg2');
     resource2 := DBMS_FILE_TRANSFER.COPY_FILE('arg1', 'arg2', 'arg3');
     resource3 := DBMS_FILE_TRANSFER.GET_FILE('arg1', 'arg2', 'arg3');
     resource4 := DBMS_FILE_TRANSFER.PUT_FILE('arg1', 'arg2', 'arg3');

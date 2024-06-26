@@ -49,7 +49,18 @@ rules:
     languages:
       - generic
     patterns:
-      - pattern: $RESOURCE := DBMS_CUBE.BUILD($...ARGS);
+      - pattern: |
+        $RESOURCE := DBMS_CUBE.BUILD($...ARGS);
+        $RESOURCE := DBMS_FILE_TRANSFER.COPY_FILE($...ARGS);
+        $RESOURCE := DBMS_FILE_TRANSFER.GET_FILE($...ARGS);
+        $RESOURCE := DBMS_FILE_TRANSFER.PUT_FILE($...ARGS);
+        $RESOURCE := DBMS_SCHEDULER.GET_FILE($...ARGS);
+        $RESOURCE := DBMS_SCHEDULER.PUT_FILE($...ARGS);
+        $RESOURCE := DBMS_SCHEDULER.CREATE_PROGRAM($...ARGS);
+        $RESOURCE := DBMS_SERVICE.CREATE_SERVICE($...ARGS);
+        $RESOURCE := UTL_TCP.OPEN_CONNECTION($...ARGS);
+        $RESOURCE := UTL_SMTP.OPEN_CONNECTION($...ARGS);
+        $RESOURCE := WPG_DOCLOAD.DOWNLOAD_FILE($...ARGS);
     options:
       generic_ellipsis_max_span: 0
     message: Resource injection detected. This can lead to unauthorized access or manipulation of resources.
