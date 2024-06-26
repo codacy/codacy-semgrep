@@ -10,4 +10,6 @@
         <error source="codacy.generic.plsql.find-all-passwords" line="8" message="Hardcoded or exposed passwords are a security risk." severity="error" />
         <error source="codacy.generic.plsql.find-all-passwords" line="29" message="Hardcoded or exposed passwords are a security risk." severity="error" />
     </file>
+    <file name="test_resource_injection.pls">
+    </file>
 </checkstyle>
