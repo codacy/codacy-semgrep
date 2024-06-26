@@ -50,7 +50,7 @@ rules:
       - generic
     patterns:
       - pattern: $RESOURCE := DBMS_CUBE.BUILD($...ARGS);
-      - pattern: $RESOURCE := DBMS_FILE_TRANSFER.COPY_FILE($...ARGS);
+      - pattern: resource2 := DBMS_FILE_TRANSFER.COPY_FILE($...ARGS);
       - pattern: $RESOURCE := DBMS_FILE_TRANSFER.GET_FILE($...ARGS);
       - pattern: $RESOURCE := DBMS_FILE_TRANSFER.PUT_FILE($...ARGS);
       - pattern: $RESOURCE := DBMS_SCHEDULER.GET_FILE($...ARGS);
