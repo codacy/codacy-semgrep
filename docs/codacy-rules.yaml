@@ -48,8 +48,7 @@ rules:
     severity: ERROR
     languages:
       - generic
-    patterns:
-      - pattern: |
+    pattern: |
         $RESOURCE := DBMS_CUBE.BUILD($...ARGS);
         $RESOURCE := DBMS_FILE_TRANSFER.COPY_FILE($...ARGS);
         $RESOURCE := DBMS_FILE_TRANSFER.GET_FILE($...ARGS);
