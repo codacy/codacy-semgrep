@@ -49,17 +49,18 @@ rules:
     languages:
       - generic
     patterns:
-      - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_CUBE.BUILD($...ARGS);
-      - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_FILE_TRANSFER.COPY_FILE($...ARGS);
-      - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_FILE_TRANSFER.GET_FILE($...ARGS);
-      - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_FILE_TRANSFER.PUT_FILE($...ARGS);
-      - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_SCHEDULER.GET_FILE($...ARGS);
-      - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_SCHEDULER.PUT_FILE($...ARGS);
-      - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_SCHEDULER.CREATE_PROGRAM($...ARGS);
-      - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_SERVICE.CREATE_SERVICE($...ARGS);
-      - pattern: $RESOURCE VARCHAR2($LENGTH) := UTL_TCP.OPEN_CONNECTION($...ARGS);
-      - pattern: $RESOURCE VARCHAR2($LENGTH) := UTL_SMTP.OPEN_CONNECTION($...ARGS);
-      - pattern: $RESOURCE VARCHAR2($LENGTH) := WPG_DOCLOAD.DOWNLOAD_FILE($...ARGS);
+      - pattern-either:
+        - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_CUBE.BUILD($...ARGS);
+        - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_FILE_TRANSFER.COPY_FILE($...ARGS);
+        - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_FILE_TRANSFER.GET_FILE($...ARGS);
+        - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_FILE_TRANSFER.PUT_FILE($...ARGS);
+        - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_SCHEDULER.GET_FILE($...ARGS);
+        - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_SCHEDULER.PUT_FILE($...ARGS);
+        - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_SCHEDULER.CREATE_PROGRAM($...ARGS);
+        - pattern: $RESOURCE VARCHAR2($LENGTH) := DBMS_SERVICE.CREATE_SERVICE($...ARGS);
+        - pattern: $RESOURCE VARCHAR2($LENGTH) := UTL_TCP.OPEN_CONNECTION($...ARGS);
+        - pattern: $RESOURCE VARCHAR2($LENGTH) := UTL_SMTP.OPEN_CONNECTION($...ARGS);
+        - pattern: $RESOURCE VARCHAR2($LENGTH) := WPG_DOCLOAD.DOWNLOAD_FILE($...ARGS);
     options:
       generic_ellipsis_max_span: 0
     message: Resource injection detected. This can lead to unauthorized access or manipulation of resources.
