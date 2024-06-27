@@ -11,5 +11,16 @@
         <error source="codacy.generic.plsql.find-all-passwords" line="29" message="Hardcoded or exposed passwords are a security risk." severity="error" />
     </file>
     <file name="test_resource_injection.pls">
+        <error source="codacy.generic.plsql.resource-injection" line="16" message="Resource injection detected." severity="error" />
+        <error source="codacy.generic.plsql.resource-injection" line="17" message="Resource injection detected." severity="error" />
+        <error source="codacy.generic.plsql.resource-injection" line="18" message="Resource injection detected." severity="error" />
+        <error source="codacy.generic.plsql.resource-injection" line="19" message="Resource injection detected." severity="error" />
+        <error source="codacy.generic.plsql.resource-injection" line="20" message="Resource injection detected." severity="error" />
+        <error source="codacy.generic.plsql.resource-injection" line="21" message="Resource injection detected." severity="error" />
+        <error source="codacy.generic.plsql.resource-injection" line="22" message="Resource injection detected." severity="error" />
+        <error source="codacy.generic.plsql.resource-injection" line="23" message="Resource injection detected." severity="error" />
+        <error source="codacy.generic.plsql.resource-injection" line="24" message="Resource injection detected." severity="error" />
+        <error source="codacy.generic.plsql.resource-injection" line="25" message="Resource injection detected." severity="error" />
+        <error source="codacy.generic.plsql.resource-injection" line="26" message="Resource injection detected." severity="error" />
     </file>
 </checkstyle>
