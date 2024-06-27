@@ -3,4 +3,5 @@
     <module name="codacy.csharp.security.hard-coded-password" />
     <module name="codacy.generic.plsql.empty-strings"/>
     <module name="codacy.generic.plsql.find-all-passwords"/>
+    <module name="codacy.generic.plsql.resource-injection"/>
 </module>
