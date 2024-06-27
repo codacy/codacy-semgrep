@@ -48,17 +48,28 @@ rules:
     severity: ERROR
     languages:
       - generic
-    pattern: |
+    patterns:
+      - pattern: |
         $RESOURCE := DBMS_CUBE.BUILD($...ARGS);
+      - patterns: |
         $RESOURCE := DBMS_FILE_TRANSFER.COPY_FILE($...ARGS);
+      - patterns: |
         $RESOURCE := DBMS_FILE_TRANSFER.GET_FILE($...ARGS);
+      - patterns: |
         $RESOURCE := DBMS_FILE_TRANSFER.PUT_FILE($...ARGS);
+      - patterns: |
         $RESOURCE := DBMS_SCHEDULER.GET_FILE($...ARGS);
+      - patterns: |
         $RESOURCE := DBMS_SCHEDULER.PUT_FILE($...ARGS);
+      - patterns: |
         $RESOURCE := DBMS_SCHEDULER.CREATE_PROGRAM($...ARGS);
+      - patterns: |
         $RESOURCE := DBMS_SERVICE.CREATE_SERVICE($...ARGS);
+      - patterns: |
         $RESOURCE := UTL_TCP.OPEN_CONNECTION($...ARGS);
+      - patterns: |
         $RESOURCE := UTL_SMTP.OPEN_CONNECTION($...ARGS);
+      - patterns: |
         $RESOURCE := WPG_DOCLOAD.DOWNLOAD_FILE($...ARGS);
     options:
       generic_ellipsis_max_span: 0
