@@ -49,28 +49,33 @@ rules:
     languages:
       - generic
     patterns:
-      - pattern: |
-        $RESOURCE := DBMS_CUBE.BUILD($...ARGS);
-      - patterns: |
-        $RESOURCE := DBMS_FILE_TRANSFER.COPY_FILE($...ARGS);
-      - patterns: |
-        $RESOURCE := DBMS_FILE_TRANSFER.GET_FILE($...ARGS);
-      - patterns: |
-        $RESOURCE := DBMS_FILE_TRANSFER.PUT_FILE($...ARGS);
-      - patterns: |
-        $RESOURCE := DBMS_SCHEDULER.GET_FILE($...ARGS);
-      - patterns: |
-        $RESOURCE := DBMS_SCHEDULER.PUT_FILE($...ARGS);
-      - patterns: |
-        $RESOURCE := DBMS_SCHEDULER.CREATE_PROGRAM($...ARGS);
-      - patterns: |
-        $RESOURCE := DBMS_SERVICE.CREATE_SERVICE($...ARGS);
-      - patterns: |
-        $RESOURCE := UTL_TCP.OPEN_CONNECTION($...ARGS);
-      - patterns: |
-        $RESOURCE := UTL_SMTP.OPEN_CONNECTION($...ARGS);
-      - patterns: |
-        $RESOURCE := WPG_DOCLOAD.DOWNLOAD_FILE($...ARGS);
+      - pattern-either:
+          - pattern: |
+              $RESOURCE := DBMS_CUBE.BUILD($...ARGS);
+          - pattern: |
+              $RESOURCE := DBMS_FILE_TRANSFER.COPY_FILE($...ARGS);
+          - pattern: |
+              $RESOURCE := DBMS_FILE_TRANSFER.GET_FILE($...ARGS);
+          - pattern: |
+              $RESOURCE := DBMS_FILE_TRANSFER.PUT_FILE($...ARGS);
+          - pattern: |
+              $RESOURCE := DBMS_SCHEDULER.GET_FILE($...ARGS);
+          - pattern: |
+              $RESOURCE := DBMS_SCHEDULER.PUT_FILE($...ARGS);
+          - pattern: |
+              $RESOURCE := DBMS_SCHEDULER.CREATE_PROGRAM($...ARGS);
+          - pattern: |
+              $RESOURCE := DBMS_SERVICE.CREATE_SERVICE($...ARGS);
+          - pattern: |
+              $RESOURCE := UTL_TCP.OPEN_CONNECTION($...ARGS);
+          - pattern: |
+              $RESOURCE := UTL_SMTP.OPEN_CONNECTION($...ARGS);
+          - pattern: |
+              $RESOURCE := WPG_DOCLOAD.DOWNLOAD_FILE($...ARGS);
+      - metavariable-regex:
+          metavariable: "$RESOURCE"
+          regex: "(?i)DBMS_CUBE.BUILD|DBMS_FILE_TRANSFER.COPY_FILE|DBMS_FILE_TRANSFER.GET_FILE|DBMS_FILE_TRANSFER.PUT_FILE|DBMS_SCHEDULER.GET_FILE|DBMS_SCHEDULER.PUT_FILE|DBMS_SCHEDULER.CREATE_PROGRAM|DBMS_SERVICE.CREATE_SERVICE|UTL_TCP.OPEN_CONNECTION|UTL_SMTP.OPEN_CONNECTION|WPG_DOCLOAD.DOWNLOAD_FILE"
+
     options:
       generic_ellipsis_max_span: 0
     message: Resource injection detected. This can lead to unauthorized access or manipulation of resources.
