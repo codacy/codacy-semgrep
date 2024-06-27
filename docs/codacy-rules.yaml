@@ -72,10 +72,6 @@ rules:
               $RESOURCE := UTL_SMTP.OPEN_CONNECTION($...ARGS);
           - pattern: |
               $RESOURCE := WPG_DOCLOAD.DOWNLOAD_FILE($...ARGS);
-      - metavariable-regex:
-          metavariable: "$RESOURCE"
-          regex: "(?i)DBMS_CUBE.BUILD|DBMS_FILE_TRANSFER.COPY_FILE|DBMS_FILE_TRANSFER.GET_FILE|DBMS_FILE_TRANSFER.PUT_FILE|DBMS_SCHEDULER.GET_FILE|DBMS_SCHEDULER.PUT_FILE|DBMS_SCHEDULER.CREATE_PROGRAM|DBMS_SERVICE.CREATE_SERVICE|UTL_TCP.OPEN_CONNECTION|UTL_SMTP.OPEN_CONNECTION|WPG_DOCLOAD.DOWNLOAD_FILE"
-
     options:
       generic_ellipsis_max_span: 0
     message: Resource injection detected. This can lead to unauthorized access or manipulation of resources.
