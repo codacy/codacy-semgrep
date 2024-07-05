@@ -1,13 +1,29 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <checkstyle version="1.5">
-    <file name="exec.py">
-        <error source="python.lang.security.audit.exec-detected.exec-detected" line="2" message="Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content." severity="warning" />
-        <error source="python_exec_rule-exec-used" line="2" message="The application was found calling the `exec` function with a non-literal variable." severity="warning" />
-        <error source="python.lang.security.audit.exec-detected.exec-detected" line="6" message="Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content." severity="warning" />
-        <error source="python_exec_rule-exec-used" line="6" message="The application was found calling the `exec` function with a non-literal variable." severity="warning" />
-        <error source="python.lang.security.audit.exec-detected.exec-detected" line="10" message="Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content." severity="warning" />
-        <error source="python_exec_rule-exec-used" line="10" message="The application was found calling the `exec` function with a non-literal variable." severity="warning" />
-        <error source="python.lang.security.audit.exec-detected.exec-detected" line="12" message="Detected the use of exec(). exec() can be dangerous if used to evaluate dynamic content." severity="warning" />
-        <error source="python_exec_rule-exec-used" line="12" message="The application was found calling the `exec` function with a non-literal variable." severity="warning" />
+    <file name="bind.py">
+        <error source="python.lang.security.audit.network.bind.avoid-bind-to-all-interfaces"
+            line="4"
+            message="Running `socket.bind` to 0.0.0.0, or empty string could unexpectedly expose the server publicly as it binds to all available interfaces."
+            severity="info" />
+        <error source="python.lang.security.audit.network.bind.avoid-bind-to-all-interfaces"
+            line="4"
+            message="Running `socket.bind` to 0.0.0.0, or empty string could unexpectedly expose the server publicly as it binds to all available interfaces."
+            severity="info" />
+        <error source="python.lang.security.audit.network.bind.avoid-bind-to-all-interfaces"
+            line="4"
+            message="Running `socket.bind` to 0.0.0.0, or empty string could unexpectedly expose the server publicly as it binds to all available interfaces."
+            severity="info" />
+        <error source="python.lang.security.audit.network.bind.avoid-bind-to-all-interfaces"
+            line="8"
+            message="Running `socket.bind` to 0.0.0.0, or empty string could unexpectedly expose the server publicly as it binds to all available interfaces."
+            severity="info" />
+        <error source="python.lang.security.audit.network.bind.avoid-bind-to-all-interfaces"
+            line="8"
+            message="Running `socket.bind` to 0.0.0.0, or empty string could unexpectedly expose the server publicly as it binds to all available interfaces."
+            severity="info" />
+        <error source="python.lang.security.audit.network.bind.avoid-bind-to-all-interfaces"
+            line="12"
+            message="Running `socket.bind` to 0.0.0.0, or empty string could unexpectedly expose the server publicly as it binds to all available interfaces."
+            severity="info" />
     </file>
 </checkstyle>
