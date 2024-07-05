@@ -1,101 +1,257 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <checkstyle version="1.5">
+    <file name="apex/ApexSOQLInjectionUnescapedParam.cls">
+        <error
+            source="apex.lang.security.ncino.injection.apexsoqlinjectionunescapedparam.soql-injection-unescaped-param"
+            line="4"
+            message="If a dynamic query must be used,leverage nFORCE Query Builder."
+            severity="error" />
+        <error
+            source="apex.lang.security.ncino.injection.apexsoqlinjectionunescapedparam.soql-injection-unescaped-param"
+            line="10"
+            message="If a dynamic query must be used,leverage nFORCE Query Builder."
+            severity="error" />
+        <error
+            source="apex.lang.security.ncino.injection.apexsoqlinjectionunescapedparam.soql-injection-unescaped-param"
+            line="28"
+            message="If a dynamic query must be used,leverage nFORCE Query Builder."
+            severity="error" />
+        <error
+            source="apex.lang.security.ncino.injection.apexsoqlinjectionunescapedparam.soql-injection-unescaped-param"
+            line="34"
+            message="If a dynamic query must be used,leverage nFORCE Query Builder."
+            severity="error" />
+    </file>
     <file name="bash/curl-eval.bash">
-        <error source="bash.curl.security.curl-eval.curl-eval" line="5" message="Data is being eval'd from a `curl` command." severity="warning" />
-        <error source="bash.curl.security.curl-eval.curl-eval" line="10" message="Data is being eval'd from a `curl` command." severity="warning" />
-        <error source="bash.curl.security.curl-eval.curl-eval" line="16" message="Data is being eval'd from a `curl` command." severity="warning" />
-        <error source="bash.curl.security.curl-eval.curl-eval" line="19" message="Data is being eval'd from a `curl` command." severity="warning" />
+        <error source="bash.curl.security.curl-eval.curl-eval" line="5"
+            message="Data is being eval'd from a `curl` command." severity="warning" />
+        <error source="bash.curl.security.curl-eval.curl-eval" line="10"
+            message="Data is being eval'd from a `curl` command." severity="warning" />
+        <error source="bash.curl.security.curl-eval.curl-eval" line="16"
+            message="Data is being eval'd from a `curl` command." severity="warning" />
+        <error source="bash.curl.security.curl-eval.curl-eval" line="19"
+            message="Data is being eval'd from a `curl` command." severity="warning" />
     </file>
     <file name="c/double-free.c">
-        <error source="c.lang.security.double-free.double-free" line="7" message="Variable 'var' was freed twice." severity="error" />
+        <error source="c.lang.security.double-free.double-free" line="7"
+            message="Variable 'var' was freed twice." severity="error" />
     </file>
-        <file name="clojure/use-of-md5.clj">
-        <error source="clojure.lang.security.use-of-md5.use-of-md5" line="6" message="MD5 hash algorithm detected." severity="warning" />
+    <file name="clojure/use-of-md5.clj">
+        <error source="clojure.lang.security.use-of-md5.use-of-md5" line="6"
+            message="MD5 hash algorithm detected." severity="warning" />
     </file>
     <file name="cpp/insecure-use-gets-fn.cpp">
-        <error source="c.lang.security.insecure-use-gets-fn.insecure-use-gets-fn" line="8" message="Avoid 'gets()'. This function does not consider buffer boundaries and can lead to buffer overflows." severity="error" />
+        <error source="c.lang.security.insecure-use-gets-fn.insecure-use-gets-fn" line="8"
+            message="Avoid 'gets()'. This function does not consider buffer boundaries and can lead to buffer overflows."
+            severity="error" />
     </file>
     <file name="csharp/use_weak_rng_for_keygeneration.cs">
-        <error source="csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration" line="12" message="You are using an insecure random number generator (RNG) to create a cryptographic key." severity="error" />
-        <error source="csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration" line="20" message="You are using an insecure random number generator (RNG) to create a cryptographic key." severity="error" />
-        <error source="csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration" line="45" message="You are using an insecure random number generator (RNG) to create a cryptographic key." severity="error" />
-        <error source="csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration" line="61" message="You are using an insecure random number generator (RNG) to create a cryptographic key." severity="error" />
+        <error
+            source="csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration"
+            line="12"
+            message="You are using an insecure random number generator (RNG) to create a cryptographic key."
+            severity="error" />
+        <error
+            source="csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration"
+            line="20"
+            message="You are using an insecure random number generator (RNG) to create a cryptographic key."
+            severity="error" />
+        <error
+            source="csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration"
+            line="45"
+            message="You are using an insecure random number generator (RNG) to create a cryptographic key."
+            severity="error" />
+        <error
+            source="csharp.dotnet.security.use_weak_rng_for_keygeneration.use_weak_rng_for_keygeneration"
+            line="61"
+            message="You are using an insecure random number generator (RNG) to create a cryptographic key."
+            severity="error" />
     </file>
     <file name="dockerfile/missing-user.dockerfile">
-        <error source="dockerfile.security.missing-user.missing-user" line="10" message="By not specifying a USER, a program in the container may run as 'root'. This is a security hazard." severity="error" />
-        <error source="dockerfile.security.missing-user.missing-user" line="13" message="By not specifying a USER, a program in the container may run as 'root'. This is a security hazard." severity="error" />
+        <error source="dockerfile.security.missing-user.missing-user" line="10"
+            message="By not specifying a USER, a program in the container may run as 'root'. This is a security hazard."
+            severity="error" />
+        <error source="dockerfile.security.missing-user.missing-user" line="13"
+            message="By not specifying a USER, a program in the container may run as 'root'. This is a security hazard."
+            severity="error" />
+    </file>
+    <file name="elixir/enum_map_join.exs">
+        <error source="elixir.lang.best-practice.enum-map-join.enum_map_join" line="2"
+            message="Using `Enum.map_join/3` is more efficient than using `Enum.map/2 |> Enum.join/2`."
+            severity="warning" />
+        <error source="elixir.lang.best-practice.enum-map-join.enum_map_join" line="5"
+            message="Using `Enum.map_join/3` is more efficient than using `Enum.map/2 |> Enum.join/2`."
+            severity="warning" />
+        <error source="elixir.lang.best-practice.enum-map-join.enum_map_join" line="9"
+            message="Using `Enum.map_join/3` is more efficient than using `Enum.map/2 |> Enum.join/2`."
+            severity="warning" />
     </file>
     <file name="go/bad_tmp.go">
-        <error source="go.lang.security.bad_tmp.bad-tmp-file-creation" line="10" message="File creation in shared tmp directory without using ioutil.Tempfile" severity="warning" />
+        <error source="go.lang.security.bad_tmp.bad-tmp-file-creation" line="10"
+            message="File creation in shared tmp directory without using ioutil.Tempfile"
+            severity="warning" />
     </file>
     <file name="javascript/ajv-allerrors-true.js">
-        <error source="javascript.ajv.security.audit.ajv-allerrors-true.ajv-allerrors-true" line="7" message="By setting `allErrors: true` in `Ajv` library, all error objects will be allocated without limit." severity="warning" />
-        <error source="javascript.ajv.security.audit.ajv-allerrors-true.ajv-allerrors-true" line="13" message="By setting `allErrors: true` in `Ajv` library, all error objects will be allocated without limit." severity="warning" />
-        <error source="javascript.ajv.security.audit.ajv-allerrors-true.ajv-allerrors-true" line="20" message="By setting `allErrors: true` in `Ajv` library, all error objects will be allocated without limit." severity="warning" />
-        <error source="javascript.ajv.security.audit.ajv-allerrors-true.ajv-allerrors-true" line="26" message="By setting `allErrors: true` in `Ajv` library, all error objects will be allocated without limit." severity="warning" />
+        <error source="javascript.ajv.security.audit.ajv-allerrors-true.ajv-allerrors-true" line="7"
+            message="By setting `allErrors: true` in `Ajv` library, all error objects will be allocated without limit."
+            severity="warning" />
+        <error source="javascript.ajv.security.audit.ajv-allerrors-true.ajv-allerrors-true"
+            line="13"
+            message="By setting `allErrors: true` in `Ajv` library, all error objects will be allocated without limit."
+            severity="warning" />
+        <error source="javascript.ajv.security.audit.ajv-allerrors-true.ajv-allerrors-true"
+            line="20"
+            message="By setting `allErrors: true` in `Ajv` library, all error objects will be allocated without limit."
+            severity="warning" />
+        <error source="javascript.ajv.security.audit.ajv-allerrors-true.ajv-allerrors-true"
+            line="26"
+            message="By setting `allErrors: true` in `Ajv` library, all error objects will be allocated without limit."
+            severity="warning" />
     </file>
     <file name="javascript/set-state-no-op.jsx">
-        <error source="javascript.react.correctness.hooks.set-state-no-op.calling-set-state-on-current-state" line="18" message="Calling setState on the current state is always a no-op." severity="error" />
+        <error
+            source="javascript.react.correctness.hooks.set-state-no-op.calling-set-state-on-current-state"
+            line="18" message="Calling setState on the current state is always a no-op."
+            severity="error" />
     </file>
     <file name="json/public-s3-bucket.json">
-        <error source="json.aws.security.public-s3-bucket.public-s3-bucket" line="18" message="Detected public S3 bucket." severity="warning" />
+        <error source="json.aws.security.public-s3-bucket.public-s3-bucket" line="18"
+            message="Detected public S3 bucket." severity="warning" />
     </file>
     <file name="kotlin/weak-rsa.kt">
-        <error source="kotlin.lang.security.weak-rsa.use-of-weak-rsa-key" line="7" message="RSA keys should be at least 2048 bits based on NIST recommendation." severity="warning" />
+        <error source="kotlin.lang.security.weak-rsa.use-of-weak-rsa-key" line="7"
+            message="RSA keys should be at least 2048 bits based on NIST recommendation."
+            severity="warning" />
     </file>
     <file name="php/ftp-use.php">
-        <error source="php.lang.security.ftp-use.ftp-use" line="4" message="FTP allows for unencrypted file transfers." severity="error" />
-        <error source="php.lang.security.ftp-use.ftp-use" line="7" message="FTP allows for unencrypted file transfers." severity="error" />
+        <error source="php.lang.security.ftp-use.ftp-use" line="4"
+            message="FTP allows for unencrypted file transfers." severity="error" />
+        <error source="php.lang.security.ftp-use.ftp-use" line="7"
+            message="FTP allows for unencrypted file transfers." severity="error" />
     </file>
     <file name="python/jwt-none-alg.py">
-        <error source="python.jwt.security.jwt-none-alg.jwt-python-none-alg" line="5" message="Detected use of the 'none' algorithm in a JWT token." severity="error" />
-        <error source="python.jwt.security.jwt-none-alg.jwt-python-none-alg" line="10" message="Detected use of the 'none' algorithm in a JWT token." severity="error" />
+        <error source="python.jwt.security.jwt-none-alg.jwt-python-none-alg" line="5"
+            message="Detected use of the 'none' algorithm in a JWT token." severity="error" />
+        <error source="python.jwt.security.jwt-none-alg.jwt-python-none-alg" line="10"
+            message="Detected use of the 'none' algorithm in a JWT token." severity="error" />
     </file>
     <file name="ruby/no-send.rb">
-        <error source="ruby.lang.security.no-send.bad-send" line="3" message="Checks for unsafe use of Object#send, try, __send__, and public_send." severity="error" />
+        <error source="ruby.lang.security.no-send.bad-send" line="3"
+            message="Checks for unsafe use of Object#send, try, __send__, and public_send."
+            severity="error" />
     </file>
     <file name="rust/unsafe-usage.rs">
-        <error source="rust.lang.security.unsafe-usage.unsafe-usage" line="2" message="Detected 'unsafe' usage, please audit for secure usage" severity="info" />
+        <error source="rust.lang.security.unsafe-usage.unsafe-usage" line="2"
+            message="Detected 'unsafe' usage, please audit for secure usage" severity="info" />
     </file>
     <file name="scala/jwt-hardcode.scala">
-        <error source="scala.scala-jwt.security.jwt-hardcode.scala-jwt-hardcoded-secret" line="16" message="Hardcoded JWT secret or private key is used." severity="error" />
+        <error source="scala.scala-jwt.security.jwt-hardcode.scala-jwt-hardcoded-secret" line="16"
+            message="Hardcoded JWT secret or private key is used." severity="error" />
     </file>
     <file name="swift/insecure-random.swift">
-        <error source="swift.lang.crypto.insecure-random.insecure-random" line="5" message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure." severity="warning" />
-        <error source="swift.lang.crypto.insecure-random.insecure-random" line="7" message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure." severity="warning" />
-        <error source="swift.lang.crypto.insecure-random.insecure-random" line="9" message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure." severity="warning" />
-        <error source="swift.lang.crypto.insecure-random.insecure-random" line="12" message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure." severity="warning" />
-        <error source="swift.lang.crypto.insecure-random.insecure-random" line="16" message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure." severity="warning" />
-        <error source="swift.lang.crypto.insecure-random.insecure-random" line="19" message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure." severity="warning" />
-        <error source="swift.lang.crypto.insecure-random.insecure-random" line="22" message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure." severity="warning" />
-        <error source="swift.lang.crypto.insecure-random.insecure-random" line="26" message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure." severity="warning" />
-        <error source="swift.lang.crypto.insecure-random.insecure-random" line="29" message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure." severity="warning" />
-        <error source="swift.lang.crypto.insecure-random.insecure-random" line="31" message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure." severity="warning" />
-        <error source="swift.lang.crypto.insecure-random.insecure-random" line="33" message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure." severity="warning" />
-        <error source="swift.lang.crypto.insecure-random.insecure-random" line="36" message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure." severity="warning" />
-        <error source="swift.lang.crypto.insecure-random.insecure-random" line="42" message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure." severity="warning" />
+        <error source="swift.lang.crypto.insecure-random.insecure-random" line="5"
+            message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure."
+            severity="warning" />
+        <error source="swift.lang.crypto.insecure-random.insecure-random" line="7"
+            message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure."
+            severity="warning" />
+        <error source="swift.lang.crypto.insecure-random.insecure-random" line="9"
+            message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure."
+            severity="warning" />
+        <error source="swift.lang.crypto.insecure-random.insecure-random" line="12"
+            message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure."
+            severity="warning" />
+        <error source="swift.lang.crypto.insecure-random.insecure-random" line="16"
+            message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure."
+            severity="warning" />
+        <error source="swift.lang.crypto.insecure-random.insecure-random" line="19"
+            message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure."
+            severity="warning" />
+        <error source="swift.lang.crypto.insecure-random.insecure-random" line="22"
+            message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure."
+            severity="warning" />
+        <error source="swift.lang.crypto.insecure-random.insecure-random" line="26"
+            message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure."
+            severity="warning" />
+        <error source="swift.lang.crypto.insecure-random.insecure-random" line="29"
+            message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure."
+            severity="warning" />
+        <error source="swift.lang.crypto.insecure-random.insecure-random" line="31"
+            message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure."
+            severity="warning" />
+        <error source="swift.lang.crypto.insecure-random.insecure-random" line="33"
+            message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure."
+            severity="warning" />
+        <error source="swift.lang.crypto.insecure-random.insecure-random" line="36"
+            message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure."
+            severity="warning" />
+        <error source="swift.lang.crypto.insecure-random.insecure-random" line="42"
+            message="A random number generator was detected which is **not** *guaranteed* to be Cryptographically secure."
+            severity="warning" />
     </file>
     <file name="terraform/rds-public-access.tf">
-        <error source="terraform.lang.security.rds-public-access.rds-public-access" line="29" message="RDS instance accessible from the Internet detected." severity="warning" />
+        <error source="terraform.lang.security.rds-public-access.rds-public-access" line="29"
+            message="RDS instance accessible from the Internet detected." severity="warning" />
     </file>
     <file name="typescript/detect-child-process.ts">
-        <error source="javascript.lang.security.detect-child-process.detect-child-process" line="6" message="Detected calls to child_process from a function argument `args`. This could lead to a command injection if the input is user controllable." severity="error" />
-        <error source="javascript.lang.security.detect-child-process.detect-child-process" line="13" message="Detected calls to child_process from a function argument `userInput`. This could lead to a command injection if the input is user controllable." severity="error" />
+        <error source="javascript.lang.security.detect-child-process.detect-child-process" line="6"
+            message="Detected calls to child_process from a function argument `args`. This could lead to a command injection if the input is user controllable."
+            severity="error" />
+        <error source="javascript.lang.security.detect-child-process.detect-child-process" line="13"
+            message="Detected calls to child_process from a function argument `userInput`. This could lead to a command injection if the input is user controllable."
+            severity="error" />
     </file>
     <file name="unknown_extension/double-free.h">
-        <error source="c.lang.security.double-free.double-free" line="7" message="Variable 'var' was freed twice." severity="error" />
+        <error source="c.lang.security.double-free.double-free" line="7"
+            message="Variable 'var' was freed twice." severity="error" />
     </file>
     <file name="yaml/argo-workflow-parameter-command-injection.test.yaml">
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="19" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="30" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="40" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
-        <error source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection" line="50" message="Using input or workflow parameters in here-scripts can lead to command injection or code injection." severity="error" />
+        <error
+            source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection"
+            line="19"
+            message="Using input or workflow parameters in here-scripts can lead to command injection or code injection."
+            severity="error" />
+        <error
+            source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection"
+            line="30"
+            message="Using input or workflow parameters in here-scripts can lead to command injection or code injection."
+            severity="error" />
+        <error
+            source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection"
+            line="40"
+            message="Using input or workflow parameters in here-scripts can lead to command injection or code injection."
+            severity="error" />
+        <error
+            source="yaml.argo.security.argo-workflow-parameter-command-injection.argo-workflow-parameter-command-injection"
+            line="50"
+            message="Using input or workflow parameters in here-scripts can lead to command injection or code injection."
+            severity="error" />
     </file>
     <file name="yaml/third-party-action-not-pinned-to-commit-sha.test.yml">
-        <error source="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha" line="35" message="An action sourced from a third-party repository on GitHub is not pinned to a full length commit SHA. Pinning an action to a full length commit SHA is currently the only way to use an action as an immutable release." severity="warning" />
-        <error source="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha" line="40" message="An action sourced from a third-party repository on GitHub is not pinned to a full length commit SHA. Pinning an action to a full length commit SHA is currently the only way to use an action as an immutable release." severity="warning" />
-        <error source="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha" line="46" message="An action sourced from a third-party repository on GitHub is not pinned to a full length commit SHA. Pinning an action to a full length commit SHA is currently the only way to use an action as an immutable release." severity="warning" />
-        <error source="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha" line="52" message="An action sourced from a third-party repository on GitHub is not pinned to a full length commit SHA. Pinning an action to a full length commit SHA is currently the only way to use an action as an immutable release." severity="warning" />
-        <error source="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha" line="55" message="An action sourced from a third-party repository on GitHub is not pinned to a full length commit SHA. Pinning an action to a full length commit SHA is currently the only way to use an action as an immutable release." severity="warning" />
+        <error
+            source="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha"
+            line="35"
+            message="An action sourced from a third-party repository on GitHub is not pinned to a full length commit SHA. Pinning an action to a full length commit SHA is currently the only way to use an action as an immutable release."
+            severity="warning" />
+        <error
+            source="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha"
+            line="40"
+            message="An action sourced from a third-party repository on GitHub is not pinned to a full length commit SHA. Pinning an action to a full length commit SHA is currently the only way to use an action as an immutable release."
+            severity="warning" />
+        <error
+            source="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha"
+            line="46"
+            message="An action sourced from a third-party repository on GitHub is not pinned to a full length commit SHA. Pinning an action to a full length commit SHA is currently the only way to use an action as an immutable release."
+            severity="warning" />
+        <error
+            source="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha"
+            line="52"
+            message="An action sourced from a third-party repository on GitHub is not pinned to a full length commit SHA. Pinning an action to a full length commit SHA is currently the only way to use an action as an immutable release."
+            severity="warning" />
+        <error
+            source="yaml.github-actions.security.third-party-action-not-pinned-to-commit-sha.third-party-action-not-pinned-to-commit-sha"
+            line="55"
+            message="An action sourced from a third-party repository on GitHub is not pinned to a full length commit SHA. Pinning an action to a full length commit SHA is currently the only way to use an action as an immutable release."
+            severity="warning" />
     </file>
 </checkstyle>
