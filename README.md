@@ -21,17 +21,13 @@ docker run -it -v $srcDir:/src codacy-semgrep:latest
 
 ## Generate Docs
 
-1.  Update the version in `go.mod`
+1. Update the version in `.tool_version`
 
-2.  Install the dependencies:
-```bash
-go mod download
-go mod tidy
-```
+2. Get the latest commit for the `release` branch from the github.com/semgrep/semgrep-rules repo and update it in DocGenerator file `internal/docgen/parsing.go`.
 
 3.  Run the DocGenerator:
 ```bash
-go run ./cmd/docgen -docFolder /docs
+go run ./cmd/docgen
 ```
 
 ## Test
