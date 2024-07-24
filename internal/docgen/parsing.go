@@ -453,7 +453,6 @@ func toCodacyLanguages(r SemgrepRule) []string {
 		"dart":        "Dart",
 		"dockerfile":  "Dockerfile",
 		"elixir":      "Elixir",
-		"generic":     "Generic",
 		"go":          "Go",
 		"java":        "Java",
 		"javascript":  "Javascript",
