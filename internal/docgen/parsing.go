@@ -93,7 +93,7 @@ func semgrepRules(destinationDir string) ([]PatternWithExplanation, *ParsedSemgr
 func getSemgrepRegistryRules() (*ParsedSemgrepRules, error) {
 	return getRules(
 		"https://github.com/semgrep/semgrep-rules",
-		"1366b5ba8d7e733ea7f4b140087b78d6a7ef90a2",
+		"cd6cd52881500fb4f2ed8c0d31ed29abb4894a8a",
 		isValidSemgrepRegistryRuleFile,
 		prefixRuleIDWithPath)
 }
