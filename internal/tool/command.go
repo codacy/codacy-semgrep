@@ -89,8 +89,8 @@ func createCommandParameters(language string, configurationFile *os.File, filesT
 		"-fast",
 		// adding pro features
 		// "-deep_inter_file",
-		//"-deep_intra_file",
-		//"-secrets",
+		"-deep_intra_file",
+		"-secrets",
 	}
 	// adding files to analyse
 	cmdParams = append(

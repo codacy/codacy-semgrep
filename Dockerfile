@@ -30,7 +30,7 @@ FROM alpine:3.20 as compressor
 
 RUN apk add --no-cache upx
 
-COPY --from=semgrep-cli /usr/local/bin/semgrep-core-proprietary /usr/local/bin/semgrep-core
+COPY --from=semgrep-cli /usr/local/bin/semgrep-core /usr/local/bin/semgrep-core
 # Compression seems to add flaky segmentation faults for long running processes
 # RUN chmod 777 /usr/local/bin/semgrep-core && upx --lzma /usr/local/bin/semgrep-core
 
