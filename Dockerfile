@@ -1,4 +1,4 @@
-ARG TOOL_VERSION=1.81.0
+ARG TOOL_VERSION=1.79.0
 
 # Development image used to build the codacy-semgrep wrapper
 # Explicitly adding go.mod and go.sum avoids re-downloading dependencies on every build
@@ -30,7 +30,7 @@ FROM alpine:3.20 as compressor
 
 RUN apk add --no-cache upx
 
-COPY --from=semgrep-cli /usr/local/bin/semgrep-core /usr/local/bin/semgrep-core
+COPY --from=semgrep-cli /usr/local/bin/semgrep-core-proprietary /usr/local/bin/semgrep-core
 # Compression seems to add flaky segmentation faults for long running processes
 # RUN chmod 777 /usr/local/bin/semgrep-core && upx --lzma /usr/local/bin/semgrep-core
 
