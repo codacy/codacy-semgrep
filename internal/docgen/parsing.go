@@ -93,7 +93,7 @@ func semgrepRules(destinationDir string) ([]PatternWithExplanation, *ParsedSemgr
 func getSemgrepRegistryRules() (*ParsedSemgrepRules, error) {
 	return getRules(
 		"https://github.com/semgrep/semgrep-rules",
-		"1366b5ba8d7e733ea7f4b140087b78d6a7ef90a2",
+		"4ccd3b9cce2321a5fe3793868e4c2d4cfa5e9c43",
 		isValidSemgrepRegistryRuleFile,
 		prefixRuleIDWithPath)
 }
@@ -474,7 +474,6 @@ func toCodacyLanguages(r SemgrepRule) []string {
 		"typescript":  "TypeScript",
 		"visualforce": "VisualForce",
 		"yaml":        "YAML",
-		"generic":     "generic",
 	}
 
 	codacyLanguages := lo.Map(

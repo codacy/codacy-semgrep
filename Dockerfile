@@ -1,4 +1,4 @@
-ARG TOOL_VERSION=1.78.0
+ARG TOOL_VERSION=1.79.0
 
 # Development image used to build the codacy-semgrep wrapper
 # Explicitly adding go.mod and go.sum avoids re-downloading dependencies on every build
