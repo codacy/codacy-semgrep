@@ -174,7 +174,10 @@ func getMessage(patternDescriptions *[]codacy.PatternDescription, id string, ext
 func appendErrorToResult(result []codacy.Result, semgrepOutput SemgrepOutput) []codacy.Result {
 	for _, semgrepError := range semgrepOutput.Errors {
 		result = append(result, codacy.FileError{
-			Message: semgrepError.Message,
+			// We're just showing the first 50 chars of the message because
+			// Semgrep shows the whole file content sometimes and that can break
+			// the Logs view
+			Message: semgrepError.Message[1:50],
 			File:    semgrepError.Location.Path,
 		})
 	}
