@@ -173,11 +173,18 @@ func getMessage(patternDescriptions *[]codacy.PatternDescription, id string, ext
 
 func appendErrorToResult(result []codacy.Result, semgrepOutput SemgrepOutput) []codacy.Result {
 	for _, semgrepError := range semgrepOutput.Errors {
+		// Determine the slice length for the message
+		sizeMessage := 50
+		if sizeMessage > len(semgrepError.Message) {
+			sizeMessage = len(semgrepError.Message)
+		}
+
+		// Truncate or use the whole message based on its length
+		truncatedMessage := semgrepError.Message[:sizeMessage]
+
+		// Append the error to the result
 		result = append(result, codacy.FileError{
-			// We're just showing the first 50 chars of the message because
-			// Semgrep shows the whole file content sometimes and that can break
-			// the Logs view
-			Message: semgrepError.Message[1:50],
+			Message: truncatedMessage,
 			File:    semgrepError.Location.Path,
 		})
 	}
