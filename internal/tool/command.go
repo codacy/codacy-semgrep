@@ -80,17 +80,17 @@ func createCommandParameters(language string, configurationFile *os.File, filesT
 		// adding -rules parameter
 		"-rules", configurationFile.Name(),
 		// adding -timeout parameters
-		"--timeout", "5",
-		"--timeout_threshold", "3",
-		"--max_target_bytes", "0",
+		"-timeout", "5",
+		"-timeout_threshold", "3",
+		"-max_target_bytes", "0",
 		"-error_recovery",
-		"--max_memory", "2560",
+		"-max_memory", "2560",
 		"-j", strconv.Itoa(runtime.NumCPU()),
 		"-fast",
 		// adding pro features
 		// "-deep_inter_file",
 		"-deep_intra_file",
-		"--secrets",
+		"-secrets",
 	}
 	// adding files to analyse
 	cmdParams = append(
