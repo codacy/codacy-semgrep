@@ -73,13 +73,9 @@ func createCommand(configurationFile *os.File, sourceDir, language string, files
 
 func createCommandParameters(language string, configurationFile *os.File, filesToAnalyse []string) []string {
 	cmdParams := []string{
-		// adding -json parameters
 		"-json", "-json_nodots",
-		// adding -lang parameter
 		"-lang", language,
-		// adding -rules parameter
 		"-rules", configurationFile.Name(),
-		// adding -timeout parameters
 		"-timeout", "5",
 		"-timeout_threshold", "3",
 		"-max_target_bytes", "0",
@@ -173,13 +169,15 @@ func getMessage(patternDescriptions *[]codacy.PatternDescription, id string, ext
 
 func appendErrorToResult(result []codacy.Result, semgrepOutput SemgrepOutput) []codacy.Result {
 	for _, semgrepError := range semgrepOutput.Errors {
-		// Determine the slice length for the message
+		// Determine the size of the error message we're logging
 		sizeMessage := 50
+
+		//to avoid errors truncating messages with less than sizeMessage length
 		if sizeMessage > len(semgrepError.Message) {
 			sizeMessage = len(semgrepError.Message)
 		}
 
-		// Truncate or use the whole message based on its length
+		// The error message already with sizeMessage length
 		truncatedMessage := semgrepError.Message[:sizeMessage]
 
 		// Append the error to the result
