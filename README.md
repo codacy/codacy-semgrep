@@ -19,6 +19,7 @@ The docker is ran with the following command:
 docker run -it -v $srcDir:/src codacy-semgrep:latest
 ```
 
+
 ## Generate Docs
 
 1. Update the version in `.tool_version`

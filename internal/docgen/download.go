@@ -25,7 +25,7 @@ func downloadRepo(url string, commitUuid string) ([]SemgrepRuleFile, error) {
 
 	repo, err := git.PlainClone(tempFolder, false, &git.CloneOptions{
 		URL:   url,
-		Depth: 10, // The commit we are fetching the rules from must be within the last 10 commits
+		Depth: 500, // The commit we are fetching the rules from must be within the last 10 commits
 	})
 	if err != nil {
 		return nil, &DocGenError{msg: fmt.Sprintf("Failed to clone repository: %s", url), w: err}
