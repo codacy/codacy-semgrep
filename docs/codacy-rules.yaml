@@ -1,4 +1,24 @@
 rules:
+  - id: codacy.java.security.hard-coded-password
+    severity: ERROR
+    languages:
+      - java
+    patterns:
+        - pattern-either:
+          - pattern: String $PASSWORD = "$VALUE";
+        - metavariable-regex:
+            metavariable: "$PASSWORD"
+            regex: "(?i).*(password|motdepasse|heslo|adgangskode|wachtwoord|salasana|passwort|passord|senha|geslo|clave|losenord|clave|parola|secret|pwd).*"
+    message: Hardcoded passwords are a security risk. They can be easily found by attackers and used to gain unauthorized access to the system.
+    metadata:
+      owasp:
+        - A3:2017 Sensitive Data Exposure
+      description: Hardcoded passwords are a security risk.
+      category: security
+      technology:
+        - java
+      impact: HIGH
+      confidence: MEDIUM
   - id: codacy.csharp.security.hard-coded-password
     severity: ERROR
     languages:

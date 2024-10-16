@@ -25,7 +25,7 @@ func downloadRepo(url string, commitUuid string) ([]SemgrepRuleFile, error) {
 
 	repo, err := git.PlainClone(tempFolder, false, &git.CloneOptions{
 		URL:   url,
-		Depth: 10, // The commit we are fetching the rules from must be within the last 10 commits
+		Depth: 100000,
 	})
 	if err != nil {
 		return nil, &DocGenError{msg: fmt.Sprintf("Failed to clone repository: %s", url), w: err}
@@ -38,9 +38,13 @@ func downloadRepo(url string, commitUuid string) ([]SemgrepRuleFile, error) {
 	} else {
 		hash = plumbing.NewHash(commitUuid)
 	}
+
 	commit, _ := repo.CommitObject(hash)
 	tree, _ := commit.Tree()
-
+	w, _ := repo.Worktree()
+	w.Checkout(&git.CheckoutOptions{
+		Hash: plumbing.NewHash(commitUuid),
+	})
 	var files []SemgrepRuleFile
 	tree.Files().ForEach(func(f *object.File) error {
 		files = append(files, SemgrepRuleFile{
@@ -49,7 +53,6 @@ func downloadRepo(url string, commitUuid string) ([]SemgrepRuleFile, error) {
 		})
 		return nil
 	})
-
 	return files, nil
 }
 

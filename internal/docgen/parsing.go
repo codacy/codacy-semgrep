@@ -153,6 +153,7 @@ func getRules(location string, commit string, validate FilenameValidator, genera
 
 	var errorWithinMap error
 	rules := lo.FlatMap(rulesFiles, func(file SemgrepRuleFile, _ int) []SemgrepRule {
+		fmt.Printf("Reading YAML file: %s\n", file.AbsolutePath)
 		rs, err := readRulesFromYaml(file.AbsolutePath)
 		if err != nil {
 			errorWithinMap = err
@@ -235,6 +236,7 @@ func getSemgrepRegistryDefaultRules() (SemgrepRules, error) {
 
 func readRulesFromYaml(yamlFile string) ([]SemgrepRule, error) {
 	buf, err := os.ReadFile(yamlFile)
+
 	if err != nil {
 		return nil, &DocGenError{msg: fmt.Sprintf("Failed to read file: %s", yamlFile), w: err}
 	}

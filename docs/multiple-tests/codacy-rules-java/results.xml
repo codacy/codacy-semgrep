@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<checkstyle version="1.5">
+    <file name="Program.java">
+        <error source="codacy.java.security.hard-coded-password" line="7" message="Hardcoded passwords are a security risk." severity="error" />
+    </file>
+</checkstyle>
