@@ -46,9 +46,9 @@ rules:
       - typescript
     patterns:
         - pattern-either:
-          - pattern: var $PASSWORD = "$VALUE"
-          - pattern: var $PASSWORD = '$VALUE'
-          - pattern: var $PASSWORD = `$VALUE`
+          - pattern: let $PASSWORD = $VALUE
+          - pattern: const $PASSWORD = $VALUE
+          - pattern: var $PASSWORD = $VALUE
         - metavariable-regex:
             metavariable: "$PASSWORD"
             regex: "(?i).*(password|motdepasse|heslo|adgangskode|wachtwoord|salasana|passwort|passord|senha|geslo|clave|losenord|clave|parola|secret|pwd).*"
@@ -59,7 +59,7 @@ rules:
       description: Hardcoded passwords are a security risk.
       category: security
       technology:
-        - .net
+        - javascript
       impact: HIGH
       confidence: MEDIUM
   - id: codacy.generic.plsql.empty-strings

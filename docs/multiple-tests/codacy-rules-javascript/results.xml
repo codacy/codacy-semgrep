@@ -2,5 +2,7 @@
 <checkstyle version="1.5">
     <file name="index.js">
         <error source="codacy.javascript.security.hard-coded-password" line="3" message="Hardcoded passwords are a security risk." severity="error" />
+        <error source="codacy.javascript.security.hard-coded-password" line="4" message="Hardcoded passwords are a security risk." severity="error" />
+        <error source="codacy.javascript.security.hard-coded-password" line="5" message="Hardcoded passwords are a security risk." severity="error" />
     </file>
 </checkstyle>
