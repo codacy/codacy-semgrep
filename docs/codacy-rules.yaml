@@ -39,6 +39,29 @@ rules:
         - .net
       impact: HIGH
       confidence: MEDIUM
+  - id: codacy.javascript.security.hard-coded-password
+    severity: ERROR
+    languages:
+      - javascript
+      - typescript
+    patterns:
+        - pattern-either:
+          - pattern: var $PASSWORD = "$VALUE"
+          - pattern: var $PASSWORD = '$VALUE'
+          - pattern: var $PASSWORD = `$VALUE`
+        - metavariable-regex:
+            metavariable: "$PASSWORD"
+            regex: "(?i).*(password|motdepasse|heslo|adgangskode|wachtwoord|salasana|passwort|passord|senha|geslo|clave|losenord|clave|parola|secret|pwd).*"
+    message: Hardcoded passwords are a security risk. They can be easily found by attackers and used to gain unauthorized access to the system.
+    metadata:
+      owasp:
+        - A3:2017 Sensitive Data Exposure
+      description: Hardcoded passwords are a security risk.
+      category: security
+      technology:
+        - .net
+      impact: HIGH
+      confidence: MEDIUM
   - id: codacy.generic.plsql.empty-strings
     severity: WARNING
     languages:
