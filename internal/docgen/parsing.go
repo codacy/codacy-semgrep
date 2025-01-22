@@ -514,7 +514,7 @@ func toCodacyLanguages(r SemgrepRule) []string {
 			}
 		}
 		if len(codacyLanguages) == 0 {
-			panic(fmt.Sprintf("lack of supported languages: %s %s", r.Languages, r.ID))
+			fmt.Printf("lack of supported languages: %s %s", r.Languages, r.ID)
 		}
 	}
 
