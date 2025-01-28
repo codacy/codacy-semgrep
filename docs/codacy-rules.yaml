@@ -46,9 +46,15 @@ rules:
       - typescript
     patterns:
         - pattern-either:
-          - pattern: let $PASSWORD = $VALUE
-          - pattern: const $PASSWORD = $VALUE
-          - pattern: var $PASSWORD = $VALUE
+          - pattern: let $PASSWORD = "$VALUE"
+          - pattern: const $PASSWORD = "$VALUE"
+          - pattern: var $PASSWORD = "$VALUE"
+          - pattern: let $PASSWORD = '$VALUE'
+          - pattern: const $PASSWORD = '$VALUE'
+          - pattern: var $PASSWORD = '$VALUE'
+          - pattern: let $PASSWORD = `$VALUE`
+          - pattern: const $PASSWORD = `$VALUE`
+          - pattern: var $PASSWORD = `$VALUE`
         - metavariable-regex:
             metavariable: "$PASSWORD"
             regex: "(?i).*(password|motdepasse|heslo|adgangskode|wachtwoord|salasana|passwort|passord|senha|geslo|clave|losenord|clave|parola|secret|pwd).*"
