@@ -134,3 +134,22 @@ rules:
       category: security
       impact: HIGH
       confidence: MEDIUM
+  - id: codacy.generic.sql.grant-all
+    severity: ERROR
+    languages:
+      - generic
+    pattern: |
+          GRANT ALL $X
+    paths:
+      include:
+        - '*.sql'
+    message: >
+      GRANT ALL privileges should not be used as it gives excessive permissions that violate the principle of least privilege.
+      Instead, grant only the specific privileges that are required.
+    metadata:
+      owasp:
+        - A5:2017 Broken Access Control
+      description: Detects use of GRANT ALL which gives excessive database privileges
+      category: security
+      impact: HIGH
+      confidence: HIGH
