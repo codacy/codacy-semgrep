@@ -152,7 +152,7 @@ rules:
       description: Detects use of GRANT ALL which gives excessive database privileges
       category: security
       impact: HIGH
-      confidence: HIGH
+      confidence: LOW
   - id: codacy.generic.sql.grant-select-no-role
     severity: ERROR
     languages:
@@ -174,7 +174,7 @@ rules:
       description: Detects GRANT SELECT statements that are not targeting role-based accounts
       category: security
       impact: MEDIUM
-      confidence: HIGH
+      confidence: LOW
   - id: codacy.generic.sql.fnd-profile-in-query
     severity: ERROR
     languages:
@@ -200,4 +200,4 @@ rules:
       description: Detects direct usage of FND_PROFILE functions in SQL queries instead of using variables
       category: performance
       impact: MEDIUM
-      confidence: HIGH
+      confidence: LOW
