@@ -164,6 +164,7 @@ var extensionToLanguageMap = map[string]string{
 	".tsx":        "typescript",
 	".dockerfile": "dockerfile",
 	"Dockerfile":  "dockerfile",
+	".sql":        "generic",
 	".pls":        "generic",
 	".trg":        "generic",
 	".prc":        "generic",
