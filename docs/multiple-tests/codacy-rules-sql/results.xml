@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<checkstyle version="1.5">
+    <file name="script.sql">
+        <error source="codacy.generic.sql.grant-all" line="1" message="GRANT ALL privileges should not be used as it gives excessive permissions that violate the principle of least privilege." severity="error" />
+        <error source="codacy.generic.sql.grant-all" line="7" message="GRANT ALL privileges should not be used as it gives excessive permissions that violate the principle of least privilege." severity="error" />
+    </file>
+</checkstyle>

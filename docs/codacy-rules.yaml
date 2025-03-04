@@ -134,3 +134,70 @@ rules:
       category: security
       impact: HIGH
       confidence: MEDIUM
+  - id: codacy.generic.sql.grant-all
+    severity: ERROR
+    languages:
+      - generic
+    pattern: |
+          GRANT ALL $X
+    paths:
+      include:
+        - '*.sql'
+    message: >
+      GRANT ALL privileges should not be used as it gives excessive permissions that violate the principle of least privilege.
+      Instead, grant only the specific privileges that are required.
+    metadata:
+      owasp:
+        - A5:2017 Broken Access Control
+      description: Detects use of GRANT ALL which gives excessive database privileges
+      category: security
+      impact: HIGH
+      confidence: HIGH
+  - id: codacy.generic.sql.grant-select-no-role
+    severity: ERROR
+    languages:
+      - generic
+    pattern: |
+      GRANT SELECT $X TO $Y
+    patterns_not:
+      - pattern: |
+          GRANT SELECT $X TO $Y_role
+    paths:
+      include:
+        - '*.sql'
+    message: >
+      GRANT SELECT privileges should only be given to role-based accounts (ending in '_role').
+      Direct grants to users or non-role accounts violate security best practices.
+    metadata:
+      owasp:
+        - A5:2017 Broken Access Control
+      description: Detects GRANT SELECT statements that are not targeting role-based accounts
+      category: security
+      impact: MEDIUM
+      confidence: HIGH
+  - id: codacy.generic.sql.fnd-profile-in-query
+    severity: ERROR
+    languages:
+      - generic
+    patterns:
+      - pattern-either:
+        - pattern: |
+            SELECT ... FND_PROFILE.$F(...) ...
+        - pattern: |
+            SELECT ... FROM ... WHERE ... FND_PROFILE.$F(...) ...
+        - pattern: |
+            SELECT ... FROM ... WHERE ... = FND_PROFILE.$F(...)
+        - pattern: |
+            SELECT ... FROM ... WHERE ... IN (... FND_PROFILE.$F(...) ...)
+    paths:
+      include:
+        - '*.sql'
+    message: >
+      FND_PROFILE functions should not be used directly in SELECT or WHERE clauses.
+      Instead, assign the FND_PROFILE function value to a variable first and then use that variable in the query.
+      This improves performance and maintainability.
+    metadata:
+      description: Detects direct usage of FND_PROFILE functions in SQL queries instead of using variables
+      category: performance
+      impact: MEDIUM
+      confidence: HIGH

@@ -153,7 +153,6 @@ func getRules(location string, commit string, validate FilenameValidator, genera
 
 	var errorWithinMap error
 	rules := lo.FlatMap(rulesFiles, func(file SemgrepRuleFile, _ int) []SemgrepRule {
-		fmt.Printf("Reading YAML file: %s\n", file.AbsolutePath)
 		rs, err := readRulesFromYaml(file.AbsolutePath)
 		if err != nil {
 			errorWithinMap = err
@@ -497,6 +496,9 @@ func toCodacyLanguages(r SemgrepRule) []string {
 
 		if strings.HasPrefix(r.ID, "codacy.generic.plsql") {
 			return []string{"PLSQL"}
+		}
+		if strings.HasPrefix(r.ID, "codacy.generic.sql") {
+			return []string{"SQL"}
 		}
 		// Secret detection rules are compatible with all languages
 		if strings.HasPrefix(r.ID, "generic.secrets") {
