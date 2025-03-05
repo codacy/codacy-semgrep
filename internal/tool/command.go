@@ -170,7 +170,7 @@ func getMessage(patternDescriptions *[]codacy.PatternDescription, id string, ext
 func appendErrorToResult(result []codacy.Result, semgrepOutput SemgrepOutput) []codacy.Result {
 	for _, semgrepError := range semgrepOutput.Errors {
 		// Determine the size of the error message we're logging
-		sizeMessage := 50
+		sizeMessage := 250
 
 		//to avoid errors truncating messages with less than sizeMessage length
 		if sizeMessage > len(semgrepError.Message) {
