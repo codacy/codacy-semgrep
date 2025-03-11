@@ -201,3 +201,20 @@ rules:
       category: performance
       impact: MEDIUM
       confidence: LOW
+  - id: codacy.java.security.flexible-search-sql-injection
+    languages: 
+      - java
+    severity: ERROR
+    message: "Possible SQL Injection: Avoid concatenating user input in FlexibleSearchQuery."
+    patterns:
+      - pattern-either:
+        - pattern: |
+            new FlexibleSearchQuery("SELECT " + ...)
+        - pattern: |
+            new FlexibleSearchQuery("..." + $VAR + "...")
+      - pattern-not: |
+          new FlexibleSearchQuery("SELECT ... ?param")
+    metadata:
+      category: security
+      technology: [sap-commerce, hybris]
+      confidence: LOW
