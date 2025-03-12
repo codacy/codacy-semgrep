@@ -218,3 +218,33 @@ rules:
       category: security
       technology: [sap-commerce, hybris]
       confidence: LOW
+  - id: codacy.csharp.security.null-dereference
+    languages:
+      - csharp
+    severity: ERROR
+    message: >
+      Potential null dereference detected. The parameter or variable could be
+      null and should be validated before accessing its members. Add a null
+      check before dereferencing the object to prevent NullReferenceException at
+      runtime.
+    patterns:
+      - pattern-inside: |
+          $RETURNTYPE $METHOD(...,$TYPE $NULLABLE, ...) { ... }
+      - pattern-not-inside: |
+          if ($NULLABLE == null) { ... }
+          ...
+      - pattern-either:
+          - pattern: |
+              $NULLABLE.$MEMBER
+          - pattern: |
+              $FUNCTION_NAME($NULLABLE, ...);
+      - pattern-not: |
+          if ($NULLABLE == null) { return ... }
+          ...
+    metadata:
+      category: security
+      technology:
+        - csharp
+        - dotnet
+      confidence: LOW
+

@@ -4,4 +4,5 @@
     <module name="codacy.generic.plsql.empty-strings"/>
     <module name="codacy.generic.plsql.find-all-passwords"/>
     <module name="codacy.generic.plsql.resource-injection"/>
+    <module name="codacy.csharp.security.null-dereference"/>
 </module>
