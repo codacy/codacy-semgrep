@@ -26,7 +26,7 @@
         <error source="codacy.generic.plsql.resource-injection" line="25" message="Resource injection detected." severity="error" />
         <error source="codacy.generic.plsql.resource-injection" line="26" message="Resource injection detected." severity="error" />
     </file>
-        <file name="codacy.generic.security.detect-invisible-unicode.yaml">
+    <file name="codacy.generic.security.detect-invisible-unicode.yaml">
         <error source="codacy.generic.security.detect-invisible-unicode" line="2" message="Potentially invisible Unicode character detected: $MATCH. These may be used for obfuscation." severity="warning" />
     </file>
 </checkstyle>

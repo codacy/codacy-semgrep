@@ -252,9 +252,7 @@ rules:
       - generic 
     severity: WARNING
     message: "Potentially invisible Unicode character detected: $MATCH. These may be used for obfuscation."
-    patterns:
-        - pattern-either:
-          - pattern: /[\u200B-\u200D\u2060\uFEFF\u202A-\u202E]/
+    pattern-regex: "[\u200B-\u200D\u2060\uFEFF\u202A-\u202E]"
     paths:
       include:
         - "*.json"
