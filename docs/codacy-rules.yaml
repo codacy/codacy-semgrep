@@ -252,7 +252,7 @@ rules:
       - yaml
       - json 
     severity: WARNING
-    message: "Potentially invisible Unicode character detected: $MATCH. These may be used for obfuscation."
+    message: "Detected a potentially invisible Unicode character, which may be used for obfuscation."
     pattern-regex: "[\u200B\u200C\u200D\u2060\uFEFF]"
     paths:
       include:
@@ -266,7 +266,5 @@ rules:
         - AI
         - Copilot
         - Cursor
-      references:
-        - "https://www.pillar.security/blog/new-vulnerability-in-github-copilot-and-cursor-how-hackers-can-weaponize-code-agents"
       confidence: MEDIUM
 
