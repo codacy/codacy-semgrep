@@ -1,0 +1,3 @@
+example:
+  text: "Hello​World"  # Contains a Zero-Width Space (U+200B)
+  description: "This string contains an invisible character (U+200B)."

@@ -5,4 +5,5 @@
     <module name="codacy.generic.plsql.find-all-passwords"/>
     <module name="codacy.generic.plsql.resource-injection"/>
     <module name="codacy.csharp.security.null-dereference"/>
+    <module name="codacy.generic.security.detect-invisible-unicode"/>
 </module>

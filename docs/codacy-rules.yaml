@@ -247,4 +247,27 @@ rules:
         - csharp
         - dotnet
       confidence: LOW
+  - id: codacy.generic.security.detect-invisible-unicode
+    languages:
+      - generic 
+    severity: WARNING
+    message: "Potentially invisible Unicode character detected: $MATCH. These may be used for obfuscation."
+    patterns:
+        - pattern-either:
+          - pattern: /[\u200B-\u200D\u2060\uFEFF\u202A-\u202E]/
+    paths:
+      include:
+        - "*.json"
+        - "*.yaml"
+        - "*.yml"
+    metadata:
+      description: Detects the invisible unicode characters
+      category: security
+      technology:
+        - AI
+        - Copilot
+        - Cursor
+      references:
+        - "https://www.pillar.security/blog/new-vulnerability-in-github-copilot-and-cursor-how-hackers-can-weaponize-code-agents"
+      confidence: MEDIUM
 
