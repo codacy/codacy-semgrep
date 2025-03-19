@@ -154,24 +154,22 @@ rules:
       impact: HIGH
       confidence: LOW
   - id: codacy.generic.sql.grant-select-no-role
-    severity: ERROR
     languages:
       - generic
-    pattern: |
-      GRANT SELECT $X TO $Y
-    patterns_not:
-      - pattern: |
-          GRANT SELECT $X TO $Y_role
+    severity: ERROR
+    message: >
+      GRANT SELECT privileges should only be given to role-based accounts
+      (ending in '_role'). Direct grants to users or non-role accounts violate
+      security best practices.
+    pattern-regex: GRANT\s+(DELETE|INSERT|SELECT|UPDATE)(\s*,\s*(DELETE|INSERT|SELECT|UPDATE))*\s+ON\s+[a-zA-Z0-9_]+(\.[a-zA-Z0-9_*]+)?\s+TO\s+(?![a-zA-Z0-9_]*_role\b)[a-zA-Z0-9_]+
     paths:
       include:
-        - '*.sql'
-    message: >
-      GRANT SELECT privileges should only be given to role-based accounts (ending in '_role').
-      Direct grants to users or non-role accounts violate security best practices.
+        - "*.sql"
     metadata:
       owasp:
         - A5:2017 Broken Access Control
-      description: Detects GRANT SELECT statements that are not targeting role-based accounts
+      description: Detects GRANT SELECT statements that are not targeting role-based
+        accounts
       category: security
       impact: MEDIUM
       confidence: LOW
