@@ -252,7 +252,7 @@ rules:
       - yaml
       - json 
     severity: WARNING
-    message: It's possible to embed malicious secret instructions to AI rules files using unicode characters that are invisible to human reviewers. This can lead to future AI-generated code that has security vulnerabilities or other weaknesses baked in which may not be noticed.
+    message: It's possible to embed malicious secret instructions to AI rules files using unicode characters that are invisible to human reviewers.This can lead to future AI-generated code that has security vulnerabilities or other weaknesses baked in which may not be noticed.
     pattern-regex: "[\u200B\u200C\u200D\u2060\uFEFF]"
     paths:
       include:
