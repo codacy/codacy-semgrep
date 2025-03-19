@@ -27,6 +27,6 @@
         <error source="codacy.generic.plsql.resource-injection" line="26" message="Resource injection detected." severity="error" />
     </file>
     <file name="codacy.generic.security.detect-invisible-unicode.yaml">
-        <error source="codacy.generic.security.detect-invisible-unicode" line="2" message="Detected a potentially invisible Unicode character, which may be used for obfuscation." severity="warning" />
+        <error source="codacy.generic.security.detect-invisible-unicode" line="2" message="It's possible to embed malicious secret instructions to AI rules files using unicode characters that are invisible to human reviewers. This can lead to future AI-generated code that has security vulnerabilities or other weaknesses baked in which may not be noticed." severity="warning" />
     </file>
 </checkstyle>
