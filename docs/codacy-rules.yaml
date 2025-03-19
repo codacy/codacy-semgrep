@@ -179,14 +179,9 @@ rules:
       - generic
     patterns:
       - pattern-either:
-        - pattern: |
-            SELECT ... FND_PROFILE.$F(...) ...
-        - pattern: |
-            SELECT ... FROM ... WHERE ... FND_PROFILE.$F(...) ...
-        - pattern: |
-            SELECT ... FROM ... WHERE ... = FND_PROFILE.$F(...)
-        - pattern: |
-            SELECT ... FROM ... WHERE ... IN (... FND_PROFILE.$F(...) ...)
+        - pattern-regex: (?i)SELECT\s+.*\bFND_PROFILE\.[a-zA-Z0-9_]+\(
+        - pattern-regex: (?i)SELECT\s+.*\bFROM\b.*\bWHERE\b.*\bFND_PROFILE\.[a-zA-Z0-9_]+\(
+
     paths:
       include:
         - '*.sql'

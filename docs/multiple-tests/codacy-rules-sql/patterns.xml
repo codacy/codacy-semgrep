@@ -2,4 +2,5 @@
 <module name="root">
     <module name="codacy.generic.sql.grant-all" />
     <module name="codacy.generic.sql.grant-select-no-role" />
+    <module name="codacy.generic.sql.fnd-profile-in-query" />
 </module>
