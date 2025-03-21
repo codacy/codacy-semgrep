@@ -30,7 +30,7 @@
         <error source="codacy.generic.security.detect-invisible-unicode" line="2" message="It's possible to embed malicious secret instructions to AI rules files using unicode characters that are invisible to human reviewers.This can lead to future AI-generated code that has security vulnerabilities or other weaknesses baked in which may not be noticed." severity="warning" />
     </file>
     <file name="codacy.csharp-camelcase-methods.cs">
-        <error source="codacy.csharp-camelcase-methods" line="4" message="Method names should be in CamelCase." severity="info" />
-        <error source="codacy.csharp-camelcase-variables" line="7" message="Method names should be in CamelCase." severity="info" />
+        <error source="codacy.generic.csharp-camelcase-methods" line="4" message="Method names should be in CamelCase." severity="info" />
+        <error source="codacy.generic.csharp-camelcase-variables" line="7" message="Method names should be in CamelCase." severity="info" />
     </file>
 </checkstyle>
