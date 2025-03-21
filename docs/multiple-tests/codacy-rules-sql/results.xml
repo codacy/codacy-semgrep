@@ -3,5 +3,8 @@
     <file name="script.sql">
         <error source="codacy.generic.sql.grant-all" line="1" message="GRANT ALL privileges should not be used as it gives excessive permissions that violate the principle of least privilege." severity="error" />
         <error source="codacy.generic.sql.grant-all" line="7" message="GRANT ALL privileges should not be used as it gives excessive permissions that violate the principle of least privilege." severity="error" />
+        <error source="codacy.generic.sql.grant-select-no-role" line="12" message="GRANT SELECT privileges should only be given to role-based accounts (ending in '_role'). Direct grants to users or non-role accounts violate security best practices." severity="error" />
+        <error source="codacy.generic.sql.grant-select-no-role" line="14" message="GRANT SELECT privileges should only be given to role-based accounts (ending in '_role'). Direct grants to users or non-role accounts violate security best practices." severity="error" />
+        <error source="codacy.generic.sql.fnd-profile-in-query" line="19" message ="FND_PROFILE functions should not be used directly in SELECT or WHERE clauses."  severity="error" />
     </file>
 </checkstyle>
