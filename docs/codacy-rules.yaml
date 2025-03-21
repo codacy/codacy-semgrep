@@ -267,4 +267,39 @@ rules:
         - Copilot
         - Cursor
       confidence: MEDIUM
-
+  - id: codacy.csharp-camelcase-variables
+    languages:
+      - csharp
+    message: "Variable names should be in CamelCase."
+    severity: WARNING
+    patterns:
+      - pattern-regex: '\b[a-z]+[a-zA-Z0-9]*\b'
+      - pattern-not-regex: '\b[a-z][a-zA-Z0-9]*\b'  # This allows camelCase variables
+    paths:
+      include:
+        - "*.cs"
+    metadata:
+      description: Variable names should be in CamelCase
+      category: codestyle
+      technology:
+        - .net
+      impact: LOW
+      confidence: LOW
+  - id: codacy.csharp-camelcase-methods
+    languages:
+      - csharp
+    message: "Method names should be in CamelCase."
+    severity: WARNING
+    patterns:
+      - pattern-regex: '\b[a-z]+[a-zA-Z0-9]*\s*\('
+      - pattern-not-regex: '\b[a-z][a-zA-Z0-9]*\s*\('
+    paths:
+      include:
+        - "*.cs"
+    metadata:
+      description: Method names should be in CamelCase.
+      category: codestyle
+      technology:
+        - .net
+      impact: LOW
+      confidence: LOW
