@@ -270,8 +270,8 @@ rules:
   - id: codacy.csharp-camelcase-variables
     languages:
       - csharp
+    severity: INFO
     message: "Variable names should be in CamelCase."
-    severity: WARNING
     patterns:
       - pattern-regex: '\b[a-z]+[a-zA-Z0-9]*\b'
       - pattern-not-regex: '\b[a-z][a-zA-Z0-9]*\b'  # This allows camelCase variables
@@ -288,8 +288,8 @@ rules:
   - id: codacy.csharp-camelcase-methods
     languages:
       - csharp
+    severity: INFO
     message: "Method names should be in CamelCase."
-    severity: WARNING
     patterns:
       - pattern-regex: '\b[a-z]+[a-zA-Z0-9]*\s*\('
       - pattern-not-regex: '\b[a-z][a-zA-Z0-9]*\s*\('
@@ -303,3 +303,4 @@ rules:
         - .net
       impact: LOW
       confidence: LOW
+
