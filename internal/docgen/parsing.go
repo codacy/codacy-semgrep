@@ -331,6 +331,8 @@ func toCodacyCategory(r SemgrepRule) Category {
 	case "best-practice",
 		"maintainability":
 		return BestPractice
+	case "codestyle":
+		return CodeStyle
 	case "":
 		if len(r.Metadata.CWEs) > 0 {
 			return Security

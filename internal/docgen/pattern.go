@@ -8,6 +8,7 @@ const (
 	Compatibility Category = "Compatibility"
 	ErrorProne    Category = "ErrorProne"
 	BestPractice  Category = "BestPractice"
+	CodeStyle     Category = "CodeStyle"
 )
 
 type Level string
