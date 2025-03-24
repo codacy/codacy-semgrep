@@ -3,5 +3,9 @@
     <file name="codacy.csharp-camelcase-methods.cs">
         <error source="codacy.generic.csharp-camelcase-methods" line="3" message="Method names should be in CamelCase." severity="info" />
         <error source="codacy.generic.csharp-camelcase-variables" line="5" message="Method names should be in CamelCase." severity="info" />
+        <error source="codacy.generic.csharp-camelcase-variables" line="6" message="Method names should be in CamelCase." severity="info" />
+        <error source="codacy.generic.csharp-camelcase-variables" line="7" message="Method names should be in CamelCase." severity="info" />
+        <error source="codacy.generic.csharp-camelcase-variables" line="8" message="Method names should be in CamelCase." severity="info" />
+        <error source="codacy.generic.csharp-camelcase-variables" line="9" message="Method names should be in CamelCase." severity="info" />
     </file>
 </checkstyle>
