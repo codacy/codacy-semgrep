@@ -266,7 +266,7 @@ rules:
     severity: INFO
     message: "Variable names should be in CamelCase."
     patterns:
-      - pattern-regex: \b(?:const\s+|var\s+|[A-Za-z_][A-Za-z0-9_<>,\[\]]+\s+)[a-z][a-zA-Z0-9]*\b
+      - pattern-regex: (?<!//\s*)(?<!/\*.*)(?:const\s+|var\s+|[A-Za-z_][A-Za-z0-9_<>,\[\]]+\s+)[a-z][a-zA-Z0-9]*\b
     paths:
       include:
         - "*.cs"
@@ -283,7 +283,7 @@ rules:
     severity: INFO
     message: "Method names should be in CamelCase."
     patterns:
-      - pattern-regex: \b[a-z][a-zA-Z0-9]*\s*\(.*\)\s*(?:{|=>)
+      - pattern-regex: (?<!//\s*)(?<!/\*.*)\b[a-z][a-zA-Z0-9]*\s*\([^)]*\)\s*(?:{|=>)
     paths:
       include:
         - "*.cs"
