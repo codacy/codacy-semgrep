@@ -266,7 +266,7 @@ rules:
     severity: INFO
     message: "Variable names should be in CamelCase."
     patterns:
-      - pattern-regex: (?:int|const|string|long|float|char|double|bool|var)\s([A-Z0-9]|[a-z][a-z0-9]*\b)
+      - pattern-regex: /(?:int|const|string|long|float|char|double|bool|var)\s([A-Z0-9]|[a-z][a-z0-9]*\b)/g
     paths:
       include:
         - "*.cs"
