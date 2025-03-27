@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8" ?>
-<checkstyle version="1.5">
-    <file name="codacy.csharp-camelcase.cs">
-        <error source="codacy.generic.csharp-camelcase-variables" line="5" message="Variable names should be in CamelCase." severity="info" />
-        <error source="codacy.generic.csharp-camelcase-variables" line="6" message="Variable names should be in CamelCase." severity="info" />
-    </file>
-</checkstyle>

@@ -4,7 +4,7 @@ ARG TOOL_VERSION=1.78.0
 # Explicitly adding go.mod and go.sum avoids re-downloading dependencies on every build
 # Go builds static binaries by default, -ldflags="-s -w" strips debug information and reduces the binary size
 
-FROM golang:1.22-alpine3.20 as builder
+FROM golang:1.23-alpine3.21 as builder
 
 WORKDIR /src
 
@@ -26,7 +26,7 @@ FROM semgrep/semgrep:$TOOL_VERSION as semgrep-cli
 
 # Compress binaries for smaller image size
 
-FROM alpine:3.20 as compressor
+FROM alpine:3.21 as compressor
 
 RUN apk add --no-cache upx
 
@@ -40,7 +40,7 @@ RUN upx --lzma /src/bin/codacy-semgrep
 # Final published image for the codacy-semgrep wrapper
 # Tries to be as small as possible with only the Go static binary, the docs and the semgrep binary
 
-FROM alpine:3.20
+FROM alpine:3.21
 
 RUN adduser -u 2004 -D docker
 

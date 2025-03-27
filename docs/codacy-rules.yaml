@@ -260,18 +260,17 @@ rules:
         - Copilot
         - Cursor
       confidence: MEDIUM
-  - id: codacy.generic.csharp-camelcase-variables
+  - id: codacy.generic.csharp-lowercase-variables
     languages:
       - csharp
     severity: INFO
-    message: "Variable names should be in CamelCase."
-    patterns:
-      - pattern-regex: (?:int|string|long|float|char|double|bool|var)\s([A-Z0-9]|[a-z][a-z0-9]*\b)
+    message: "Variable names should be lowercase"
+    pattern-regex: (?:int|string|long|float|char|double|bool|var)\s([A-Z0-9])
     paths:
       include:
         - "*.cs"
     metadata:
-      description: Variable names should be in CamelCase
+      description: Variable names should be lowercase
       category: codestyle
       technology:
         - .net
