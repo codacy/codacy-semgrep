@@ -265,8 +265,7 @@ rules:
       - csharp
     severity: INFO
     message: "Variable names should be lowercase"
-    patterns:
-      - pattern-regex: (?:int|string|long|float|char|double|bool|var)\s([A-Z0-9]*\b)
+    pattern-regex: (?:int|string|long|float|char|double|bool|var)\s([A-Z0-9]*\b)
     paths:
       include:
         - "*.cs"
