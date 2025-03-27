@@ -6,4 +6,5 @@
     <module name="codacy.generic.plsql.resource-injection"/>
     <module name="codacy.csharp.security.null-dereference"/>
     <module name="codacy.generic.security.detect-invisible-unicode"/>
+    <module name="codacy.generic.csharp-lowercase-variables"/>
 </module>
