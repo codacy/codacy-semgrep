@@ -4,6 +4,6 @@ class myClass
     {
         int MyVariable = 10;
         bool anothervariable = true;
-        int minLimit = 10 //this shouldn't be flagged
+        int minLimit = 10; //this shouldn't be flagged
     }
 }
