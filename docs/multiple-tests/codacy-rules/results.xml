@@ -30,7 +30,6 @@
         <error source="codacy.generic.security.detect-invisible-unicode" line="2" message="It's possible to embed malicious secret instructions to AI rules files using unicode characters that are invisible to human reviewers.This can lead to future AI-generated code that has security vulnerabilities or other weaknesses baked in which may not be noticed." severity="warning" />
     </file>
     <file name="codacy.csharp-lowercase.cs">
-        <error source="codacy.generic.csharp-lowercase-variables" line="5" message="Variable names should be in CamelCase." severity="info" />
-        <error source="codacy.generic.csharp-lowercase-variables" line="6" message="Variable names should be in CamelCase." severity="info" />
+        <error source="codacy.generic.csharp-lowercase-variables" line="5" message="Variable names should be lowercase" severity="info" />
     </file>
 </checkstyle>
