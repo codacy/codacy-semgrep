@@ -289,7 +289,7 @@ rules:
       include:
         - '*.sql'
     message: >
-      Hardcoded Language, Currency, or Org_Id values detected in SQL. Avoid hardcoding such values; use parameters or configuration instead.
+      Hardcoded Language, Currency, or Org_Id values detected in SQL.Avoid hardcoding such values; use parameters or configuration instead.
     metadata:
       description: Detects hardcoded Language (e.g. ='US'), Currency (e.g. := 'USD'), or Org_Id (e.g. .org_id := '*ANY_NUMBER*') in SQL files.
       category: performance
@@ -307,7 +307,7 @@ rules:
       include:
         - '*.sql'
     message: >
-      Usage of 'lookup_type' without a language clause or reference to 'apps.fnd_lookup_values' detected. These patterns must be reviewed for localization and security risks.
+      Usage of 'lookup_type' without a language clause or reference to 'apps.fnd_lookup_values' detected.These patterns must be reviewed for localization and security risks.
     metadata:
       description: >
         Flags usage of 'lookup_type' when no 'language = ...' clause is present, and flags any use of 'apps.fnd_lookup_values'.
@@ -324,7 +324,7 @@ rules:
       include:
         - '*.sql'
     message: >
-      Detected use of *_ALL* table without an org_id clause. These queries must include an org_id condition to ensure data partitioning.
+      Detected use of *_ALL* table without an org_id clause.These queries must include an org_id condition to ensure data partitioning.
     metadata:
       description: >
         Flags any SQL query selecting from *_ALL* tables without checking for an org_id condition like org_id = ... or org_id := ...
