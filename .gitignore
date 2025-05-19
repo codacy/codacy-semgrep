@@ -23,3 +23,5 @@ docs/semgrep-pro-rules.yaml
 .DS_Store
 .codacyrc
 auto.yaml
+.codacy
+.cursor

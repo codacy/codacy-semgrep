@@ -276,4 +276,58 @@ rules:
         - .net
       impact: LOW
       confidence: LOW
-
+  - id: codacy.generic.sql.hardcoded-language-currency-orgid
+    severity: ERROR
+    languages:
+      - generic
+    patterns:
+      - pattern-either:
+          - pattern-regex: "=\\s*'[A-Z]{2}'"            # Language code (e.g., 'US', 'FR')
+          - pattern-regex: ":=\\s*'[A-Z]{3}'"           # Currency code (e.g., 'USD', 'EUR')
+          - pattern-regex: "\\.org_id\\s*:=\\s*'\\d+'"  # Org ID
+    paths:
+      include:
+        - '*.sql'
+    message: >
+      Hardcoded Language, Currency, or Org_Id values detected in SQL.Avoid hardcoding such values; use parameters or configuration instead.
+    metadata:
+      description: Detects hardcoded Language (e.g. ='US'), Currency (e.g. := 'USD'), or Org_Id (e.g. .org_id := '*ANY_NUMBER*') in SQL files.
+      category: performance
+      impact: MEDIUM
+      confidence: LOW
+  - id: codacy.generic.sql.lookup-type-without-language-or-apps-fnd
+    severity: ERROR
+    languages:
+      - generic
+    patterns:
+      - pattern-either:
+          - pattern-regex: "(?i)lookup_type(?![^;]{0,200}language\\s*=)"  # a) lookup_type without language clause
+          - pattern-regex: "apps\\.fnd_lookup_values"                     # b) always flag
+    paths:
+      include:
+        - '*.sql'
+    message: >
+      Usage of 'lookup_type' without a language clause or reference to 'apps.fnd_lookup_values' detected.These patterns must be reviewed for localization and security risks.
+    metadata:
+      description: >
+        Flags usage of 'lookup_type' when no 'language = ...' clause is present, and flags any use of 'apps.fnd_lookup_values'.
+      category: performance
+      impact: MEDIUM
+      confidence: LOW
+  - id: codacy.generic.sql.from-all-without-orgid
+    severity: ERROR
+    languages:
+      - generic
+    patterns:
+      - pattern-regex: "(?i)from\\s+[a-z0-9_]*_all[a-z0-9_]*[^;]{0,300}(?!org_id\\s*(=|:=))"
+    paths:
+      include:
+        - '*.sql'
+    message: >
+      Detected use of *_ALL* table without an org_id clause.These queries must include an org_id condition to ensure data partitioning.
+    metadata:
+      description: >
+        Flags any SQL query selecting from *_ALL* tables without checking for an org_id condition like org_id = ... or org_id := ...
+      category: performance
+      impact: MEDIUM
+      confidence: LOW
