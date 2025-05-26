@@ -332,7 +332,7 @@ rules:
       impact: MEDIUM
       confidence: LOW
   - id: codacy.generic.sql.rac-table-access
-    severity: error
+    severity: ERROR
     languages:
       - generic
     patterns:
