@@ -331,3 +331,20 @@ rules:
       category: performance
       impact: MEDIUM
       confidence: LOW
+  - id: codacy.generic.sql.rac-table-access
+    severity: error
+    languages:
+      - generic
+    patterns:
+      - pattern-regex: '\b(SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM)\b[^\n;]*\bRAC_\w*\b'
+    paths:
+      include:
+        - '*.sql'
+    message: >
+      Do not access RAC_* tables using SELECT, INSERT, UPDATE, or DELETE.
+    metadata:
+      description: >
+        Disallow direct access to tables starting with RAC_ via SELECT, INSERT, UPDATE, or DELETE.
+      category: performance
+      impact: MEDIUM
+      confidence: LOW
