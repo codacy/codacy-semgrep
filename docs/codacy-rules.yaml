@@ -282,19 +282,25 @@ rules:
       - generic
     patterns:
       - pattern-either:
-          - pattern-regex: "=\\s*'[A-Z]{2}'"            # Language code (e.g., 'US', 'FR')
-          - pattern-regex: ":=\\s*'[A-Z]{3}'"           # Currency code (e.g., 'USD', 'EUR')
-          - pattern-regex: "\\.org_id\\s*:=\\s*'\\d+'"  # Org ID
+        # Hardcoded language values like language = 'US'
+        - pattern-regex: "(?i)\\b\\w*language\\w*\\b\\s*(=|:=)\\s*'?\\b[A-Z]{2}\\b'?"
+
+        # Hardcoded currency values like currency := 'USD'
+        - pattern-regex: "(?i)\\b\\w*currency\\w*\\b\\s*(=|:=)\\s*'?\\b[A-Z]{3}\\b'?"
+
+        # Hardcoded org_id with any operator
+        - pattern-regex: "(?i)\\b(\\w*\\.)?org_id\\b\\s*(=|:=|IN|!=|<>)\\s*(\\(?\\s*'?\\d+'?(,\\s*'?\\d+'?)*\\s*\\)?)?"
     paths:
-      include:
-        - '*.sql'
+    include:
+      - '*.sql'
     message: >
-      Hardcoded Language, Currency, or Org_Id values detected in SQL.Avoid hardcoding such values; use parameters or configuration instead.
+      Hardcoded Language, Currency, or Org_Id values detected in SQL. Avoid hardcoding such values; use parameters or configuration instead.
     metadata:
-      description: Detects hardcoded Language (e.g. ='US'), Currency (e.g. := 'USD'), or Org_Id (e.g. .org_id := '*ANY_NUMBER*') in SQL files.
-      category: performance
-      impact: MEDIUM
-      confidence: LOW
+      description: >
+        Detects hardcoded values for fields containing 'language', 'currency', or 'org_id' in SQL queries. These should be parameterized or retrieved from configuration.
+    category: performance
+    impact: MEDIUM
+    confidence: LOW
   - id: codacy.generic.sql.lookup-type-without-language-or-apps-fnd
     severity: ERROR
     languages:
@@ -319,7 +325,8 @@ rules:
     languages:
       - generic
     patterns:
-      - pattern-regex: "(?i)from\\s+[a-z0-9_]*_all[a-z0-9_]*[^;]{0,300}(?!org_id\\s*(=|:=))"
+      - pattern-regex: "(?i)from\\s+[a-z0-9_]*_all[a-z0-9_]*"
+      - not-pattern-regex: "(?i)org_id\\s*(=|:=)"
     paths:
       include:
         - '*.sql'
@@ -336,7 +343,7 @@ rules:
     languages:
       - generic
     patterns:
-      - pattern-regex: '\b(SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM)\b[^\n;]*\bRAC_\w*\b'
+      - pattern-regex: '(?i)\b(SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM)\b[^\n;]*\bRAC_\w*\b'
     paths:
       include:
         - '*.sql'

@@ -25,3 +25,7 @@ docs/semgrep-pro-rules.yaml
 auto.yaml
 .codacy
 .cursor
+
+
+#Ignore vscode AI rules
+.github/copilot-instructions.md
