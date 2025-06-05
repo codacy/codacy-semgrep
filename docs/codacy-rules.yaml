@@ -282,16 +282,17 @@ rules:
       - generic
     patterns:
       - pattern-either:
-          - pattern-regex: "=\\s*'[A-Z]{2}'"            # Language code (e.g., 'US', 'FR')
-          - pattern-regex: ":=\\s*'[A-Z]{3}'"           # Currency code (e.g., 'USD', 'EUR')
-          - pattern-regex: "\\.org_id\\s*:=\\s*'\\d+'"  # Org ID
+        - pattern-regex: "(?i)\\b\\w*language\\w*\\b\\s*(=|:=)\\s*'?\\b[A-Z]{2}\\b'?"
+        - pattern-regex: "(?i)\\b\\w*currency\\w*\\b\\s*(=|:=)\\s*'?\\b[A-Z]{3}\\b'?"
+        - pattern-regex: "(?i)\\b(\\w*\\.)?org_id\\b\\s*(=|:=|IN|!=|<>)\\s*(\\(?\\s*'?\\d+'?(,\\s*'?\\d+'?)*\\s*\\)?)?"
     paths:
       include:
-        - '*.sql'
+        - "*.sql"
     message: >
       Hardcoded Language, Currency, or Org_Id values detected in SQL.Avoid hardcoding such values; use parameters or configuration instead.
     metadata:
-      description: Detects hardcoded Language (e.g. ='US'), Currency (e.g. := 'USD'), or Org_Id (e.g. .org_id := '*ANY_NUMBER*') in SQL files.
+      description: >
+        Detects hardcoded values for fields containing 'language', 'currency', or 'org_id' in SQL queries. These should be parameterized or retrieved from configuration.
       category: performance
       impact: MEDIUM
       confidence: LOW
@@ -301,11 +302,11 @@ rules:
       - generic
     patterns:
       - pattern-either:
-          - pattern-regex: "(?i)lookup_type(?![^;]{0,200}language\\s*=)"  # a) lookup_type without language clause
-          - pattern-regex: "apps\\.fnd_lookup_values"                     # b) always flag
+          - pattern-regex: "(?i)lookup_type(?![^;]{0,200}language\\s*=)"  
+          - pattern-regex: "apps\\.fnd_lookup_values"                     
     paths:
       include:
-        - '*.sql'
+        - "*.sql"
     message: >
       Usage of 'lookup_type' without a language clause or reference to 'apps.fnd_lookup_values' detected.These patterns must be reviewed for localization and security risks.
     metadata:
@@ -322,7 +323,7 @@ rules:
       - pattern-regex: "(?i)from\\s+[a-z0-9_]*_all[a-z0-9_]*[^;]{0,300}(?!org_id\\s*(=|:=))"
     paths:
       include:
-        - '*.sql'
+        - "*.sql"
     message: >
       Detected use of *_ALL* table without an org_id clause.These queries must include an org_id condition to ensure data partitioning.
     metadata:
@@ -336,10 +337,10 @@ rules:
     languages:
       - generic
     patterns:
-      - pattern-regex: '\b(SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM)\b[^\n;]*\bRAC_\w*\b'
+      - pattern-regex: '(?i)\b(SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM)\b[^\n;]*\bRAC_\w*\b'
     paths:
       include:
-        - '*.sql'
+        - "*.sql"
     message: >
       Do not access RAC_* tables using SELECT, INSERT, UPDATE, or DELETE.
     metadata:
