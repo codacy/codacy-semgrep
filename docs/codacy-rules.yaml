@@ -320,7 +320,7 @@ rules:
     languages:
       - generic
     patterns:
-      - pattern-regex: "(?i)from\\s+[a-z0-9_]*_all[a-z0-9_]*[^;]{0,300}(?!org_id\\s*(=|:=))"
+      - pattern-regex: "(?i)from\\s+[a-z0-9_]*_all[a-z0-9_]*(?![^;]{0,300}\\b[a-z0-9_]*org_id\\b\\s*(=|:=))"
     paths:
       include:
         - "*.sql"
