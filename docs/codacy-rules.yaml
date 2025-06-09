@@ -337,15 +337,16 @@ rules:
     languages:
       - generic
     patterns:
-      - pattern-regex: '(?i)\b(SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM)\b[^\n;]*\bRAC_\w*\b'
+      - pattern-regex: '(?i)\b(SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM)\b(?![^\n;]*\bRAC_\w*\b)[^\n;]*'
     paths:
       include:
         - "*.sql"
     message: >
-      Do not access RAC_* tables using SELECT, INSERT, UPDATE, or DELETE.
+      All queries must target RAC_* tables.Query does not reference RAC_* table.
     metadata:
       description: >
-        Disallow direct access to tables starting with RAC_ via SELECT, INSERT, UPDATE, or DELETE.
+        Enforce that all SELECT, INSERT, UPDATE, and DELETE queries must be performed only on RAC_* tables.
       category: performance
       impact: MEDIUM
       confidence: LOW
+
