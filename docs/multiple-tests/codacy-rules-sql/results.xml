@@ -12,9 +12,15 @@
         <error source="codacy.generic.sql.lookup-type-without-language-or-apps-fnd" line="25" message ="Usage of 'lookup_type' without a language clause or reference to 'apps.fnd_lookup_values' detected.These patterns must be reviewed for localization and security risks."  severity="error" />
         <error source="codacy.generic.sql.lookup-type-without-language-or-apps-fnd" line="26" message ="Usage of 'lookup_type' without a language clause or reference to 'apps.fnd_lookup_values' detected.These patterns must be reviewed for localization and security risks."  severity="error" />
         <error source="codacy.generic.sql.from-all-without-orgid" line="28" message ="Detected use of *_ALL* table without an org_id clause.These queries must include an org_id condition to ensure data partitioning."  severity="error" />
-        <error source="codacy.generic.sql.rac-table-access" line="30" message ="Do not access RAC_* tables using SELECT, INSERT, UPDATE, or DELETE."  severity="error" />
-        <error source="codacy.generic.sql.rac-table-access" line="31" message ="Do not access RAC_* tables using SELECT, INSERT, UPDATE, or DELETE."  severity="error" />
-        <error source="codacy.generic.sql.rac-table-access" line="32" message ="Do not access RAC_* tables using SELECT, INSERT, UPDATE, or DELETE."  severity="error" />
-        <error source="codacy.generic.sql.rac-table-access" line="33" message ="Do not access RAC_* tables using SELECT, INSERT, UPDATE, or DELETE."  severity="error" />
+        <error source="codacy.generic.sql.rac-table-access" line="12" message ="All queries must target RAC_* tables.Query does not reference RAC_* table."  severity="error" />
+        <error source="codacy.generic.sql.rac-table-access" line="14" message ="All queries must target RAC_* tables.Query does not reference RAC_* table."  severity="error" />
+        <error source="codacy.generic.sql.rac-table-access" line="16" message ="All queries must target RAC_* tables.Query does not reference RAC_* table."  severity="error" />
+        <error source="codacy.generic.sql.rac-table-access" line="19" message ="All queries must target RAC_* tables.Query does not reference RAC_* table."  severity="error" />
+        <error source="codacy.generic.sql.rac-table-access" line="21" message ="All queries must target RAC_* tables.Query does not reference RAC_* table."  severity="error" />
+        <error source="codacy.generic.sql.rac-table-access" line="22" message ="All queries must target RAC_* tables.Query does not reference RAC_* table."  severity="error" />
+        <error source="codacy.generic.sql.rac-table-access" line="23" message ="All queries must target RAC_* tables.Query does not reference RAC_* table."  severity="error" />
+        <error source="codacy.generic.sql.rac-table-access" line="25" message ="All queries must target RAC_* tables.Query does not reference RAC_* table."  severity="error" />
+        <error source="codacy.generic.sql.rac-table-access" line="26" message ="All queries must target RAC_* tables.Query does not reference RAC_* table."  severity="error" />
+        <error source="codacy.generic.sql.rac-table-access" line="28" message ="All queries must target RAC_* tables.Query does not reference RAC_* table."  severity="error" />
     </file>
 </checkstyle>

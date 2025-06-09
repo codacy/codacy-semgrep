@@ -26,8 +26,4 @@ SELECT * FROM something WHERE lookup_type = 'ABC';
 SELECT * FROM apps.fnd_lookup_values;
 
 SELECT * FROM ap_all_invoices WHERE invoice_date > SYSDATE - 30;
-
-SELECT * FROM RAC_test;
-INSERT INTO RAC_tests (column1, column2) VALUES (value1, value2);
-DELETE FROM RAC_test WHERE column1="value1";
-UPDATE RAC_test SET column1 = value1, column2 = value2, WHERE column1="value1";
+SELECT * FROM RAC_tests
