@@ -11,7 +11,6 @@
         <error source="codacy.generic.plsql.find-all-passwords" line="6" message="Hardcoded or exposed passwords are a security risk." severity="error" />
         <error source="codacy.generic.plsql.find-all-passwords" line="7" message="Hardcoded or exposed passwords are a security risk." severity="error" />
         <error source="codacy.generic.plsql.find-all-passwords" line="8" message="Hardcoded or exposed passwords are a security risk." severity="error" />
-        <error source="codacy.generic.plsql.find-all-passwords" line="29" message="Hardcoded or exposed passwords are a security risk." severity="error" />
     </file>
     <file name="test_resource_injection.pls">
         <error source="codacy.generic.plsql.resource-injection" line="16" message="Resource injection detected." severity="error" />
