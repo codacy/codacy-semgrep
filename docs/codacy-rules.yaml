@@ -83,8 +83,12 @@ rules:
     severity: ERROR
     languages:
       - generic
-    pattern: |
-      $PASSWORD VARCHAR2($LENGTH) := $...VALUE;
+    patterns:
+      - pattern: |
+          $PASSWORD VARCHAR2($LENGTH) := $...VALUE;
+      - metavariable-regex:
+          metavariable: "$PASSWORD"
+          regex: "(?i).*(password|motdepasse|heslo|adgangskode|wachtwoord|salasana|passwort|passord|senha|geslo|clave|losenord|clave|parola|secret|pwd).*"
     options:
       generic_ellipsis_max_span: 0
     message: >
