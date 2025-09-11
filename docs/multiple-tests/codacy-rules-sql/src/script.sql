@@ -27,3 +27,5 @@ SELECT * FROM apps.fnd_lookup_values;
 
 SELECT * FROM ap_all_invoices WHERE invoice_date > SYSDATE - 30;
 SELECT * FROM RAC_tests
+
+SELECT * FROM employees WHERE ROWNUM <= 10;

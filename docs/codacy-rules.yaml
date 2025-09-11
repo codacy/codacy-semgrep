@@ -353,4 +353,21 @@ rules:
       category: performance
       impact: MEDIUM
       confidence: LOW
+  - id: codacy.generic.sql.rownum
+    severity: ERROR
+    languages:
+      - generic
+    patterns:
+      - pattern-regex: (?i)\bROWNUM\b
+    paths:
+      include:
+        - "*.sql"
+    message: >
+      The file contains ROWNUM usage which must be reviewed for performance and correctness.
+    metadata:
+      description: >
+        The file contains ROWNUM usage which must be reviewed for performance and correctness.
+      category: security
+      impact: MEDIUM
+      confidence: LOW
 

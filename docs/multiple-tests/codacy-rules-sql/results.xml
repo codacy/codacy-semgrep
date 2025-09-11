@@ -22,5 +22,7 @@
         <error source="codacy.generic.sql.rac-table-access" line="25" message ="All queries must target RAC_* tables.Query does not reference RAC_* table."  severity="error" />
         <error source="codacy.generic.sql.rac-table-access" line="26" message ="All queries must target RAC_* tables.Query does not reference RAC_* table."  severity="error" />
         <error source="codacy.generic.sql.rac-table-access" line="28" message ="All queries must target RAC_* tables.Query does not reference RAC_* table."  severity="error" />
+        <error source="codacy.generic.sql.rownum" line="31" message ="The file contains ROWNUM usage which must be reviewed for performance and correctness."  severity="error" />
+        <error source="codacy.generic.sql.rac-table-access" line="31" message ="All queries must target RAC_* tables.Query does not reference RAC_* table."  severity="error" />
     </file>
 </checkstyle>

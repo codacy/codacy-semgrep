@@ -6,5 +6,6 @@
     <module name="codacy.generic.sql.from-all-without-orgid" />
     <module name="codacy.generic.sql.lookup-type-without-language-or-apps-fnd" />
     <module name="codacy.generic.sql.hardcoded-language-currency-orgid" />
-    <module name="codacy.generic.sql.rac-table-access" /> 
+    <module name="codacy.generic.sql.rac-table-access" />
+    <module name="codacy.generic.sql.rownum" />
 </module>
