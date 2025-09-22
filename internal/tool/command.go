@@ -130,7 +130,7 @@ func parseCommandOutput(patternDescriptions *[]codacy.PatternDescription, comman
 
 		// Process the data
 		result = appendIssueToResult(result, patternDescriptions, semgrepOutput)
-		result = appendErrorToResult(result, semgrepOutput)
+		//result = appendErrorToResult(result, semgrepOutput)
 	}
 
 	return result, nil
