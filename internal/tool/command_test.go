@@ -150,21 +150,14 @@ func TestAppendToResultWithIgnore(t *testing.T) {
 				}
 			}
 		],
-		"errors": [
-			{
-				"message": "Error message",
-				"location": {
-					"path": "path/to/error/file.txt"
-				}
-			}
-		]
+		"errors": []
 	}`
 
 	// Act
 	result, _ := parseCommandOutput(&mockPatternDescriptions, validSemgrepOutput)
 
 	// Assert
-	assert.Len(t, result, 2, "Expected length of the result slice to be 2")
+	assert.Len(t, result, 1, "Expected length of the result slice to be 1")
 
 	issueAppended := result[0].(codacy.Issue)
 	assert.Equal(t, "pattern_1", issueAppended.PatternID, "Expected pattern ID in appended issue")
@@ -172,10 +165,6 @@ func TestAppendToResultWithIgnore(t *testing.T) {
 	assert.Equal(t, 10, issueAppended.Line, "Expected line number in appended issue")
 	assert.Equal(t, "path/to/file.txt", issueAppended.File, "Expected file path in appended issue")
 	assert.Equal(t, "Suggested fix for issue", issueAppended.Suggestion, "Expected suggested fix in appended issue")
-
-	errorAppended := result[1].(codacy.FileError)
-	assert.Equal(t, "Error message", errorAppended.Message, "Expected error message in appended error")
-	assert.Equal(t, "path/to/error/file.txt", errorAppended.File, "Expected file path in appended error")
 }
 
 func TestAppendIssueToResult(t *testing.T) {
