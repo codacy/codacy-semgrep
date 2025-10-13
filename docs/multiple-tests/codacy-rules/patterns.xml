@@ -7,4 +7,7 @@
     <module name="codacy.csharp.security.null-dereference"/>
     <module name="codacy.generic.security.detect-invisible-unicode"/>
     <module name="codacy.generic.csharp-lowercase-variables"/>
+    <module name="codacy.python.openai.non-guardrails-direct-call"/>
+    <module name="codacy.python.openai.non-guardrails-client-usage"/>
+    <module name="codacy.python.openai.import-without-guardrails"/>
 </module>
