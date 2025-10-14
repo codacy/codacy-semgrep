@@ -31,4 +31,10 @@
     <file name="codacy.csharp-lowercase.cs">
         <error source="codacy.generic.csharp-lowercase-variables" line="5" message="Variable names should be lowercase" severity="info" />
     </file>
+    <file name="codacy_apenai_non_guardrails.py">
+        <error source="codacy.python.openai.non-guardrails-direct-call" line="6" message="Direct OpenAI SDK call detected." severity="warning" />
+        <error source="codacy.python.openai.non-guardrails-client-usage" line="3" message="OpenAI client used without Guardrails." severity="warning" />
+        <error source="codacy.python.openai.non-guardrails-client-usage" line="3" message="OpenAI client used without Guardrails." severity="warning" />
+        <error source="codacy.python.openai.import-without-guardrails" line="2" message="OpenAI SDK imported without Guardrails import." severity="info" />
+    </file>
 </checkstyle>
