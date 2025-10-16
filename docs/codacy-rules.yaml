@@ -382,6 +382,7 @@ rules:
       justification: >
         Guardrails is a drop-in replacement that automatically validates inputs/outputs.
         Prefer Guardrails clients over raw openai.* calls.
+      confidence: MEDIUM
     patterns:
       - pattern-either:
         - pattern: openai.ChatCompletion.create(...)
@@ -404,6 +405,7 @@ rules:
       justification: >
         Guardrails advises using GuardrailsOpenAI/GuardrailsAsyncOpenAI as a drop-in replacement
         so validation runs automatically on every API call.
+      confidence: MEDIUM
     # Catch typical client flows while avoiding false hits when the client *is* a Guardrails client.
     patterns:
       - pattern-either:
@@ -445,6 +447,7 @@ rules:
       category: security
       references:
         - https://openai.github.io/openai-guardrails-python/
+      confidence: MEDIUM
     # Soft signal: import present but no Guardrails import in same file.
     # This is informational to help teams spot likely non-guardrailed files early.
     pattern: |
