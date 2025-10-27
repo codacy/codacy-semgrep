@@ -76,11 +76,9 @@ func createCommandParameters(language string, configurationFile *os.File, filesT
 		"-json", "-json_nodots",
 		"-lang", language,
 		"-rules", configurationFile.Name(),
-		"-timeout", "5",
-		"-timeout_threshold", "3",
 		"-max_target_bytes", "0",
 		"-error_recovery",
-		"-max_memory", "2560",
+		"-max_memory", "5000",
 		"-j", strconv.Itoa(runtime.NumCPU()),
 		"-fast",
 		// adding pro features
