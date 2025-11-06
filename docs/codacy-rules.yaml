@@ -486,3 +486,28 @@ rules:
       impact: HIGH
       likelihood: MEDIUM
       confidence: LOW
+  - id: codacy.csharp.best-practice.misleading-exception-class-name
+    severity: WARNING
+    languages:
+      - csharp
+    message: Class name contains 'Exception' but does not inherit from System.Exception or its subclasses. This misleads maintainers and API users about the class's purpose.
+    patterns:
+      - pattern: |
+          public class $CLASS { ... }
+      - metavariable-regex:
+          metavariable: "$CLASS"
+          regex: ".*Exception$"
+      - pattern-not: |
+          public class $CLASS : Exception { ... }
+      - pattern-not: |
+          public class $CLASS : System.Exception { ... }
+      - pattern-not: |
+          public class $CLASS : $PARENT { ... }
+    metadata:
+      category: best-practice
+      technology:
+        - csharp
+        - dotnet
+      description: Classes with 'Exception' in their name should inherit from Exception or its subclasses
+      impact: LOW
+      confidence: HIGH
