@@ -454,5 +454,35 @@ rules:
       import openai
     pattern-not: |
       from guardrails import GuardrailsOpenAI |
-      from guardrails import GuardrailsAsyncOpenAI    
-
+      from guardrails import GuardrailsAsyncOpenAI
+  - id: codacy.csharp.security.sql-injection.dynamic-query
+    severity: ERROR
+    languages:
+      - csharp
+    message: Possible SQL Injection via dynamic SQL (SELECT/INSERT/UPDATE/DELETE/EXEC) concatenation; use parameterized queries (command.Parameters.Add / AddWithValue) instead.
+    patterns:
+      - pattern-either:
+          # Insecure constructor usage with concatenation
+          - pattern: new MySqlCommand($Q + $REST, ...)
+          - pattern: new SqlCommand($Q + $REST, ...)
+          # Insecure CommandText assignment with concatenation
+          - pattern: $CMD.CommandText = $Q + $REST;
+          # Generic variable/field assignment (e.g., cd.command = "SELECT ..." + userInput)
+          - pattern: $TARGET = $Q + $REST;
+      - metavariable-regex:
+          metavariable: "$Q"
+          regex: "(?i).*(select|insert|update|delete|exec).*"
+      - pattern-not: new MySqlCommand("SELECT ... @PARAM ...", ...)
+      - pattern-not: new SqlCommand("SELECT ... @PARAM ...", ...)
+      - pattern-not: $CMD.CommandText = "SELECT ... @PARAM ...";
+      # Broad regex fallback to catch chained concatenations including a control .Text usage (typical Windows Forms / ASP.NET user input)
+      - pattern-regex: (?i)(SELECT|INSERT|UPDATE|DELETE|EXEC)[^;\n]*\+[^;\n]*\.Text
+    metadata:
+      category: security
+      technology:
+        - csharp
+        - dotnet
+      cwe: "CWE-89: SQL Injection"
+      impact: HIGH
+      likelihood: MEDIUM
+      confidence: LOW

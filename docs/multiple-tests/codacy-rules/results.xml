@@ -37,4 +37,7 @@
         <error source="codacy.python.openai.non-guardrails-client-usage" line="3" message="OpenAI client used without Guardrails." severity="warning" />
         <error source="codacy.python.openai.import-without-guardrails" line="2" message="OpenAI SDK imported without Guardrails import." severity="info" />
     </file>
+    <file name="codacy-csharp-injection.cs">
+        <error source="codacy.csharp.security.sql-injection.dynamic-query" line="36" message="Possible SQL Injection via dynamic SQL (SELECT/INSERT/UPDATE/DELETE/EXEC) concatenation; use parameterized queries (command.Parameters.Add / AddWithValue) instead." severity="error" />
+    </file>
 </checkstyle>
