@@ -4,7 +4,7 @@ ARG TOOL_VERSION=1.78.0
 # Explicitly adding go.mod and go.sum avoids re-downloading dependencies on every build
 # Go builds static binaries by default, -ldflags="-s -w" strips debug information and reduces the binary size
 
-FROM golang:1.24-alpine3.22 as builder
+FROM golang:1.24-alpine3.22 AS builder
 
 WORKDIR /src
 
@@ -22,11 +22,11 @@ RUN go run ./cmd/docgen -docFolder /docs
 
 # Semgrep official image used to copy the semgrep binary
 
-FROM semgrep/semgrep:$TOOL_VERSION as semgrep-cli
+FROM semgrep/semgrep:$TOOL_VERSION AS semgrep-cli
 
 # Compress binaries for smaller image size
 
-FROM alpine:3.21 as compressor
+FROM alpine:3.21 AS compressor
 
 RUN apk add --no-cache upx
 
