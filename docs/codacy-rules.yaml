@@ -83,8 +83,12 @@ rules:
     severity: ERROR
     languages:
       - generic
-    pattern: |
-      $PASSWORD VARCHAR2($LENGTH) := $...VALUE;
+    patterns:
+      - pattern: |
+          $PASSWORD VARCHAR2($LENGTH) := $...VALUE;
+      - metavariable-regex:
+          metavariable: "$PASSWORD"
+          regex: "(?i).*(password|motdepasse|heslo|adgangskode|wachtwoord|salasana|passwort|passord|senha|geslo|clave|losenord|clave|parola|secret|pwd).*"
     options:
       generic_ellipsis_max_span: 0
     message: >
@@ -154,24 +158,22 @@ rules:
       impact: HIGH
       confidence: LOW
   - id: codacy.generic.sql.grant-select-no-role
-    severity: ERROR
     languages:
       - generic
-    pattern: |
-      GRANT SELECT $X TO $Y
-    patterns_not:
-      - pattern: |
-          GRANT SELECT $X TO $Y_role
+    severity: ERROR
+    message: >
+      GRANT SELECT privileges should only be given to role-based accounts
+      (ending in '_role'). Direct grants to users or non-role accounts violate
+      security best practices.
+    pattern-regex: GRANT\s+(DELETE|INSERT|SELECT|UPDATE)(\s*,\s*(DELETE|INSERT|SELECT|UPDATE))*\s+ON\s+[a-zA-Z0-9_]+(\.[a-zA-Z0-9_*]+)?\s+TO\s+(?![a-zA-Z0-9_]*_role\b)[a-zA-Z0-9_]+
     paths:
       include:
-        - '*.sql'
-    message: >
-      GRANT SELECT privileges should only be given to role-based accounts (ending in '_role').
-      Direct grants to users or non-role accounts violate security best practices.
+        - "*.sql"
     metadata:
       owasp:
         - A5:2017 Broken Access Control
-      description: Detects GRANT SELECT statements that are not targeting role-based accounts
+      description: Detects GRANT SELECT statements that are not targeting role-based
+        accounts
       category: security
       impact: MEDIUM
       confidence: LOW
@@ -181,14 +183,9 @@ rules:
       - generic
     patterns:
       - pattern-either:
-        - pattern: |
-            SELECT ... FND_PROFILE.$F(...) ...
-        - pattern: |
-            SELECT ... FROM ... WHERE ... FND_PROFILE.$F(...) ...
-        - pattern: |
-            SELECT ... FROM ... WHERE ... = FND_PROFILE.$F(...)
-        - pattern: |
-            SELECT ... FROM ... WHERE ... IN (... FND_PROFILE.$F(...) ...)
+        - pattern-regex: (?i)SELECT\s+.*\bFND_PROFILE\.[a-zA-Z0-9_]+\(
+        - pattern-regex: (?i)SELECT\s+.*\bFROM\b.*\bWHERE\b.*\bFND_PROFILE\.[a-zA-Z0-9_]+\(
+
     paths:
       include:
         - '*.sql'
@@ -201,6 +198,319 @@ rules:
       category: performance
       impact: MEDIUM
       confidence: LOW
+  - id: codacy.java.security.flexible-search-sql-injection
+    languages: 
+      - java
+    severity: ERROR
+    message: "Possible SQL Injection: Avoid concatenating user input in FlexibleSearchQuery."
+    patterns:
+      - pattern-either:
+        - pattern: |
+            new FlexibleSearchQuery("SELECT " + ...)
+        - pattern: |
+            new FlexibleSearchQuery("..." + $VAR + "...")
+      - pattern-not: |
+          new FlexibleSearchQuery("SELECT ... ?param")
+    metadata:
+      category: security
+      technology: [sap-commerce, hybris]
+      confidence: LOW
+  - id: codacy.csharp.security.null-dereference
+    languages:
+      - csharp
+    severity: ERROR
+    message: >
+      Potential null dereference detected. The parameter or variable could be
+      null and should be validated before accessing its members. Add a null
+      check before dereferencing the object to prevent NullReferenceException at
+      runtime.
+    patterns:
+      - pattern-inside: |
+          $RETURNTYPE $METHOD(...,$TYPE $NULLABLE, ...) { ... }
+      - pattern-not-inside: |
+          if ($NULLABLE == null) { ... }
+          ...
+      - pattern-either:
+          - pattern: |
+              $NULLABLE.$MEMBER
+          - pattern: |
+              $FUNCTION_NAME($NULLABLE, ...);
+      - pattern-not: |
+          if ($NULLABLE == null) { return ... }
+          ...
+    metadata:
+      category: security
+      technology:
+        - csharp
+        - dotnet
+      confidence: LOW
+  - id: codacy.generic.security.detect-invisible-unicode
+    languages:
+      - yaml
+      - json 
+    severity: WARNING
+    message: It's possible to embed malicious secret instructions to AI rules files using unicode characters that are invisible to human reviewers.This can lead to future AI-generated code that has security vulnerabilities or other weaknesses baked in which may not be noticed.
+    pattern-regex: "[\u200B\u200C\u200D\u2060\uFEFF]"
+    paths:
+      include:
+        - "*.json"
+        - "*.yaml"
+        - "*.yml"
+    metadata:
+      description: Detects the invisible unicode characters
+      category: security
+      technology:
+        - AI
+        - Copilot
+        - Cursor
+      confidence: MEDIUM
+  - id: codacy.generic.csharp-lowercase-variables
+    languages:
+      - csharp
+    severity: INFO
+    message: "Variable names should be lowercase"
+    pattern-regex: (?:int|string|long|float|char|double|bool|var)\s([A-Z0-9])
+    paths:
+      include:
+        - "*.cs"
+    metadata:
+      description: Variable names should be lowercase
+      category: codestyle
+      technology:
+        - .net
+      impact: LOW
+      confidence: LOW
+  - id: codacy.generic.sql.hardcoded-language-currency-orgid
+    severity: ERROR
+    languages:
+      - generic
+    patterns:
+      - pattern-either:
+        - pattern-regex: "(?i)\\b\\w*language\\w*\\b\\s*(=|:=)\\s*'?\\b[A-Z]{2}\\b'?"
+        - pattern-regex: "(?i)\\b\\w*currency\\w*\\b\\s*(=|:=)\\s*'?\\b[A-Z]{3}\\b'?"
+        - pattern-regex: "(?i)\\b(\\w*\\.)?org_id\\b\\s*(=|:=|IN|!=|<>)\\s*(\\(?\\s*'?\\d+'?(,\\s*'?\\d+'?)*\\s*\\)?)?"
+    paths:
+      include:
+        - "*.sql"
+    message: >
+      Hardcoded Language, Currency, or Org_Id values detected in SQL.Avoid hardcoding such values; use parameters or configuration instead.
+    metadata:
+      description: >
+        Detects hardcoded values for fields containing 'language', 'currency', or 'org_id' in SQL queries. These should be parameterized or retrieved from configuration.
+      category: performance
+      impact: MEDIUM
+      confidence: LOW
+  - id: codacy.generic.sql.lookup-type-without-language-or-apps-fnd
+    severity: ERROR
+    languages:
+      - generic
+    patterns:
+      - pattern-either:
+          - pattern-regex: "(?i)lookup_type(?![^;]{0,200}language\\s*=)"  
+          - pattern-regex: "apps\\.fnd_lookup_values"                     
+    paths:
+      include:
+        - "*.sql"
+    message: >
+      Usage of 'lookup_type' without a language clause or reference to 'apps.fnd_lookup_values' detected.These patterns must be reviewed for localization and security risks.
+    metadata:
+      description: >
+        Flags usage of 'lookup_type' when no 'language = ...' clause is present, and flags any use of 'apps.fnd_lookup_values'.
+      category: performance
+      impact: MEDIUM
+      confidence: LOW
+  - id: codacy.generic.sql.from-all-without-orgid
+    severity: ERROR
+    languages:
+      - generic
+    patterns:
+      - pattern-regex: "(?i)from\\s+[a-z0-9_]*_all[a-z0-9_]*(?![^;]{0,300}\\b[a-z0-9_]*org_id\\b\\s*(=|:=))"
+    paths:
+      include:
+        - "*.sql"
+    message: >
+      Detected use of *_ALL* table without an org_id clause.These queries must include an org_id condition to ensure data partitioning.
+    metadata:
+      description: >
+        Flags any SQL query selecting from *_ALL* tables without checking for an org_id condition like org_id = ... or org_id := ...
+      category: performance
+      impact: MEDIUM
+      confidence: LOW
+  - id: codacy.generic.sql.rac-table-access
+    severity: ERROR
+    languages:
+      - generic
+    patterns:
+      - pattern-regex: '(?i)\b(SELECT|INSERT\s+INTO|UPDATE|DELETE\s+FROM)\b(?![^\n;]*\bRAC_\w*\b)[^\n;]*'
+    paths:
+      include:
+        - "*.sql"
+    message: >
+      All queries must target RAC_* tables.Query does not reference RAC_* table.
+    metadata:
+      description: >
+        Enforce that all SELECT, INSERT, UPDATE, and DELETE queries must be performed only on RAC_* tables.
+      category: performance
+      impact: MEDIUM
+      confidence: LOW
+  - id: codacy.generic.sql.rownum
+    severity: ERROR
+    languages:
+      - generic
+    patterns:
+      - pattern-regex: (?i)\bROWNUM\b
+    paths:
+      include:
+        - "*.sql"
+    message: >
+      The file contains ROWNUM usage which must be reviewed for performance and correctness.
+    metadata:
+      description: >
+        The file contains ROWNUM usage which must be reviewed for performance and correctness.
+      category: security
+      impact: MEDIUM
+      confidence: LOW
+  - id: codacy.python.openai.non-guardrails-direct-call
+    message: "Direct OpenAI SDK call detected. Use Guardrails client (GuardrailsOpenAI/GuardrailsAsyncOpenAI) instead."
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: security
+      cwe: "CWE-20: Improper Input Validation"
+      references:
+        - https://openai.github.io/openai-guardrails-python/
+      justification: >
+        Guardrails is a drop-in replacement that automatically validates inputs/outputs.
+        Prefer Guardrails clients over raw openai.* calls.
+      confidence: MEDIUM
+    patterns:
+      - pattern-either:
+        - pattern: openai.ChatCompletion.create(...)
+        - pattern: openai.Completion.create(...)
+        - pattern: openai.chat.completions.create(...)
+        - pattern: openai.responses.create(...)
+        - pattern: openai.embeddings.create(...)
+        - pattern: openai.images.generate(...)
+        - pattern: openai.audio.transcriptions.create(...)
+        - pattern: openai.audio.speech.create(...)
+  - id: codacy.python.openai.non-guardrails-client-usage
+    message: "OpenAI client used without Guardrails. Replace with GuardrailsOpenAI / GuardrailsAsyncOpenAI."
+    severity: WARNING
+    languages: [python]
+    metadata:
+      category: security
+      cwe: "CWE-20: Improper Input Validation"
+      references:
+        - https://openai.github.io/openai-guardrails-python/
+      justification: >
+        Guardrails advises using GuardrailsOpenAI/GuardrailsAsyncOpenAI as a drop-in replacement
+        so validation runs automatically on every API call.
+      confidence: MEDIUM
+    # Catch typical client flows while avoiding false hits when the client *is* a Guardrails client.
+    patterns:
+      - pattern-either:
+          # Synchronous client patterns
+          - pattern: |
+              $C = OpenAI(...)
+              ...
+              $C.chat.completions.create(...)
+          - pattern: |
+              $C = OpenAI(...)
+              ...
+              $C.responses.create(...)
+          - pattern: |
+              $C = OpenAI(...)
+              ...
+              $C.embeddings.create(...)
+          # Async client patterns
+          - pattern: |
+              $C = AsyncOpenAI(...)
+              ...
+              $C.chat.completions.create(...)
+          - pattern: |
+              $C = AsyncOpenAI(...)
+              ...
+              $C.responses.create(...)
+          - pattern: |
+              $C = AsyncOpenAI(...)
+              ...
+              $C.embeddings.create(...)
+      - pattern-not: |
+          $C = GuardrailsOpenAI(...)
+      - pattern-not: |
+          $C = GuardrailsAsyncOpenAI(...)
+  - id: codacy.python.openai.import-without-guardrails
+    message: "OpenAI SDK imported without Guardrails import. Consider GuardrailsOpenAI / GuardrailsAsyncOpenAI."
+    severity: INFO
+    languages: [python]
+    metadata:
+      category: security
+      references:
+        - https://openai.github.io/openai-guardrails-python/
+      confidence: MEDIUM
+    # Soft signal: import present but no Guardrails import in same file.
+    # This is informational to help teams spot likely non-guardrailed files early.
+    pattern: |
+      import openai
+    pattern-not: |
+      from guardrails import GuardrailsOpenAI |
+      from guardrails import GuardrailsAsyncOpenAI
+  - id: codacy.csharp.security.sql-injection.dynamic-query
+    severity: ERROR
+    languages:
+      - csharp
+    message: Possible SQL Injection via dynamic SQL (SELECT/INSERT/UPDATE/DELETE/EXEC) concatenation; use parameterized queries (command.Parameters.Add / AddWithValue) instead.
+    patterns:
+      - pattern-either:
+          # Insecure constructor usage with concatenation
+          - pattern: new MySqlCommand($Q + $REST, ...)
+          - pattern: new SqlCommand($Q + $REST, ...)
+          # Insecure CommandText assignment with concatenation
+          - pattern: $CMD.CommandText = $Q + $REST;
+          # Generic variable/field assignment (e.g., cd.command = "SELECT ..." + userInput)
+          - pattern: $TARGET = $Q + $REST;
+      - metavariable-regex:
+          metavariable: "$Q"
+          regex: "(?i).*(select|insert|update|delete|exec).*"
+      - pattern-not: new MySqlCommand("SELECT ... @PARAM ...", ...)
+      - pattern-not: new SqlCommand("SELECT ... @PARAM ...", ...)
+      - pattern-not: $CMD.CommandText = "SELECT ... @PARAM ...";
+      # Broad regex fallback to catch chained concatenations including a control .Text usage (typical Windows Forms / ASP.NET user input)
+      - pattern-regex: (?i)(SELECT|INSERT|UPDATE|DELETE|EXEC)[^;\n]*\+[^;\n]*\.Text
+    metadata:
+      category: security
+      technology:
+        - csharp
+        - dotnet
+      cwe: "CWE-89: SQL Injection"
+      impact: HIGH
+      likelihood: MEDIUM
+      confidence: LOW
+  - id: codacy.csharp.best-practice.misleading-exception-class-name
+    severity: WARNING
+    languages:
+      - csharp
+    message: Class name contains 'Exception' but does not inherit from System.Exception or its subclasses. This misleads maintainers and API users about the class's purpose.
+    patterns:
+      - pattern: |
+          public class $CLASS { ... }
+      - metavariable-regex:
+          metavariable: "$CLASS"
+          regex: ".*Exception$"
+      - pattern-not: |
+          public class $CLASS : Exception { ... }
+      - pattern-not: |
+          public class $CLASS : System.Exception { ... }
+      - pattern-not: |
+          public class $CLASS : $PARENT { ... }
+    metadata:
+      category: best-practice
+      technology:
+        - csharp
+        - dotnet
+      description: Classes with 'Exception' in their name should inherit from Exception or its subclasses
+      impact: LOW
+      confidence: HIGH
   - id: codacy.k8s.ingress.nginx.retirement.ingress-resource
     languages:
       - yaml
