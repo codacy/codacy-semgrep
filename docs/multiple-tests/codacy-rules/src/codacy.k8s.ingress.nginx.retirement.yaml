@@ -1,0 +1,75 @@
+# Test file for k8s.ingress.nginx.retirement rules
+
+---
+# Test case 1: Ingress with annotation (should trigger ingress-resource rule)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-ingress-annotation
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: test-service
+                port:
+                  number: 80
+
+---
+# Test case 2: Ingress with ingressClassName (should trigger ingress-resource rule)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-ingress-classname
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: test-service
+                port:
+                  number: 80
+
+---
+# Test case 3: IngressClass (should trigger ingress-class rule)
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: nginx
+spec:
+  controller: k8s.io/ingress-nginx
+
+---
+# Test case 4: Deployment with ingress-nginx label (should trigger workload rule)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingress-nginx-controller
+  labels:
+    app.kubernetes.io/name: ingress-nginx
+    app.kubernetes.io/component: controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ingress-nginx
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: ingress-nginx
+    spec:
+      containers:
+        - name: controller
+          image: registry.k8s.io/ingress-nginx/controller:v1.8.1
+

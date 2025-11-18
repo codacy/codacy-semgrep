@@ -44,4 +44,10 @@
         <error source="codacy.csharp.best-practice.misleading-exception-class-name" line="26" message="Class name contains 'Exception' but does not inherit from System.Exception or its subclasses." severity="warning" />
         <error source="codacy.csharp.best-practice.misleading-exception-class-name" line="33" message="Class name contains 'Exception' but does not inherit from System.Exception or its subclasses." severity="warning" />
     </file>
+    <file name="codacy.k8s.ingress.nginx.retirement.yaml">
+        <error source="codacy.k8s.ingress.nginx.retirement.ingress-resource" line="5" message="This Ingress is configured to use the Ingress NGINX controller (kubernetes.io/ingress.class: nginx or ingressClassName: nginx). Ingress NGINX is scheduled for retirement (no fixes after March 2026). Plan to migrate to Gateway API or another Ingress controller." severity="warning" />
+        <error source="codacy.k8s.ingress.nginx.retirement.ingress-resource" line="26" message="This Ingress is configured to use the Ingress NGINX controller (kubernetes.io/ingress.class: nginx or ingressClassName: nginx). Ingress NGINX is scheduled for retirement (no fixes after March 2026). Plan to migrate to Gateway API or another Ingress controller." severity="warning" />
+        <error source="codacy.k8s.ingress.nginx.retirement.ingress-class" line="46" message="This IngressClass is wired to the Ingress NGINX controller (spec.controller: k8s.io/ingress-nginx). Ingress NGINX is scheduled for retirement (no fixes after March 2026). Plan to migrate to Gateway API or another Ingress controller." severity="warning" />
+        <error source="codacy.k8s.ingress.nginx.retirement.workload" line="55" message="This Kubernetes resource is labelled as part of the Ingress NGINX controller stack (app.kubernetes.io/name: ingress-nginx). Ingress NGINX is scheduled for retirement (no fixes after March 2026). Plan to migrate to Gateway API or another Ingress controller." severity="warning" />
+    </file>
 </checkstyle>

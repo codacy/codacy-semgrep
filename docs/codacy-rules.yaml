@@ -511,3 +511,99 @@ rules:
       description: Classes with 'Exception' in their name should inherit from Exception or its subclasses
       impact: LOW
       confidence: HIGH
+  - id: codacy.k8s.ingress.nginx.retirement.ingress-resource
+    languages:
+      - yaml
+    severity: WARNING
+    message: >
+      This Ingress is configured to use the Ingress NGINX controller
+      (kubernetes.io/ingress.class: nginx or ingressClassName: nginx).
+      Ingress NGINX is scheduled for retirement (no fixes after March 2026).
+      Plan to migrate to Gateway API or another Ingress controller.
+    patterns:
+      - pattern-either:
+        # Classic way: annotation kubernetes.io/ingress.class: nginx
+        - pattern: |
+            apiVersion: ...
+            kind: Ingress
+            metadata:
+              ...
+              annotations:
+                ...
+                kubernetes.io/ingress.class: nginx
+            ...
+        # Newer way: spec.ingressClassName: nginx
+        - pattern: |
+            apiVersion: ...
+            kind: Ingress
+            spec:
+              ...
+              ingressClassName: nginx
+            ...
+    metadata:
+      category: security
+      technology:
+        - kubernetes
+      description: >
+        Detects Ingress resources configured to use the Ingress NGINX controller.
+        Ingress NGINX is scheduled for retirement (no fixes after March 2026).
+      impact: MEDIUM
+      confidence: HIGH
+      references:
+        - https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/
+        - https://kubernetes.github.io/ingress-nginx/user-guide/basic-usage/
+  - id: codacy.k8s.ingress.nginx.retirement.ingress-class
+    languages:
+      - yaml
+    severity: WARNING
+    message: >
+      This IngressClass is wired to the Ingress NGINX controller
+      (spec.controller: k8s.io/ingress-nginx).
+      Ingress NGINX is scheduled for retirement (no fixes after March 2026).
+      Plan to migrate to Gateway API or another Ingress controller.
+    pattern: |
+      apiVersion: networking.k8s.io/v1
+      kind: IngressClass
+      ...
+      spec:
+        controller: k8s.io/ingress-nginx
+    metadata:
+      category: security
+      technology:
+        - kubernetes
+      description: >
+        Detects IngressClass objects wired to the Ingress NGINX controller.
+        Ingress NGINX is scheduled for retirement (no fixes after March 2026).
+      impact: MEDIUM
+      confidence: HIGH
+      references:
+        - https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/
+  - id: codacy.k8s.ingress.nginx.retirement.workload
+    languages:
+      - yaml
+    severity: WARNING
+    message: >
+      This Kubernetes resource is labelled as part of the Ingress NGINX
+      controller stack (app.kubernetes.io/name: ingress-nginx).
+      Ingress NGINX is scheduled for retirement (no fixes after March 2026).
+      Plan to migrate to Gateway API or another Ingress controller.
+    pattern: |
+      apiVersion: ...
+      kind: $KIND
+      metadata:
+        ...
+        labels:
+          ...
+          app.kubernetes.io/name: ingress-nginx
+      ...
+    metadata:
+      category: security
+      technology:
+        - kubernetes
+      description: >
+        Detects Kubernetes resources labelled as part of the Ingress NGINX
+        controller stack. Ingress NGINX is scheduled for retirement (no fixes after March 2026).
+      impact: MEDIUM
+      confidence: HIGH
+      references:
+        - https://kubernetes.io/blog/2025/11/11/ingress-nginx-retirement/

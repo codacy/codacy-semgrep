@@ -12,4 +12,7 @@
     <module name="codacy.python.openai.import-without-guardrails"/>
     <module name="codacy.csharp.security.sql-injection.dynamic-query"/>
     <module name="codacy.csharp.best-practice.misleading-exception-class-name" />
+    <module name="codacy.k8s.ingress.nginx.retirement.ingress-resource" />
+    <module name="codacy.k8s.ingress.nginx.retirement.ingress-class" />
+    <module name="codacy.k8s.ingress.nginx.retirement.workload" />
 </module>
