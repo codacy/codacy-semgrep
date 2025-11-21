@@ -1,4 +1,21 @@
 rules:
+  - id: codacy.bash.security.hard-coded-password
+    languages:
+      - bash
+      - sh
+    message: Hardcoded passwords are a security risk. They can be easily found by attackers and used to gain unauthorized access to the system.
+    pattern-regex: (?i)(?<![\$\w"'\[\]])\bpassword\s*(?<![=])=(?![=])\s*["'][^"']+["']
+    severity: ERROR
+    metadata:
+      owasp:
+        - A3:2017 Sensitive Data Exposure
+      description: Hardcoded passwords are a security risk.
+      category: security
+      technology:
+        - bash
+        - shell
+      impact: HIGH
+      confidence: MEDIUM
   - id: codacy.java.security.hard-coded-password
     severity: ERROR
     languages:
