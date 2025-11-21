@@ -50,4 +50,7 @@
         <error source="codacy.k8s.ingress.nginx.retirement.ingress-class" line="46" message="This IngressClass is wired to the Ingress NGINX controller (spec.controller: k8s.io/ingress-nginx). Ingress NGINX is scheduled for retirement (no fixes after March 2026). Plan to migrate to Gateway API or another Ingress controller." severity="warning" />
         <error source="codacy.k8s.ingress.nginx.retirement.workload" line="55" message="This Kubernetes resource is labelled as part of the Ingress NGINX controller stack (app.kubernetes.io/name: ingress-nginx). Ingress NGINX is scheduled for retirement (no fixes after March 2026). Plan to migrate to Gateway API or another Ingress controller." severity="warning" />
     </file>
+    <file name="codacy-shell.sh"> 
+        <error source="codacy.bash.security.hard-coded-password" line="1" message="Hardcoded passwords are a security risk." severity="error" />
+    </file>
 </checkstyle>

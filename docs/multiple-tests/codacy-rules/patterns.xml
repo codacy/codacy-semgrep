@@ -15,4 +15,5 @@
     <module name="codacy.k8s.ingress.nginx.retirement.ingress-resource" />
     <module name="codacy.k8s.ingress.nginx.retirement.ingress-class" />
     <module name="codacy.k8s.ingress.nginx.retirement.workload" />
+    <module name="codacy.bash.security.hard-coded-password" />
 </module>
