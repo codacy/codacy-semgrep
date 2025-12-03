@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<checkstyle version="1.5">
+    <file name="UILayer.java">
+        <error source="codacy.java.i18n.enforce-localized-output" line="12"
+            message="Use localized messages instead of hardcoded strings."
+            severity="warning" />
+        <error source="codacy.java.i18n.enforce-localized-output" line="22"
+            message="Use localized messages instead of hardcoded strings."
+            severity="warning" />
+    </file>
+    <file name="OrderApp.java">
+        <error source="codacy.java.i18n.enforce-localized-output" line="18"
+            message="Use localized messages instead of hardcoded strings."
+            severity="warning" />
+        <error source="codacy.java.i18n.enforce-localized-output" line="30"
+            message="Use localized messages instead of hardcoded strings."
+            severity="warning" />
+    </file>
+    <file name="OrderService.java">
+        <error source="codacy.java.i18n.enforce-localized-output" line="13"
+            message="Use localized messages instead of hardcoded strings."
+            severity="warning" />
+        <error source="codacy.java.i18n.enforce-localized-output" line="24"
+            message="Use localized messages instead of hardcoded strings."
+            severity="warning" />
+    </file>
+    <file name="PaymentService.java">
+        <error source="codacy.java.i18n.enforce-localized-output" line="17"
+            message="Use localized messages instead of hardcoded strings."
+            severity="warning" />
+    </file>
+</checkstyle>
+            

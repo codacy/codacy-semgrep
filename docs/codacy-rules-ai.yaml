@@ -1,0 +1,24 @@
+rules:
+  - id: codacy.csharp.ai.insecure-llm-model-usage
+    languages:
+      - csharp
+    message: "Usage of Insecure LLM Model: $MODEL"
+    severity: ERROR
+    patterns:
+      - pattern-either:
+          - pattern: |
+              $CLIENT.GenerateContentAsync(..., model: "$MODEL", ...)
+          - pattern: |
+              $CLIENT.GenerateContentAsync(model: "$MODEL", ...)
+      - metavariable-regex:
+          metavariable: $MODEL
+          regex: "<!-- MODEL_REGEX -->"
+    metadata:
+      category: security
+      subcategory: ai
+      description: Detects usage of insecure/unauthorized LLM models in C# codebases
+      technology:
+        - csharp
+      impact: MEDIUM
+      confidence: MEDIUM
+      likelihood: MEDIUM

@@ -17,6 +17,7 @@ type PatternWithExplanation struct {
 	Languages   []string
 	Enabled     bool
 	Explanation string
+	Parameters  []codacy.PatternParameter
 }
 
 func (r PatternWithExplanation) toCodacyPattern() codacy.Pattern {
@@ -28,6 +29,7 @@ func (r PatternWithExplanation) toCodacyPattern() codacy.Pattern {
 		Level:       string(r.Level),
 		Languages:   r.Languages,
 		Enabled:     r.Enabled,
+		Parameters:  r.Parameters,
 	}
 }
 
@@ -36,6 +38,7 @@ func (r PatternWithExplanation) toCodacyPatternDescription() codacy.PatternDescr
 		PatternID:   r.ID,
 		Description: r.Description,
 		Title:       r.Title,
+		Parameters:  r.Parameters,
 	}
 }
 

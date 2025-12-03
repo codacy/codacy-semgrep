@@ -2,15 +2,19 @@ package tool
 
 import (
 	"bufio"
+	"fmt"
 	"io/fs"
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	codacy "github.com/codacy/codacy-engine-golang-seed/v6"
 	"github.com/samber/lo"
 )
+
+var htmlCommentRegex = regexp.MustCompile(`<!--\s*([A-Z_]+)\s*-->`)
 
 const sourceConfigurationFileName = ".semgrep.yaml"
 
@@ -98,12 +102,15 @@ func createAndWriteConfigurationFile(scanner *bufio.Scanner, patterns *[]codacy.
 	}
 
 	idIsPresent := false
+	var currentPattern *codacy.Pattern
 	for scanner.Scan() {
 		line := scanner.Text()
 
-		idIsPresent = defaultRuleIsConfigured(line, patterns, idIsPresent)
+		idIsPresent, currentPattern = defaultRuleIsConfiguredWithPattern(line, patterns, idIsPresent, currentPattern)
 		if idIsPresent {
-			_, err := configurationFile.WriteString(line + "\n")
+			// Replace HTML comment placeholders with parameter values
+			processedLine := replaceParameterPlaceholders(line, currentPattern)
+			_, err := configurationFile.WriteString(processedLine + "\n")
 			if err != nil {
 				return nil, err
 			}
@@ -120,11 +127,82 @@ func defaultRuleIsConfigured(line string, patterns *[]codacy.Pattern, idIsPresen
 	return idIsPresent // We want to keep the same value
 }
 
+func defaultRuleIsConfiguredWithPattern(line string, patterns *[]codacy.Pattern, idIsPresent bool, currentPattern *codacy.Pattern) (bool, *codacy.Pattern) {
+	if strings.Contains(line, "- id:") {
+		id := strings.TrimSpace(strings.Split(line, ":")[1])
+		pattern, found := lo.Find(*patterns, func(item codacy.Pattern) bool {
+			return item.ID == id
+		})
+		if found {
+			return true, &pattern
+		}
+		return false, nil
+	}
+	return idIsPresent, currentPattern
+}
+
 func isIDPresent(id string, patterns *[]codacy.Pattern) bool {
 	_, res := lo.Find(*patterns, func(item codacy.Pattern) bool {
 		return item.ID == id
 	})
 	return res
+}
+
+// replaceParameterPlaceholders replaces HTML comment placeholders (e.g., <!-- MODEL_REGEX -->)
+// with the corresponding parameter values from the pattern
+func replaceParameterPlaceholders(line string, pattern *codacy.Pattern) string {
+	if pattern == nil || len(pattern.Parameters) == 0 {
+		return line
+	}
+
+	// Check if line contains an HTML comment placeholder
+	if !htmlCommentRegex.MatchString(line) {
+		return line
+	}
+
+	// Replace each HTML comment with the corresponding parameter value
+	result := htmlCommentRegex.ReplaceAllStringFunc(line, func(match string) string {
+		matches := htmlCommentRegex.FindStringSubmatch(match)
+		if len(matches) > 1 {
+			paramName := matches[1]
+			// Convert UPPER_CASE to camelCase to match parameter name format
+			formattedParamName := formatParameterName(paramName)
+
+			// Find the parameter in the pattern
+			for _, param := range pattern.Parameters {
+				if param.Name == formattedParamName {
+					// Use Value if set, otherwise use Default
+					value := param.Value
+					if value == nil {
+						value = param.Default
+					}
+					if value != nil {
+						return fmt.Sprintf("%v", value)
+					}
+				}
+			}
+		}
+		// If no parameter found, keep the original placeholder
+		return match
+	})
+
+	return result
+}
+
+// formatParameterName converts UPPER_CASE to camelCase
+func formatParameterName(name string) string {
+	parts := strings.Split(strings.ToLower(name), "_")
+	if len(parts) == 0 {
+		return name
+	}
+
+	result := parts[0]
+	for i := 1; i < len(parts); i++ {
+		if len(parts[i]) > 0 {
+			result += strings.ToUpper(string(parts[i][0])) + parts[i][1:]
+		}
+	}
+	return result
 }
 
 var filesByLanguage = make(map[string][]string)

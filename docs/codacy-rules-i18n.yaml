@@ -1,0 +1,43 @@
+rules:
+  - id: codacy.java.i18n.enforce-localized-output
+    severity: WARNING
+    languages:
+      - java
+    patterns:
+      - pattern-either:
+          # Detect direct string literals
+          - pattern: System.out.println("...");
+          - pattern: System.out.print("...");
+          - pattern: System.err.println("...");
+          - pattern: System.err.print("...");
+          # Detect string concatenation
+          - pattern: System.out.println($X + ...);
+          - pattern: System.out.print($X + ...);
+          - pattern: System.err.println($X + ...);
+          - pattern: System.err.print($X + ...);
+          # Detect String.format without ResourceBundle
+          - pattern: System.out.println(String.format(...));
+          - pattern: System.out.print(String.format(...));
+      - pattern-not: System.out.println($BUNDLE.getString(...))
+      - pattern-not: System.out.print($BUNDLE.getString(...))
+      - pattern-not: System.err.println($BUNDLE.getString(...))
+      - pattern-not: System.err.print($BUNDLE.getString(...))
+      - pattern-not: System.out.println($BUNDLE.getObject(...))
+      - pattern-not: System.out.print($BUNDLE.getObject(...))
+      # Allow println without arguments (blank lines)
+      - pattern-not: System.out.println()
+      - pattern-not: System.err.println()
+    message: >-
+      Use localized messages instead of hardcoded strings. 
+      System.out.println() should use ResourceBundle.getString() or equivalent localization method.
+      Example: System.out.println(messages.getString("key")) where messages is of type java.util.ResourceBundle
+    metadata:
+      category: codestyle
+      subcategory: i18n
+      description: Enforces use of ResourceBundle for all user-facing output to ensure proper internationalization
+      technology:
+        - java
+      impact: MEDIUM
+      confidence: HIGH
+      likelihood: HIGH
+  
