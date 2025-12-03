@@ -16,7 +16,7 @@ rules:
     metadata:
       category: security
       subcategory: ai
-      description: Detects usage of insecure LLM models in C# codebases to prevent potential
+      description: Detects usage of insecure/unauthorized LLM models in C# codebases
       technology:
         - csharp
       impact: MEDIUM

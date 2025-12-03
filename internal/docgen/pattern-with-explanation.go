@@ -38,6 +38,7 @@ func (r PatternWithExplanation) toCodacyPatternDescription() codacy.PatternDescr
 		PatternID:   r.ID,
 		Description: r.Description,
 		Title:       r.Title,
+		Parameters:  r.Parameters,
 	}
 }
 
