@@ -167,9 +167,9 @@ func replaceParameterPlaceholders(line string, pattern *codacy.Pattern) string {
 			paramName := matches[1]
 			// Convert UPPER_CASE to camelCase to match parameter name format
 			formattedParamName := formatParameterName(paramName)
-
 			// Find the parameter in the pattern
 			for _, param := range pattern.Parameters {
+
 				if param.Name == formattedParamName {
 					// Use Value if set, otherwise use Default
 					value := param.Value
@@ -177,7 +177,13 @@ func replaceParameterPlaceholders(line string, pattern *codacy.Pattern) string {
 						value = param.Default
 					}
 					if value != nil {
-						return fmt.Sprintf("%v", value)
+						valueStr := fmt.Sprintf("%v", value)
+
+						// If parameter name ends with _ALLOW_LIST, convert comma-separated list to regex pattern
+						if strings.HasSuffix(paramName, "_ALLOW_LIST") {
+							return convertListToRegex(valueStr, false)
+						}
+						return valueStr
 					}
 				}
 			}
@@ -187,6 +193,27 @@ func replaceParameterPlaceholders(line string, pattern *codacy.Pattern) string {
 	})
 
 	return result
+}
+
+// convertListToRegex converts a comma-separated list into a regex alternation pattern
+// Example: "gemini-2.5-flash,gpt-3.5-turbo,old-llama-model" -> "^(gemini-2\\.5-flash|gpt-3\\.5-turbo|old-llama-model)$"
+func convertListToRegex(list string, include bool) string {
+	// Split by comma and trim spaces
+	items := strings.Split(list, ",")
+	for i, item := range items {
+		// Trim whitespace
+		item = strings.TrimSpace(item)
+		// Escape dots for regex
+		item = strings.ReplaceAll(item, ".", "\\.")
+		items[i] = item
+	}
+
+	// Join with pipe separator and wrap in regex anchors
+	if include {
+		return fmt.Sprintf("^(%s)$", strings.Join(items, "|"))
+	}
+
+	return fmt.Sprintf("^(?!(%s)$).*", strings.Join(items, "|"))
 }
 
 // formatParameterName converts UPPER_CASE to camelCase

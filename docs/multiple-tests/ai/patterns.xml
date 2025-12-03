@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module name="root">
     <module name="codacy.csharp.ai.insecure-llm-model-usage">
-        <property name="modelRegex" value="^(gemini-2.5-flash|gpt-3\\.5-turbo|old-llama-model)$" />
+        <property name="modelAllowList" value="gemini-2.5-flash,gpt-3.5-turbo,old-llama-model" />
     </module>
 </module>

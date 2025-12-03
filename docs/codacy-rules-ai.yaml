@@ -12,7 +12,8 @@ rules:
               $CLIENT.GenerateContentAsync(model: "$MODEL", ...)
       - metavariable-regex:
           metavariable: $MODEL
-          regex: "<!-- MODEL_REGEX -->"
+          # regex: "^(?!(gemini-2.5-flash|gpt-3.5-turbo|old-llama-model)$).*"
+          regex: <!-- MODEL_ALLOW_LIST -->
     metadata:
       category: security
       subcategory: ai
@@ -20,5 +21,5 @@ rules:
       technology:
         - csharp
       impact: MEDIUM
-      confidence: MEDIUM
+      confidence: LOW
       likelihood: MEDIUM
