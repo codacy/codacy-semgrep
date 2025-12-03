@@ -10,9 +10,12 @@ import (
 	"sort"
 	"strings"
 
+	codacy "github.com/codacy/codacy-engine-golang-seed/v6"
 	"github.com/samber/lo"
 	"gopkg.in/yaml.v3"
 )
+
+var htmlCommentRegex = regexp.MustCompile(`<!--\s*([A-Z_]+)\s*-->`)
 
 // Downloads Semgrep rules from the official repository.
 // Downloads the default rules from the Registry.
@@ -24,11 +27,12 @@ type SemgrepConfig struct {
 }
 
 type SemgrepRule struct {
-	ID        string              `yaml:"id"`
-	Message   string              `yaml:"message"`
-	Severity  string              `yaml:"severity"`
-	Languages []string            `yaml:"languages"`
-	Metadata  SemgrepRuleMetadata `yaml:"metadata"`
+	ID         string              `yaml:"id"`
+	Message    string              `yaml:"message"`
+	Severity   string              `yaml:"severity"`
+	Languages  []string            `yaml:"languages"`
+	Metadata   SemgrepRuleMetadata `yaml:"metadata"`
+	Parameters []codacy.PatternParameter
 }
 
 type SemgrepRuleMetadata struct {
@@ -107,12 +111,33 @@ func getGitLabRules() (*ParsedSemgrepRules, error) {
 }
 
 func getCodacyRules(docsDir string) (*ParsedSemgrepRules, error) {
-	filePath, _ := filepath.Abs(path.Join(docsDir, "codacy-rules.yaml"))
-	return getRules(
-		filePath,
-		"",
-		func(_ string) bool { return true },
-		func(_ string, unprefixedID string) string { return unprefixedID })
+
+	parsedRules := &ParsedSemgrepRules{
+		Rules:    SemgrepRules{},
+		Files:    []SemgrepRuleFile{},
+		IDMapper: map[IDMapperKey]string{},
+	}
+	customRulesFiles := []string{
+		"codacy-rules.yaml",
+		"codacy-rules-i18n.yaml",
+		"codacy-rules-ai.yaml",
+	}
+	for _, file := range customRulesFiles {
+		filePath, _ := filepath.Abs(path.Join(docsDir, file))
+		rules, err := getRules(
+			filePath,
+			"",
+			func(_ string) bool { return true },
+			func(_ string, unprefixedID string) string { return unprefixedID })
+		if err != nil {
+			return nil, err
+		}
+		parsedRules.Rules = append(parsedRules.Rules, rules.Rules...)
+		parsedRules.Files = append(parsedRules.Files, rules.Files...)
+		maps.Copy(parsedRules.IDMapper, rules.IDMapper)
+	}
+	return parsedRules, nil
+
 }
 
 type FilenameValidator func(string) bool
@@ -240,14 +265,91 @@ func readRulesFromYaml(yamlFile string) ([]SemgrepRule, error) {
 		return nil, &DocGenError{msg: fmt.Sprintf("Failed to read file: %s", yamlFile), w: err}
 	}
 
+	// First unmarshal to raw map to extract regex patterns
+	var rawConfig map[string]interface{}
+	err = yaml.Unmarshal(buf, &rawConfig)
+	if err != nil {
+		return nil, &DocGenError{msg: fmt.Sprintf("Failed to unmarshal file: %s", yamlFile), w: err}
+	}
+
+	// Then unmarshal to structured config
 	c := &SemgrepConfig{}
 	err = yaml.Unmarshal(buf, c)
 	if err != nil {
 		return nil, &DocGenError{msg: fmt.Sprintf("Failed to unmarshal file: %s", yamlFile), w: err}
+	}
 
+	// Extract parameters from regex placeholders
+	if rawRules, ok := rawConfig["rules"].([]interface{}); ok {
+		for i, rawRule := range rawRules {
+			if i >= len(c.Rules) {
+				break
+			}
+			if ruleMap, ok := rawRule.(map[string]interface{}); ok {
+				c.Rules[i].Parameters = extractParametersFromRule(ruleMap)
+			}
+		}
 	}
 
 	return c.Rules, nil
+}
+
+// extractParametersFromRule recursively searches for regex fields with HTML comment placeholders
+// and creates PatternParameters for each one found
+func extractParametersFromRule(ruleMap map[string]interface{}) []codacy.PatternParameter {
+	var parameters []codacy.PatternParameter
+	seenParams := make(map[string]bool)
+
+	var searchForRegex func(obj interface{})
+	searchForRegex = func(obj interface{}) {
+		switch v := obj.(type) {
+		case map[string]interface{}:
+			for key, value := range v {
+				if key == "regex" {
+					if regexStr, ok := value.(string); ok {
+						if matches := htmlCommentRegex.FindStringSubmatch(regexStr); len(matches) > 1 {
+							paramName := matches[1]
+							if !seenParams[paramName] {
+								seenParams[paramName] = true
+								// Convert to proper case (e.g., MODEL_REGEX -> modelRegex)
+								formattedName := formatParameterName(paramName)
+								parameters = append(parameters, codacy.PatternParameter{
+									Name:        formattedName,
+									Description: fmt.Sprintf("Regular expression pattern for %s", strings.ToLower(strings.ReplaceAll(paramName, "_", " "))),
+									Default:     ".*",
+								})
+							}
+						}
+					}
+				} else {
+					searchForRegex(value)
+				}
+			}
+		case []interface{}:
+			for _, item := range v {
+				searchForRegex(item)
+			}
+		}
+	}
+
+	searchForRegex(ruleMap)
+	return parameters
+}
+
+// formatParameterName converts UPPER_CASE to camelCase
+func formatParameterName(name string) string {
+	parts := strings.Split(strings.ToLower(name), "_")
+	if len(parts) == 0 {
+		return name
+	}
+
+	result := parts[0]
+	for i := 1; i < len(parts); i++ {
+		if len(parts[i]) > 0 {
+			result += strings.ToUpper(string(parts[i][0])) + parts[i][1:]
+		}
+	}
+	return result
 }
 
 func (r SemgrepRule) toPatternWithExplanation() PatternWithExplanation {
@@ -262,6 +364,7 @@ func (r SemgrepRule) toPatternWithExplanation() PatternWithExplanation {
 		Languages:   toCodacyLanguages(r),
 		Enabled:     isEnabledByDefault(r),
 		Explanation: r.Message,
+		Parameters:  r.Parameters,
 	}
 }
 
