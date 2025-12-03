@@ -12,7 +12,7 @@ rules:
               $CLIENT.GenerateContentAsync(model: "$MODEL", ...)
       - metavariable-regex:
           metavariable: $MODEL
-          regex: "<!-- MODEL_REGEX -->"
+          regex: <!-- MODEL_ALLOW_LIST -->
     metadata:
       category: security
       subcategory: ai
@@ -20,5 +20,5 @@ rules:
       technology:
         - csharp
       impact: MEDIUM
-      confidence: MEDIUM
+      confidence: LOW
       likelihood: MEDIUM

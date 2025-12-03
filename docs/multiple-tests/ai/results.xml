@@ -2,7 +2,7 @@
 <checkstyle version="1.5">
     <file name="cs/GeminiExample.cs">
         <error source="codacy.csharp.ai.insecure-llm-model-usage" line="9"
-            message="Usage of Insecure LLM Model: gemini-2.5-flash"
+            message="Usage of Insecure LLM Model: deepseek-v3.2"
             severity="error" />
     </file>
 </checkstyle>
