@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module name="root">
     <module name="codacy.java.i18n.enforce-localized-output" />
+    <module name="codacy.js.i18n.no-hardcoded-alert-concat" />
+    <module name="codacy.js.i18n.no-hardcoded-locale-date" />
+    <module name="codacy.js.i18n.no-hardcoded-number-format" />
 </module>

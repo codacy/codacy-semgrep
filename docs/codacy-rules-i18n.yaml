@@ -38,6 +38,90 @@ rules:
       technology:
         - java
       impact: MEDIUM
-      confidence: HIGH
+      confidence: LOW
       likelihood: HIGH
+
+  - id: codacy.js.i18n.no-hardcoded-alert-concat
+    severity: WARNING
+    languages:
+      - js
+      - ts
+    pattern-either:
+      # Direct hardcoded alert strings
+      - pattern: alert("...")
+      - pattern: window.alert("...")
+      # String concatenation in alerts
+      - pattern: alert("..." + ...)
+      - pattern: alert(... + "...")
+      - pattern: window.alert("..." + ...)
+      - pattern: window.alert(... + "...")
+    pattern-not: alert(t(...))
+    message: >-
+      Avoid hardcoded or concatenated strings in alerts. Use an i18n translation function (e.g., t("key")) with interpolation.
+    metadata:
+      category: codestyle
+      subcategory: i18n
+      description: Flags hardcoded and concatenated strings in alert dialogs to enforce localization
+      technology:
+        - javascript
+        - typescript
+      impact: MEDIUM
+      confidence: LOW
+      likelihood: HIGH
+
+  - id: codacy.js.i18n.no-hardcoded-locale-date
+    severity: WARNING
+    languages:
+      - js
+      - ts
+    pattern-regex: "\\.(toLocale(Date|Time)?String)\\(\"[^\"]+\""
+    message: Avoid hardcoded locale strings in date/time formatting.
+    metadata:
+      category: codestyle
+      subcategory: i18n
+      description: Flags explicit locale strings in date/time formatting which can break localization
+      technology:
+        - javascript
+        - typescript
+      impact: MEDIUM
+      confidence: LOW
+      likelihood: HIGH
+
+  - id: codacy.js.i18n.no-hardcoded-number-format
+    severity: WARNING
+    languages:
+      - js
+      - ts
+    pattern-regex: "\\.toFixed\\([^)]*\\)"
+    message: >-
+      Avoid using toFixed for user-visible number formatting. Use locale-aware formatting or translation helpers.
+    metadata:
+      category: codestyle
+      subcategory: i18n
+      description: Flags toFixed used for UI number formatting; recommends locale-aware alternatives
+      technology:
+        - javascript
+        - typescript
+      impact: MEDIUM
+      confidence: LOW
+      likelihood: HIGH
+
+  - id: codacy.js.i18n.no-raw-jsx-text
+    severity: WARNING
+    languages:
+      - js
+      - ts
+    pattern-regex: "<(h1|h2|h3|h4|h5|h6|p|span|div|td|th)[^>]*>[^<{]*[A-Za-z][^<{]*</\\1>"
+    message: >-
+      Avoid raw text in JSX for user-facing content. Use i18n translation functions (e.g., t("key")) with interpolation.
+    metadata:
+      category: codestyle
+      subcategory: i18n
+      description: Flags raw text nodes in JSX elements to enforce localization of UI strings
+      technology:
+        - javascript
+        - typescript
+      impact: MEDIUM
+      confidence: LOW
+      likelihood: MEDIUM
   
