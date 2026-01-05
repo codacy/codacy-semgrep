@@ -29,5 +29,21 @@
             message="Use localized messages instead of hardcoded strings."
             severity="warning" />
     </file>
+    <file name="OrderList.js">
+        <error source="codacy.js.i18n.no-hardcoded-alert-concat" line="19"
+            message="Avoid hardcoded or concatenated strings in alerts."
+            severity="warning" />
+    </file>
+    <file name="Orderlist.jsx">
+        <error source="codacy.js.i18n.no-hardcoded-alert-concat" line="15"
+            message="Avoid hardcoded or concatenated strings in alerts."
+            severity="warning" />
+        <error source="codacy.js.i18n.no-hardcoded-locale-date" line="46"
+            message="Avoid hardcoded locale strings in date/time formatting."
+            severity="warning" />
+        <error source="codacy.js.i18n.no-hardcoded-number-format" line="52"
+            message="Avoid using toFixed for user-visible number formatting."
+            severity="warning" />
+    </file>
 </checkstyle>
             
