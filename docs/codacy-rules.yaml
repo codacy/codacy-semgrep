@@ -165,7 +165,7 @@ rules:
       GRANT SELECT privileges should only be given to role-based accounts
       (ending in '_role'). Direct grants to users or non-role accounts violate
       security best practices.
-    pattern-regex: GRANT\s+(?:DELETE|INSERT|SELECT|UPDATE)(?:\s*,\s*(?:DELETE|INSERT|SELECT|UPDATE))*\s+ON\s+[\w.]+\s+TO\s+\b(?!\w*_[Rr][Oo][Ll][Ee]\b)\w+\b
+    pattern-regex: GRANT\s+(?:DELETE|INSERT|SELECT|UPDATE)(?:\s*,\s*(?:DELETE|INSERT|SELECT|UPDATE))*\s+ON\s+[\w.*]+\s+TO\s+(?!\w*_[Rr][Oo][Ll][Ee]\b)\b\w+
     paths:
       include:
         - "*.sql"
