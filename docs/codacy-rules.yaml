@@ -303,9 +303,9 @@ rules:
       - generic
     patterns:
       - pattern-either:
-        - pattern-regex: "(?i)\\b\\w*language\\w*\\b\\s*(=|:=)\\s*'?\\b[A-Z]{2}\\b'?"
-        - pattern-regex: "(?i)\\b\\w*currency\\w*\\b\\s*(=|:=)\\s*'?\\b[A-Z]{3}\\b'?"
-        - pattern-regex: "(?i)\\b(\\w*\\.)?org_id\\b\\s*(=|:=|IN|!=|<>)\\s*(\\(?\\s*'?\\d+'?(,\\s*'?\\d+'?)*\\s*\\)?)?"
+        - pattern-regex: "(?i)^(?:(?!--).)*\\b\\w*language\\w*\\b\\s*(=|:=)\\s*'?\\b[A-Z]{2}\\b'?"
+        - pattern-regex: "(?i)^(?:(?!--).)*\\b\\w*currency\\w*\\b\\s*(=|:=)\\s*'?\\b[A-Z]{3}\\b'?"
+        - pattern-regex: "(?i)^(?:(?!--).)*\\b(\\w*\\.)?org_id\\b\\s*(=|:=|IN|!=|<>)\\s*(\\(?\\s*'?\\d+'?(,\\s*'?\\d+'?)*\\s*\\)?)?"
     paths:
       include:
         - "*.sql"
